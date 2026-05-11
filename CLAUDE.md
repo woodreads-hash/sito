@@ -95,3 +95,22 @@ Replace gallery placeholders:
 
 ## Deployment
 Open `index.html` in a browser, or host on any static hosting (Netlify, Vercel, GitHub Pages, etc.)
+
+## Hermes Agent Tracking
+
+This repo also tracks the Hermes AI agent configuration for the Aura virtual assistant.
+
+### Files
+- `hermes/SOUL.md` - Current Aura system prompt (the "soul" of the assistant)
+- `hermes/config.yaml` - Hermes agent configuration
+- `hermes/skills/` - Available skills (25 categories)
+- `hermes/.skills_prompt_snapshot.json` - Skills prompt snapshot
+
+### Updating
+When you update the Hermes agent:
+1. Copy the new files from `~/.hermes/` to `hermes/`
+2. Commit with descriptive message: `git add -A && git commit -m "Update Hermes config - [description]"`
+
+### Version History
+Create dated copies in `hermes/versions/` if you want to track evolution:
+- `hermes/versions/aura-2024-05-11.md`
