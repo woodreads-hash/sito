@@ -18,11 +18,10 @@
 
 ## CSS Variables (Design Tokens)
 ```
---green:#8CFF00      --purple:#B58CFF     --lime:#E6FF4D
---dark:#0D0D0F       --dark2:#111116      --mid:#1E1E24
---cream:#F7F4EE      --warm:#EDE8DA
---leaf1:#2D5A27      --leaf2:#4A8C3F      --leaf3:#7BC67A
---fd:'Orbitron'      --fb:'Exo 2'
+--moss:#7D9B76      --sage:#9CB5A2       --lavender:#B8A9C9
+--cream:#FAF8F5     --warm:#F2EDE4       --sand:#E8E0D5
+--peach:#F5C6A5     --rose:#E8B4B8       --butter:#F5E6C8
+--fd:'Orbitron'     --fb:'Exo 2'
 ```
 
 ## Website Features
@@ -41,7 +40,8 @@
 11. **Footer** - Logo, location, copyright
 
 ### Design
-- Dark theme (#0D0D0F) with neon green (#8CFF00), purple (#B58CFF), lime (#E6FF4D)
+- Light bio-designer theme with pastel colors
+- Cream background (#FAF8F5) with moss green (#7D9B76), lavender (#B8A9C9), sage (#9CB5A2)
 - Fonts: Orbitron (headings), Exo 2 (body)
 
 ### Animations & Effects
