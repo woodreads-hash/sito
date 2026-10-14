@@ -345,6 +345,34 @@ app.post('/.netlify/functions/day-overrides', async (req, res) => {
   } catch (e) { res.status(502).json({ error: e.message }); }
 });
 
+// ── Day Bands ──
+app.get('/.netlify/functions/day-bands', async (req, res) => {
+  try {
+    const r = await fetch(`${STRAPI}/api/day-configs?pagination[pageSize]=1000`);
+    const d = await r.json();
+    const bands = {};
+    (d.data || []).forEach(i => { const a = i.attributes || i; if (a.timeBand) bands[a.date] = a.timeBand; });
+    res.json(bands);
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+app.post('/.netlify/functions/day-bands', async (req, res) => {
+  try {
+    const { date, band } = req.body || {};
+    if (!date) return res.status(400).json({ error: 'date required' });
+    const find = await fetch(`${STRAPI}/api/day-configs?filters[date][$eq]=${encodeURIComponent(date)}`);
+    const fd = await find.json();
+    const existing = (fd.data || [])[0];
+    const closed = !band;
+    const payload = { data: { date, closed, timeBand: band || null } };
+    const url = existing ? `${STRAPI}/api/day-configs/${existing.id}` : `${STRAPI}/api/day-configs`;
+    const method = existing ? 'PUT' : 'POST';
+    const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const d = await r.json();
+    const item = d.data || d;
+    res.json({ ok: true, band: item?.attributes?.timeBand || item?.timeBand || null });
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
 // ── Health check ──
 app.get('/health', (req, res) => res.json({ ok: true }));
 

@@ -453,6 +453,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .cal-day.today{font-weight:700;box-shadow:inset 0 0 0 1.5px var(--purple);}
 .cal-day.fully-booked{color:rgba(245,245,247,.2);cursor:default;position:relative;}
 .cal-day.fully-booked::after{content:'';position:absolute;width:20px;height:1.5px;background:rgba(255,80,80,.4);border-radius:2px;transform:rotate(-45deg);}
+.cal-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.cal-day .cal-band{font-size:.52rem;font-weight:700;letter-spacing:.5px;opacity:.9;line-height:1;white-space:nowrap;}
 .cal-day.has-note{position:relative;}
 .cal-day.has-note .cal-note-dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);}
 .cal-day.overridden::before{content:'';position:absolute;inset:-1px;border-radius:9px;border:2px solid var(--green);opacity:.6;animation:cal-override-glow 2s ease-in-out infinite;}
@@ -1332,6 +1334,7 @@ const APPT = {
   slotsCache: {},
   dayNotes: {},
   dayOverrides: {},
+  dayBands: {},
 };
 
 /* ── Calendar ── */
@@ -1538,20 +1541,21 @@ async function submitAppt(){
 ══════════════════════════════════════════ */
 async function loadSiteData(){
   try{
-    const [tr, sr, dn, dor] = await Promise.all([
+    const [tr, sr, dn, dor, db] = await Promise.all([
       fetch('/.netlify/functions/data').catch(()=>null),
       fetch('/.netlify/functions/social-stats').catch(()=>null),
       fetch('/.netlify/functions/day-notes').then(r=> r.ok ? r.json() : null).catch(()=>null),
       fetch('/.netlify/functions/day-overrides').then(r=> r.ok ? r.json() : null).catch(()=>null),
+      fetch('/.netlify/functions/day-bands').then(r=> r.ok ? r.json() : null).catch(()=>null),
     ]);
 
     renderCalendar();
-    if (dn !== null || dor !== null) {
-      applyDayConfig(dn || APPT.dayNotes, dor || APPT.dayOverrides);
+    if (dn !== null || dor !== null || db !== null) {
+      applyDayConfig(dn || APPT.dayNotes, dor || APPT.dayOverrides, db || APPT.dayBands);
     } else {
       try {
         const raw = localStorage.getItem('wd_calendar_data');
-        if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}); }
+        if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}, c.bands || {}); }
       } catch(_) {}
     }
 
@@ -1824,16 +1828,19 @@ async function loadBlogPreview(){
 }
 
 /* ── Real-time calendar state sync (polling + broadcast) ── */
-function applyDayConfig(notes, overrides){
+function applyDayConfig(notes, overrides, bands){
   APPT.dayNotes = notes || {};
   APPT.dayOverrides = overrides || {};
-  try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: APPT.dayNotes, overrides: APPT.dayOverrides })); } catch(e){}
+  APPT.dayBands = bands || {};
+  try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: APPT.dayNotes, overrides: APPT.dayOverrides, bands: APPT.dayBands })); } catch(e){}
   const status = document.getElementById('cal-sync-status');
   const changed = [];
   document.querySelectorAll('.cal-day[data-date]').forEach((btn)=>{
     const ds = btn.dataset.date;
     const isPast = btn.classList.contains('past');
-    // note dot
+    // remove old band label
+    const oldBand = btn.querySelector('.cal-band');
+    if (oldBand) oldBand.remove();
     const oldDot = btn.querySelector('.cal-note-dot');
     if (oldDot) oldDot.remove();
     btn.classList.remove('has-note');
@@ -1844,10 +1851,21 @@ function applyDayConfig(notes, overrides){
       btn.appendChild(dot);
     }
     if (!isPast) {
-      if (APPT.dayOverrides[ds]) {
+      const band = APPT.dayBands[ds];
+      if (band) {
+        btn.classList.remove('fully-booked');
+        btn.classList.add('available');
+        btn.style.background = 'rgba(140, 255, 0, 0.16)';
+        btn.style.borderColor = 'rgba(140, 255, 0, 0.35)';
+        btn.style.color = '';
+        const b = document.createElement('span');
+        b.className = 'cal-band';
+        b.textContent = band.replace('09:00-','9-').replace('16:00-','16-').replace(':00',''); // shorthand
+        btn.appendChild(b);
+        changed.push(ds + ':VERDE');
+      } else if (APPT.dayOverrides[ds]) {
         btn.classList.remove('available');
         btn.classList.add('fully-booked');
-        // Forza il rosso anche se il CSS non viene applicato
         btn.style.background = 'rgba(255, 71, 87, 0.22)';
         btn.style.borderColor = 'rgba(255, 71, 87, 0.45)';
         btn.style.color = '#ff6b7a';
@@ -1855,8 +1873,8 @@ function applyDayConfig(notes, overrides){
       } else {
         btn.classList.remove('fully-booked');
         btn.classList.add('available');
-        btn.style.background = 'rgba(140, 255, 0, 0.14)';
-        btn.style.borderColor = 'rgba(140, 255, 0, 0.3)';
+        btn.style.background = 'rgba(140, 255, 0, 0.10)';
+        btn.style.borderColor = 'rgba(140, 255, 0, 0.2)';
         btn.style.color = '';
         changed.push(ds + ':VERDE');
       }
@@ -1865,35 +1883,37 @@ function applyDayConfig(notes, overrides){
   if (status) {
     status.textContent = 'Sync ' + new Date().toLocaleTimeString('it-IT') + ' — ' + (changed.filter(x=>x.endsWith(':ROSSO')).length) + ' rossi, ' + (changed.filter(x=>x.endsWith(':VERDE')).length) + ' verdi.';
   }
-  console.debug('[calendar-sync] applyDayConfig', APPT.dayNotes, APPT.dayOverrides);
+  console.debug('[calendar-sync] applyDayConfig', APPT.dayNotes, APPT.dayOverrides, APPT.dayBands);
 }
 
 async function refreshCalendarState(){
   try {
-    const [nr, or] = await Promise.all([
+    const [nr, or, br] = await Promise.all([
       fetch('/.netlify/functions/day-notes').catch(()=>null),
       fetch('/.netlify/functions/day-overrides').catch(()=>null),
+      fetch('/.netlify/functions/day-bands').catch(()=>null),
     ]);
     if (nr && nr.ok && or && or.ok) {
       const notes = await nr.json();
       const overrides = await or.json();
-      applyDayConfig(notes, overrides);
+      const bands = br && br.ok ? await br.json() : APPT.dayBands;
+      applyDayConfig(notes, overrides, bands);
     } else {
       try {
         const raw = localStorage.getItem('wd_calendar_data');
-        if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); }
+        if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); }
       } catch(_) {}
     }
   } catch(e) {
     try {
       const raw = localStorage.getItem('wd_calendar_data');
-      if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); }
+      if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); }
     } catch(_) {}
   }
 }
 
 /* Init */
-try { const raw=localStorage.getItem('wd_calendar_data'); if(raw){ const c=JSON.parse(raw); renderCalendar(); applyDayConfig(c.notes||{}, c.overrides||{}); } else { renderCalendar(); } } catch(_) { renderCalendar(); }
+try { const raw=localStorage.getItem('wd_calendar_data'); if(raw){ const c=JSON.parse(raw); renderCalendar(); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); } else { renderCalendar(); } } catch(_) { renderCalendar(); }
 loadSiteData();
 loadShowroom();
 loadBlogPreview();
@@ -1903,7 +1923,7 @@ try {
   const bc = new BroadcastChannel('woodreads-calendar');
   bc.onmessage = (ev) => {
     if (ev && ev.data && ev.data.notes && ev.data.overrides) {
-      applyDayConfig(ev.data.notes, ev.data.overrides);
+      applyDayConfig(ev.data.notes, ev.data.overrides, ev.data.bands || {});
     } else {
       refreshCalendarState();
     }
@@ -1912,7 +1932,7 @@ try {
     if (ev.key === 'wd_calendar_data' && ev.newValue) {
       try {
         const c = JSON.parse(ev.newValue);
-        applyDayConfig(c.notes || {}, c.overrides || {});
+        applyDayConfig(c.notes || {}, c.overrides || {}, c.bands || {});
       } catch (_) {
         refreshCalendarState();
       }
@@ -1921,7 +1941,7 @@ try {
   window.addEventListener('focus', () => {
     try {
       const raw = localStorage.getItem('wd_calendar_data');
-      if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}); }
+      if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}, c.bands || {}); }
     } catch (_) {}
   });
 } catch(e) {}
