@@ -456,21 +456,16 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   animation:neon-pulse 1.8s ease-in-out infinite;
   box-shadow:0 0 8px rgba(140,255,0,.4);
 }
-.cal-day.available::before{
-  content:'';
+.cal-day.available::before{ content:none; display:none; }
+.cal-day.available .day-particle{
   position:absolute;
-  inset:0;
-  z-index:0;
+  border-radius:50%;
+  background:#c77dff;
+  box-shadow:0 0 6px #c77dff,0 0 12px rgba(199,125,255,.85);
   pointer-events:none;
-  background:
-    radial-gradient(circle at 20% 85%, rgba(181,140,255,.95) 0 1.3px, transparent 2.2px),
-    radial-gradient(circle at 65% 70%, rgba(181,140,255,.85) 0 1.1px, transparent 1.9px),
-    radial-gradient(circle at 40% 95%, rgba(230,255,77,.85) 0 1.1px, transparent 1.8px),
-    radial-gradient(circle at 85% 60%, rgba(181,140,255,.75) 0 1px, transparent 1.7px);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  opacity:.55;
-  animation:cyber-particles 2.2s linear infinite;
+  z-index:0;
+  opacity:0;
+  animation:cell-particle-rise 1.8s linear infinite;
 }
 .cal-day.available .cal-band,.cal-day.available *{position:relative;z-index:1;}
 .cal-day.available:hover{background:var(--lime);}
@@ -529,7 +524,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 @keyframes neon-pulse{0%,100%{box-shadow:0 0 6px 0 rgba(140,255,0,.4),inset 0 0 0 1px rgba(140,255,0,.25);}50%{box-shadow:0 0 20px 2px rgba(140,255,0,.8),inset 0 0 10px rgba(140,255,0,.35);}}
 @keyframes purple-sparkle{0%{opacity:.25;transform:translate(0,0);}50%{opacity:.7;transform:translate(1px,-1px);}100%{opacity:.25;transform:translate(0,0);}}
-@keyframes cyber-particles{0%{background-position:0 0,0 0,0 0,0 0;opacity:.3;}25%{opacity:.7;}75%{opacity:.5;}100%{background-position:0 -130%,0 -95%,0 -150%,0 -110%;opacity:.3;}}
+@keyframes cell-particle-rise{0%{transform:translateY(0) scale(.8);opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{transform:translateY(-26px) scale(1.05);opacity:0;}}
 
 </style>
 </head>
@@ -1895,6 +1890,9 @@ function applyDayConfig(notes, overrides, bands){
       dot.className = 'cal-note-dot';
       btn.appendChild(dot);
     }
+    // Rimuovi eventuali particelle precedenti (rerender pulito)
+    btn.querySelectorAll('.day-particle').forEach((p) => p.remove());
+
     if (!isPast) {
       const band = APPT.dayBands[ds];
       if (band) {
@@ -1903,6 +1901,18 @@ function applyDayConfig(notes, overrides, bands){
         btn.style.background = 'var(--green)';
         btn.style.borderColor = 'var(--green)';
         btn.style.color = 'var(--dark)';
+        // Particelle viola neon casuali che salgono dal basso
+        const pCount = 4 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < pCount; i++) {
+          const p = document.createElement('span');
+          p.className = 'day-particle';
+          const size = 1.6 + Math.random() * 2.4;
+          const left = 6 + Math.random() * 88;
+          const delay = Math.random() * 2.0;
+          const dur = 1.6 + Math.random() * 1.4;
+          p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + left + '%;bottom:-4px;animation-delay:' + delay + 's;animation-duration:' + dur + 's;';
+          btn.appendChild(p);
+        }
         const b = document.createElement('span');
         b.className = 'cal-band';
         b.textContent = band.replace('09:00', '9').replace('16:00', '16').replace(':00', '');
