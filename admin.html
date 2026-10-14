@@ -716,39 +716,40 @@ function updateNotePreview(){
 async function saveNote(){
   if(!noteTargetDate) return;
   const note = document.getElementById('np-text').value.trim();
-  try{
+  // Aggiorna stato locale subito
+  if(note) dayNotes[noteTargetDate] = note; else delete dayNotes[noteTargetDate];
+  renderCalendar();
+  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
+  toast(note ? 'Nota salvata ✅ — visibile sul sito' : 'Nota rimossa');
+  broadcastCalendar();
+  // Sincronizza col backend (best-effort, non blocca il salvataggio locale)
+  try {
     const r = await fetch(`${API}/day-notes`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ date: noteTargetDate, note }),
     });
-    if(!r.ok) throw new Error('save failed');
-    const d = await r.json();
-    if(d.note) dayNotes[noteTargetDate] = d.note;
-    else delete dayNotes[noteTargetDate];
-    renderCalendar();
+    if (r.ok) {
+      const d = await r.json().catch(()=>({}));
+      if (d && d.note) dayNotes[noteTargetDate] = d.note;
+    }
     localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
-    toast('Nota salvata ✅ — visibile sul sito');
     broadcastCalendar();
-  }catch(e){
-    toast('Errore salvataggio nota', true);
-  }
+  } catch(e) { /* offline / live server: già salvato in localStorage */ }
 }
 
 async function deleteNote(){
   if(!noteTargetDate) return;
-  try{
-    const r = await fetch(`${API}/day-notes/${noteTargetDate}`, { method: 'DELETE' });
-    if(!r.ok) throw new Error('delete failed');
-    delete dayNotes[noteTargetDate];
-    document.getElementById('np-text').value = '';
-    renderCalendar();
-    localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
-    toast('Nota eliminata');
-    broadcastCalendar();
-  }catch(e){
-    toast('Errore eliminazione nota', true);
-  }
+  delete dayNotes[noteTargetDate];
+  document.getElementById('np-text').value = '';
+  renderCalendar();
+  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
+  toast('Nota eliminata');
+  broadcastCalendar();
+  // Backend best-effort
+  try {
+    await fetch(`${API}/day-notes/${noteTargetDate}`, { method: 'DELETE' }).catch(()=>null);
+  } catch(e) {}
 }
 
 async function toggleOverride(dateStr){

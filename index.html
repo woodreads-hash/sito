@@ -1540,6 +1540,7 @@ async function loadSiteData(){
     ]);
 
     applyDayConfig(dn || {}, dor || {});
+    renderCalendar();
 
     // Load tickers from old data endpoint (backward compat)
     if(tr && tr.ok){
@@ -1864,7 +1865,7 @@ async function refreshCalendarState(){
 }
 
 /* Init */
-try { const raw=localStorage.getItem('wd_calendar_data'); if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); } } catch(_) {}
+try { const raw=localStorage.getItem('wd_calendar_data'); if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); renderCalendar(); } } catch(_) {}
 loadSiteData();
 loadShowroom();
 loadBlogPreview();
