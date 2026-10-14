@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Articolo — Blog WooDreads</title>
+<meta name="description" content="Leggi gli articoli del blog WooDreads su dreadlocks, cyberdreads, manutenzione e tendenze."/>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
+<meta property="og:type" content="article"/>
+<meta property="og:title" content="Articolo — Blog WooDreads"/>
+<meta property="og:description" content="Articolo del blog WooDreads."/>
+<meta property="og:url" content="/blog-post.html"/>
+<meta property="og:locale" content="it_IT"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<link rel="canonical" href=""/>
+<style>
+:root{--green:#8CFF00;--purple:#B58CFF;--lime:#E6FF4D;--dark:#0D0D0F;--dark2:#111116;--mid:#1E1E24;--cream:#F7F4EE;--text-d:#F5F5F7;--text-l:#1A1A1E;--muted-d:rgba(245,245,247,.6);--fd:'Orbitron',sans-serif;--fb:'Exo 2',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--dark);color:var(--text-d);font-family:var(--fb);line-height:1.7;-webkit-font-smoothing:antialiased;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:820px;margin:0 auto;padding:0 1.25rem;}
+nav{position:sticky;top:0;z-index:50;background:rgba(13,13,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(140,255,0,.1);padding:.9rem 1.25rem;display:flex;justify-content:space-between;align-items:center;}
+.nlogo{font-family:var(--fd);font-size:.85rem;letter-spacing:3px;}
+.nlogo em{color:var(--green);font-style:normal;}
+nav ul{list-style:none;display:flex;gap:1.2rem;font-size:.7rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;}
+nav a:hover{color:var(--green);}
+.breadcrumb{font-size:.7rem;color:var(--muted-d);margin:1.2rem 0 .6rem;letter-spacing:1px;}
+.breadcrumb a:hover{color:var(--green);}
+.article-header{padding:1.5rem 0 1rem;}
+.cat{color:var(--purple);font-size:.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;}
+h1{font-family:var(--fd);font-size:clamp(1.7rem,5vw,3rem);line-height:1.05;margin:.6rem 0 1rem;}
+.meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.75rem;color:var(--muted-d);margin-bottom:1.2rem;}
+.cover{width:100%;border-radius:16px;overflow:hidden;margin:1rem 0 1.6rem;background:var(--mid);aspect-ratio:16/9;}
+.cover img{width:100%;height:100%;object-fit:cover;display:block;}
+.tldr{background:linear-gradient(135deg,rgba(140,255,0,.08),rgba(181,140,255,.08));border:1px solid rgba(140,255,0,.2);border-radius:14px;padding:1.2rem 1.3rem;margin:1.4rem 0 2rem;}
+.tldr h2{font-family:var(--fd);font-size:.9rem;letter-spacing:2px;margin-bottom:.5rem;color:var(--green);}
+.tldr ul{padding-left:1.2rem;}
+.tldr li{margin:.25rem 0;font-size:.9rem;}
+article .content{font-size:1rem;}
+article .content h2{font-family:var(--fd);font-size:1.5rem;margin:2rem 0 .8rem;color:var(--green);}
+article .content h3{font-size:1.2rem;margin:1.6rem 0 .6rem;color:var(--purple);}
+article .content p{margin:.8rem 0;color:var(--text-d);}
+article .content ul,article .content ol{margin:.8rem 0 1rem 1.4rem;}
+article .content img{max-width:100%;border-radius:12px;margin:1rem 0;}
+article .content blockquote{border-left:3px solid var(--purple);padding:.6rem 1rem;margin:1rem 0;color:var(--muted-d);background:rgba(181,140,255,.05);}
+article .content code{background:var(--mid);padding:.15rem .4rem;border-radius:4px;font-size:.9rem;}
+.tags{display:flex;gap:.4rem;flex-wrap:wrap;margin:1.5rem 0;}
+.tag{padding:.3rem .7rem;border-radius:999px;border:1px solid rgba(181,140,255,.3);font-size:.7rem;color:var(--purple);}
+.loading,.error{padding:3rem 1rem;text-align:center;color:var(--muted-d);}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
+@media(max-width:640px){h1{font-size:1.8rem;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nlogo">WOO<em>DREADS</em></a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#appt">Prenota</a></li>
+  </ul>
+</nav>
+<div class="wrap">
+  <div class="breadcrumb"><a href="index.html">Home</a> / <a href="blog.html">Blog</a> / <span id="bc-title">Articolo</span></div>
+  <div id="wrap">
+    <div class="loading">Caricamento articolo…</div>
+  </div>
+</div>
+<footer>© 2025 WooDreads – Roma & Provincia</footer>
+
+<script>
+const API = '/.netlify/functions/blog';
+const wrap = document.getElementById('wrap');
+const params = new URLSearchParams(location.search);
+const slug = params.get('slug');
+
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function sanitizeHtml(html){ // basic XSS guard
+  if(!html) return '';
+  return String(html)
+    .replace(/<script[\s\S]*?<\/script>/gi,'')
+    .replace(/on\w+\s*=\s*(".*?"|'.*?'|[^\s>]+)/gi,'')
+    .replace(/javascript:/gi,'');
+}
+function imgUrl(img,size){
+  if(!img||!img.url) return '';
+  const base = img.url.startsWith('http')?'':(API.replace(/\/[^/]+$/,''));
+  if(size && img.formats && img.formats[size]) return base+img.formats[size].url;
+  return base+img.url;
+}
+function formatDate(iso){try{return new Date(iso).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});}catch(e){return '';}}
+function setMeta(name,content,attr='name'){
+  if(!content) return;
+  let el = document.querySelector('meta['+attr+'="'+name+'"]');
+  if(!el){el=document.createElement('meta');el.setAttribute(attr,name);document.head.appendChild(el);}
+  el.setAttribute('content',content);
+}
+function injectJsonLd(obj){
+  let s = document.getElementById('jsonld-article');
+  if(!s){s=document.createElement('script');s.type='application/ld+json';s.id='jsonld-article';document.head.appendChild(s);}
+  s.textContent = JSON.stringify(obj);
+}
+
+async function render(){
+  if(!slug){
+    wrap.innerHTML='<div class="error">Slug articolo mancante.</div>';return;
+  }
+  try{
+    const r = await fetch(API+'/post?slug='+encodeURIComponent(slug));
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    const items = d.data||d||[];
+    if(!items.length){ wrap.innerHTML='<div class="error">Articolo non trovato.</div>'; return; }
+    const raw = items[0];
+    const post = raw.attributes ? {id:raw.id,...raw.attributes} : raw;
+
+    const title = post.seoTitle || post.title;
+    const description = post.seoDescription || post.excerpt || '';
+    const cover = imgUrl(post.coverImage,'large') || imgUrl(post.coverImage);
+    const ogImg = imgUrl(post.ogImage,'large') || cover;
+    const category = post.category?.data?.attributes?.name || post.category?.name || '';
+    const tags = (post.tags||[]).map(t=>t.name||t).filter(Boolean);
+    const published = post.publishedAt || post.createdAt;
+    const modified = post.updatedAt || published;
+    const url = location.origin + location.pathname + '?slug=' + encodeURIComponent(slug);
+    const author = post.authorName || 'WooDreads';
+
+    // Dynamic SEO meta
+    document.title = title + ' — Blog WooDreads';
+    setMeta('description', description);
+    setMeta('og:title', title, 'property');
+    setMeta('og:description', description, 'property');
+    setMeta('og:url', url, 'property');
+    setMeta('og:image', ogImg, 'property');
+    setMeta('og:type', 'article', 'property');
+    setMeta('article:published_time', published, 'property');
+    setMeta('article:modified_time', modified, 'property');
+    setMeta('article:author', author, 'property');
+    if(category) setMeta('article:section', category, 'property');
+    setMeta('twitter:title', title);
+    setMeta('twitter:description', description);
+    setMeta('twitter:image', ogImg);
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if(canonical) canonical.setAttribute('href', url);
+    document.getElementById('bc-title').textContent = post.title;
+
+    // Derive TL;DR (first 3 sentences of excerpt/content text)
+    const excerpt = post.excerpt || '';
+    const tldrItems = excerpt.split(/[.!?]\s+/).filter(Boolean).slice(0,3);
+
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "description": description,
+      "image": ogImg ? [ogImg] : undefined,
+      "author": {"@type":"Person","name":author},
+      "publisher": {"@type":"Organization","name":"WooDreads","logo":{"@type":"ImageObject","url":location.origin+"/logo.svg"}},
+      "datePublished": published,
+      "dateModified": modified,
+      "mainEntityOfPage": {"@type":"WebPage","@id":url},
+      "articleSection": category || undefined,
+      "keywords": tags.length ? tags.join(', ') : undefined,
+      "wordCount": (post.content||'').replace(/<[^>]+>/g,'').split(/\s+/).length
+    };
+    // remove undefined
+    Object.keys(jsonLd).forEach(k=>jsonLd[k]===undefined && delete jsonLd[k]);
+
+    wrap.innerHTML =
+      '<article>'+
+      '<header class="article-header">'+
+      (category?'<div class="cat">'+esc(category)+'</div>':'')+
+      '<h1>'+esc(post.title)+'</h1>'+
+      '<div class="meta"><span>'+formatDate(published)+'</span><span>'+author+'</span>'+(post.readingTime?'<span>'+post.readingTime+' min lettura</span>':'')+'</div>'+
+      '</header>'+
+      (cover?'<div class="cover"><img src="'+cover+'" alt="'+esc(post.title)+'" loading="eager" decoding="async"/></div>':'')+
+      (tldrItems.length?'<section class="tldr" aria-label="Sommario"><h2>📌 In sintesi (TL;DR)</h2><ul>'+tldrItems.map(x=>'<li>'+esc(x.trim())+(x.trim().endsWith('.')?'':' .')+'</li>').join('')+'</ul></section>':'')+
+      '<section class="content">'+sanitizeHtml(post.content||'')+'</section>'+
+      (tags.length?'<div class="tags">'+tags.map(t=>'<span class="tag">#'+esc(t)+'</span>').join('')+'</div>':'')+
+      '</article>';
+
+    injectJsonLd(jsonLd);
+  }catch(e){
+    wrap.innerHTML='<div class="error">Errore nel caricamento dell\'articolo. Riprova più tardi.</div>';
+  }
+}
+render();
+</script>
+</body>
+</html>

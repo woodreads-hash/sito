@@ -1,0 +1,24 @@
+{
+  "name": "woodreads-strapi-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/strapi": "4.25.9",
+    "@strapi/plugin-users-permissions": "4.25.9",
+    "@strapi/plugin-i18n": "4.25.9",
+    "@strapi/plugin-cloud": "4.25.9",
+    "@strapi/plugin-graphql": "4.25.9",
+    "@strapi/provider-upload-local": "4.25.9",
+    "pg": "8.11.5",
+    "better-sqlite3": "9.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x"
+  }
+}

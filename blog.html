@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Blog WooDreads — Dreadlocks Roma</title>
+<meta name="description" content="Articoli, consigli e ispirazione sui dreadlocks: naturali, cyberdreads, manutenzione, stili e trend. Blog ufficiale WooDreads, dreadmaker a Roma."/>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Blog WooDreads — Dreadlocks Roma"/>
+<meta property="og:description" content="Articoli, consigli e ispirazione sui dreadlocks."/>
+<meta property="og:url" content="/blog.html"/>
+<meta property="og:locale" content="it_IT"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{--green:#8CFF00;--purple:#B58CFF;--lime:#E6FF4D;--dark:#0D0D0F;--dark2:#111116;--mid:#1E1E24;--cream:#F7F4EE;--text-d:#F5F5F7;--text-l:#1A1A1E;--muted-d:rgba(245,245,247,.5);--fd:'Orbitron',sans-serif;--fb:'Exo 2',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--dark);color:var(--text-d);font-family:var(--fb);line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.25rem;}
+nav{position:sticky;top:0;z-index:50;background:rgba(13,13,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(140,255,0,.1);padding:.9rem 1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;}
+.nlogo{font-family:var(--fd);font-size:.85rem;letter-spacing:3px;}
+.nlogo em{color:var(--green);font-style:normal;}
+nav ul{list-style:none;display:flex;gap:1.2rem;font-size:.7rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;}
+nav a:hover{color:var(--green);}
+.hero{padding:4rem 0 2rem;border-bottom:1px solid rgba(255,255,255,.06);}
+.hero h1{font-family:var(--fd);font-size:clamp(2rem,6vw,3.4rem);line-height:.95;margin-bottom:.7rem;}
+.hero h1 em{color:var(--green);font-style:normal;}
+.hero p{color:var(--muted-d);max-width:640px;}
+.filters{display:flex;gap:.5rem;flex-wrap:wrap;margin:1.5rem 0;}
+.filter{padding:.45rem .9rem;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--text-d);font-size:.75rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:.2s;}
+.filter.active,.filter:hover{background:var(--green);color:var(--dark);border-color:var(--green);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem;margin:1.5rem 0 2.5rem;}
+.card{background:var(--dark2);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.35);}
+.card .thumb{aspect-ratio:16/9;background:var(--mid);overflow:hidden;}
+.card .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.card:hover .thumb img{transform:scale(1.05);}
+.card .body{padding:1.1rem 1.2rem 1.3rem;display:flex;flex-direction:column;gap:.4rem;flex:1;}
+.card .cat{color:var(--purple);font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.card h2{font-family:var(--fd);font-size:1.05rem;letter-spacing:.5px;line-height:1.25;}
+.card p{color:var(--muted-d);font-size:.85rem;flex:1;}
+.card .meta{font-size:.7rem;color:var(--muted-d);display:flex;gap:.8rem;margin-top:.6rem;}
+.card .read{color:var(--green);font-weight:700;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;margin-top:.8rem;}
+.empty,.loading{padding:3rem 1rem;text-align:center;color:var(--muted-d);}
+.more{display:block;margin:0 auto 3rem;padding:.75rem 1.6rem;border-radius:8px;border:1px solid rgba(140,255,0,.3);background:transparent;color:var(--green);font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.more:disabled{opacity:.4;cursor:not-allowed;}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
+@media(max-width:640px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nlogo">WOO<em>DREADS</em></a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#appt">Prenota</a></li>
+  </ul>
+</nav>
+<header class="hero">
+  <div class="wrap">
+    <span style="color:var(--purple);font-size:.7rem;letter-spacing:4px;text-transform:uppercase;font-weight:700;">— Blog</span>
+    <h1>Guide, trend e <em>consigli</em> sui dreadlocks</h1>
+    <p>Articoli pratici su dreadlocks naturali, cyberdreads, manutenzione, restyling e cultura. Letture utili per curare il tuo look con consapevolezza.</p>
+    <div class="filters" id="filters" role="tablist" aria-label="Filtra per categoria"></div>
+  </div>
+</header>
+<main class="wrap">
+  <div id="grid" class="grid" aria-live="polite"></div>
+  <div id="empty" class="empty" style="display:none;">Nessun articolo pubblicato in questa categoria.</div>
+  <button id="more" class="more" type="button">Carica altri articoli</button>
+</main>
+<footer>© 2025 WooDreads – Roma & Provincia · <a href="/admin" rel="nofollow">Area admin</a></footer>
+
+<script>
+const API = '/.netlify/functions/blog';
+const grid = document.getElementById('grid');
+const empty = document.getElementById('empty');
+const moreBtn = document.getElementById('more');
+const filtersEl = document.getElementById('filters');
+let page = 1, pageSize = 9, category = null, hasMore = true, loading = false;
+
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function imgUrl(img,size){
+  if(!img||!img.url) return '';
+  const base = img.url.startsWith('http')?'':(API.replace(/\/[^/]+$/,''));
+  if(size && img.formats && img.formats[size]) return base+img.formats[size].url;
+  return base+img.url;
+}
+function formatDate(iso){try{return new Date(iso).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});}catch(e){return '';}}
+function readTime(t){return t? t+' min lettura':'4 min lettura';}
+
+async function loadCategories(){
+  try{
+    const r = await fetch(API+'/categories');
+    const d = await r.json();
+    const cats = d.data||d||[];
+    let html = '<button class="filter active" data-cat="">Tutti</button>';
+    cats.forEach(c=>{
+      const a=c.attributes||c;
+      html += '<button class="filter" data-cat="'+esc(a.slug||'')+'">'+esc(a.name||'')+'</button>';
+    });
+    filtersEl.innerHTML = html;
+    filtersEl.querySelectorAll('.filter').forEach(b=>{
+      b.addEventListener('click',()=>{
+        filtersEl.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        category = b.dataset.cat||null;
+        resetAndLoad();
+      });
+    });
+  }catch(e){filtersEl.innerHTML='';}
+}
+
+async function loadPosts(append){
+  if(loading) return; loading=true;
+  if(!append){ page=1; grid.innerHTML='<div class="loading">Caricamento articoli…</div>'; empty.style.display='none'; }
+  moreBtn.disabled=true;
+  try{
+    const url = API+'?p='+page+'&n='+pageSize+(category?('&cat='+encodeURIComponent(category)):'');
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    const items = (d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    const pagination = d.meta?.pagination;
+    hasMore = pagination ? (pagination.page < pagination.pageCount) : items.length===pageSize;
+
+    if(!append) grid.innerHTML='';
+    if(!items.length && page===1){
+      empty.style.display='block';
+    } else {
+      empty.style.display='none';
+    }
+    items.forEach(post=>{
+      const cover = imgUrl(post.coverImage, 'medium') || imgUrl(post.coverImage);
+      const catName = post.category?.data?.attributes?.name || post.category?.name || '';
+      const published = formatDate(post.publishedAt || post.createdAt);
+      const card = document.createElement('article');
+      card.className='card';
+      card.innerHTML =
+        (cover?'<a href="blog-post.html?slug='+encodeURIComponent(post.slug)+'" class="thumb"><img src="'+cover+'" alt="'+esc(post.title)+'" loading="lazy" decoding="async"/></a>':'')+
+        '<div class="body">'+
+        (catName?'<span class="cat">'+esc(catName)+'</span>':'')+
+        '<h2><a href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">'+esc(post.title)+'</a></h2>'+
+        '<p>'+esc(post.excerpt)+'</p>'+
+        '<div class="meta"><span>'+published+'</span><span>'+readTime(post.readingTime)+'</span></div>'+
+        '<a class="read" href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">Leggi l\'articolo →</a>'+
+        '</div>';
+      grid.appendChild(card);
+    });
+    moreBtn.style.display = hasMore ? 'block' : 'none';
+  }catch(e){
+    if(!append) grid.innerHTML='<div class="empty">Errore nel caricamento degli articoli. Riprova più tardi.</div>';
+  }finally{
+    loading=false;
+    moreBtn.disabled=false;
+  }
+}
+function resetAndLoad(){ page=1; hasMore=true; loadPosts(false); }
+moreBtn.addEventListener('click',()=>{ if(hasMore){ page++; loadPosts(true);} });
+
+loadCategories();
+loadPosts(false);
+</script>
+</body>
+</html>

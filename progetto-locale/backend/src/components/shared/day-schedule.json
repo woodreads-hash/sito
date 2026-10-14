@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_shared_day_schedules",
+  "info": {
+    "displayName": "Day Schedule",
+    "icon": "calendar",
+    "description": "Daily working hours configuration"
+  },
+  "options": {},
+  "attributes": {
+    "day": {
+      "type": "enumeration",
+      "enum": ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"],
+      "required": true
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "startTime": {
+      "type": "string",
+      "required": true
+    },
+    "endTime": {
+      "type": "string",
+      "required": true
+    },
+    "breakStart": {
+      "type": "string"
+    },
+    "breakEnd": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "social_stats",
+  "info": {
+    "singularName": "social-stat",
+    "pluralName": "social-stats",
+    "displayName": "Social Stats",
+    "description": "Social media statistics – edit manually in admin"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "instagramFollowers": { "type": "biginteger" },
+    "instagramPosts": { "type": "biginteger" },
+    "instagramFollowing": { "type": "biginteger" },
+    "tiktokFollowers": { "type": "biginteger" },
+    "tiktokLikes": { "type": "biginteger" },
+    "tiktokViews": { "type": "biginteger" },
+    "tiktokVideos": { "type": "biginteger" },
+    "youtubeSubscribers": { "type": "biginteger" },
+    "youtubeViews": { "type": "biginteger" },
+    "youtubeVideos": { "type": "biginteger" },
+    "youtubeWatchHours": { "type": "biginteger" }
+  }
+}

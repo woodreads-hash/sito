@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "photo_categories",
+  "info": {
+    "singularName": "photo-category",
+    "pluralName": "photo-categories",
+    "displayName": "Photo Category",
+    "description": "Categories for the Photo Showroom"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    },
+    "photos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::photo.photo",
+      "mappedBy": "category"
+    }
+  }
+}

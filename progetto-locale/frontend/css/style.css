@@ -1,0 +1,335 @@
+/* ══════════════════════════════════════
+   WooDreads — Stili per il sito locale
+   ══════════════════════════════════════ */
+
+/* ── Design Tokens ── */
+:root {
+  --green: #8CFF00;
+  --purple: #B58CFF;
+  --lime: #E6FF4D;
+  --dark: #0D0D0F;
+  --dark2: #111116;
+  --mid: #1E1E24;
+  --cream: #F7F4EE;
+  --warm: #EDE8DA;
+  --text-d: #F5F5F7;
+  --text-l: #1A1A1E;
+  --muted-d: rgba(245, 245, 247, 0.48);
+  --fd: 'Orbitron', sans-serif;
+  --fb: 'Exo 2', sans-serif;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  color: var(--text-d);
+  font-family: var(--fb);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: var(--green); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Layout ── */
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── Header ── */
+header {
+  background: rgba(13, 13, 15, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(140, 255, 0, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--fd);
+  font-size: 0.9rem;
+  letter-spacing: 3px;
+  color: var(--text-d);
+}
+
+.logo em {
+  color: var(--green);
+  font-style: normal;
+}
+
+nav a {
+  color: var(--muted-d);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-left: 1.5rem;
+  transition: color 0.2s;
+}
+
+nav a:hover,
+nav a.active {
+  color: var(--green);
+  text-decoration: none;
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 3rem;
+}
+
+.hero h1 {
+  font-family: var(--fd);
+  font-size: 2.5rem;
+  letter-spacing: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.hero h1 em {
+  color: var(--green);
+  font-style: normal;
+}
+
+.hero p {
+  color: var(--muted-d);
+  font-size: 1rem;
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.8rem;
+  border-radius: 6px;
+  font-family: var(--fb);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+.btn-g {
+  background: var(--green);
+  color: var(--dark);
+  box-shadow: 0 0 25px rgba(140, 255, 0, 0.25);
+}
+
+.btn-od {
+  background: transparent;
+  color: var(--text-d);
+  border: 1.5px solid rgba(245, 245, 247, 0.22);
+}
+
+/* ── Section Heading ── */
+.section {
+  padding: 4rem 0;
+}
+
+.section-dark { background: var(--dark2); }
+
+.lbl {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted-d);
+}
+
+.lbl-gd { color: var(--green); }
+
+.ttl {
+  font-family: var(--fd);
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  margin-top: 0.3rem;
+}
+
+/* ── Showroom Gallery ── */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
+  margin-top: 2rem;
+}
+
+.gallery-card {
+  background: var(--mid);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(245, 245, 247, 0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(140, 255, 0, 0.08);
+  border-color: var(--green);
+}
+
+.gallery-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-card h3 {
+  font-family: var(--fd);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  padding: 0.8rem 1rem 0.2rem;
+}
+
+.gallery-card p {
+  font-size: 0.8rem;
+  color: var(--muted-d);
+  padding: 0 1rem 1rem;
+}
+
+/* ── Social Stats ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.2rem;
+  margin-top: 2rem;
+}
+
+.stat-card {
+  background: var(--mid);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(245, 245, 247, 0.06);
+}
+
+.stat-card .num {
+  font-family: var(--fd);
+  font-size: 2rem;
+  color: var(--green);
+  line-height: 1;
+}
+
+.stat-card .num.yt { color: var(--purple); }
+.stat-card .num.tt { color: var(--lime); }
+
+.stat-card .lbl {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+}
+
+/* ── Booking Form ── */
+.form-box {
+  max-width: 600px;
+  margin: 2rem auto 0;
+  background: var(--mid);
+  border-radius: 14px;
+  padding: 2rem;
+  border: 1px solid rgba(245, 245, 247, 0.06);
+}
+
+.form-box h3 {
+  font-family: var(--fd);
+  font-size: 1rem;
+  letter-spacing: 2px;
+  margin-bottom: 1.2rem;
+}
+
+.fg {
+  margin-bottom: 1rem;
+}
+
+.fg label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted-d);
+  margin-bottom: 0.3rem;
+}
+
+.fg input,
+.fg textarea,
+.fg select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.7rem 0.9rem;
+  color: var(--text-d);
+  font-family: var(--fb);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fg input:focus,
+.fg textarea:focus,
+.fg select:focus {
+  border-color: var(--green);
+}
+
+.fg textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-box .btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.75rem;
+  color: var(--muted-d);
+  border-top: 1px solid rgba(245, 245, 247, 0.04);
+}
+
+/* ── Loading ── */
+.loading {
+  text-align: center;
+  color: var(--muted-d);
+  padding: 2rem;
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 1.6rem; }
+  .ttl { font-size: 1.2rem; }
+  .gallery-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  header { flex-direction: column; gap: 0.6rem; }
+  nav a { margin: 0 0.6rem; }
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WooDreads – Prenota</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">WOO<em>DREADS</em></div>
+  <nav>
+    <a href="/">Home</a>
+    <a href="prenotazioni.html" class="active">Prenota</a>
+  </nav>
+</header>
+
+<section class="section">
+  <div class="wrap" style="text-align:center;">
+    <span class="lbl lbl-gd">— Prenota</span>
+    <h2 class="ttl">Richiedi un appuntamento</h2>
+    <p style="color:var(--muted-d);margin-top:.5rem;font-size:.9rem;">
+      Compila il form e ti ricontatterò per confermare la disponibilità.
+    </p>
+  </div>
+
+  <div class="form-box" style="margin-top:1.5rem;">
+    <h3>Nuova richiesta</h3>
+    <form id="form-appuntamento">
+      <div class="fg">
+        <label>Nome *</label>
+        <input type="text" id="input-nome" placeholder="Il tuo nome" required/>
+      </div>
+      <div class="fg">
+        <label>Email *</label>
+        <input type="email" id="input-email" placeholder="tua@email.com" required/>
+      </div>
+      <div class="fg">
+        <label>Data e ora desiderata</label>
+        <input type="datetime-local" id="input-data"/>
+      </div>
+      <div class="fg">
+        <label>Note / Servizio richiesto</label>
+        <textarea id="input-note" placeholder="Descrivi cosa desideri: dreadlocks naturali, cyberdreads, manutenzione, estensioni…"></textarea>
+      </div>
+      <button type="submit" class="btn btn-g">Invia richiesta →</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  WooDreads &copy; 2025 — Roma & Provincia<br>
+  <span style="font-size:.65rem;opacity:.5;">Docker Local Dev Environment</span>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

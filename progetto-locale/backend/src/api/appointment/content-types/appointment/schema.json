@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "appointments",
+  "info": {
+    "singularName": "appointment",
+    "pluralName": "appointments",
+    "displayName": "Appointment",
+    "description": "Booking appointments from the frontend form"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "phone": {
+      "type": "string"
+    },
+    "service": {
+      "type": "enumeration",
+      "enum": [
+        "Dreadlocks Naturali (testa completa)",
+        "Cyberdreads",
+        "Manutenzione / Restauro",
+        "Estensioni",
+        "Consulenza gratuita"
+      ],
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "time": {
+      "type": "string",
+      "required": true
+    },
+    "notes": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "approved", "rejected", "completed"],
+      "default": "pending",
+      "required": true
+    },
+    "adminNotes": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+[Unit]
+Description=WooDreads API Gateway
+After=network.target woodreads-cms.service
+BindsTo=woodreads-cms.service
+
+[Service]
+Type=simple
+User=woodreads
+Group=woodreads
+WorkingDirectory=/opt/woodreads/api-gateway
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=STRAPI_URL=http://127.0.0.1:1337
+Environment=GATEWAY_PORT=3001
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

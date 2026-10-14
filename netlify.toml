@@ -1,0 +1,8 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/.netlify/functions/showroom/*"
+  to = "/.netlify/functions/showroom/:splat"
+  status = 200

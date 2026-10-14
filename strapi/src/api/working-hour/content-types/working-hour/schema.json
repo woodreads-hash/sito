@@ -1,0 +1,38 @@
+{
+  "kind": "singleType",
+  "collectionName": "working_hours",
+  "info": {
+    "singularName": "working-hour",
+    "pluralName": "working-hours",
+    "displayName": "Working Hours",
+    "description": "Configure open hours, breaks and holidays"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "schedules": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.day-schedule"
+    },
+    "appointmentDuration": {
+      "type": "integer",
+      "default": 120,
+      "min": 30,
+      "max": 480
+    },
+    "advanceBookingDays": {
+      "type": "integer",
+      "default": 60,
+      "min": 1,
+      "max": 365
+    },
+    "holidays": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.day-schedule"
+    }
+  }
+}

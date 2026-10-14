@@ -1,0 +1,24 @@
+[Unit]
+Description=WooDreads Strapi CMS
+After=network.target
+
+[Service]
+Type=simple
+User=woodreads
+Group=woodreads
+WorkingDirectory=/opt/woodreads/cms
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=1337
+Environment=DATABASE_URL=postgres://woodreads:DB_PASSWORD@localhost:5432/woodreads
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
