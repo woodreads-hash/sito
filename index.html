@@ -1536,12 +1536,19 @@ async function loadSiteData(){
     const [tr, sr, dn, dor] = await Promise.all([
       fetch('/.netlify/functions/data').catch(()=>null),
       fetch('/.netlify/functions/social-stats').catch(()=>null),
-      fetch('/.netlify/functions/day-notes').then(r=>r.json()).catch(()=>({})),
-      fetch('/.netlify/functions/day-overrides').then(r=>r.json()).catch(()=>({})),
+      fetch('/.netlify/functions/day-notes').then(r=> r.ok ? r.json() : null).catch(()=>null),
+      fetch('/.netlify/functions/day-overrides').then(r=> r.ok ? r.json() : null).catch(()=>null),
     ]);
 
     renderCalendar();
-    applyDayConfig(dn || {}, dor || {});
+    if (dn !== null || dor !== null) {
+      applyDayConfig(dn || APPT.dayNotes, dor || APPT.dayOverrides);
+    } else {
+      try {
+        const raw = localStorage.getItem('wd_calendar_data');
+        if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}); }
+      } catch(_) {}
+    }
 
     // Load tickers from old data endpoint (backward compat)
     if(tr && tr.ok){
