@@ -1813,6 +1813,7 @@ async function loadBlogPreview(){
 function applyDayConfig(notes, overrides){
   APPT.dayNotes = notes || {};
   APPT.dayOverrides = overrides || {};
+  try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: APPT.dayNotes, overrides: APPT.dayOverrides })); } catch(e){}
   document.querySelectorAll('.cal-day[data-date]').forEach((btn)=>{
     const ds = btn.dataset.date;
     const isPast = btn.classList.contains('past');
@@ -1844,13 +1845,26 @@ async function refreshCalendarState(){
       fetch('/.netlify/functions/day-notes').catch(()=>null),
       fetch('/.netlify/functions/day-overrides').catch(()=>null),
     ]);
-    const notes = nr && nr.ok ? await nr.json() : APPT.dayNotes;
-    const overrides = or && or.ok ? await or.json() : APPT.dayOverrides;
-    applyDayConfig(notes, overrides);
-  } catch(e) {}
+    if (nr && nr.ok && or && or.ok) {
+      const notes = await nr.json();
+      const overrides = await or.json();
+      applyDayConfig(notes, overrides);
+    } else {
+      try {
+        const raw = localStorage.getItem('wd_calendar_data');
+        if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); }
+      } catch(_) {}
+    }
+  } catch(e) {
+    try {
+      const raw = localStorage.getItem('wd_calendar_data');
+      if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); }
+    } catch(_) {}
+  }
 }
 
 /* Init */
+try { const raw=localStorage.getItem('wd_calendar_data'); if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}); } } catch(_) {}
 loadSiteData();
 loadShowroom();
 loadBlogPreview();

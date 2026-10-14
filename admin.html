@@ -691,7 +691,13 @@ async function loadDayData(){
     ]);
     dayNotes = n || {};
     dayOverrides = o || {};
-  }catch(e){}
+    localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
+  }catch(e){
+    try {
+      const raw = localStorage.getItem('wd_calendar_data');
+      if(raw){ const c=JSON.parse(raw); dayNotes=c.notes||{}; dayOverrides=c.overrides||{}; }
+    } catch(_) {}
+  }
 }
 
 function updateNotePreview(){
@@ -721,6 +727,7 @@ async function saveNote(){
     if(d.note) dayNotes[noteTargetDate] = d.note;
     else delete dayNotes[noteTargetDate];
     renderCalendar();
+    localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
     toast('Nota salvata ✅ — visibile sul sito');
     broadcastCalendar();
   }catch(e){
@@ -736,6 +743,7 @@ async function deleteNote(){
     delete dayNotes[noteTargetDate];
     document.getElementById('np-text').value = '';
     renderCalendar();
+    localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
     toast('Nota eliminata');
     broadcastCalendar();
   }catch(e){
@@ -761,6 +769,7 @@ async function toggleOverride(dateStr){
     statusEl.classList.add('override-flash');
   }
 
+  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
   toast(dayOverrides[dateStr] ? '⛔ Giorno non disponibile (rosso)' : '✅ Giorno disponibile (verde)');
 
   try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
