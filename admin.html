@@ -756,6 +756,10 @@ async function deleteNote(){
 }
 
 async function toggleOverride(dateStr){
+  if(!dateStr){
+    toast('Seleziona prima un giorno dal calendario.', true);
+    return;
+  }
   // 1. Toggle local state FIRST (ottimistico — funziona sempre)
   const wasOverridden = !!dayOverrides[dateStr];
   if(wasOverridden) delete dayOverrides[dateStr];
