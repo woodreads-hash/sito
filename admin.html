@@ -270,6 +270,7 @@ tr:hover{background:rgba(140,255,0,.02);}
     <a href="#" class="active" onclick="showTab('dashboard',this)">Dashboard</a>
     <a href="#" onclick="showTab('appointments',this)">Appuntamenti</a>
     <a href="#" onclick="showTab('photos',this)">Foto</a>
+    <a href="#" onclick="showTab('quiz',this)">Risultati Quiz</a>
     <a href="#" onclick="showTab('settings',this)">Credenziali</a>
     <a href="https://wa.me/TUONUMERO" target="_blank" class="hide-mob">💬 WhatsApp</a>
     <button class="logout" onclick="logout()">Esci</button>
@@ -459,6 +460,40 @@ tr:hover{background:rgba(140,255,0,.02);}
 
 
 <!-- settings tab -->
+<!-- ══════ QUIZ RESULTS ══════ -->
+<div id="tab-quiz" style="display:none;">
+  <div class="page-title">
+    <h1>Risultati <span>│</span> Quiz</h1>
+    <p>Percorsi e scelte degli utenti nel mini-gioco "Che intervento ti serve?"</p>
+  </div>
+
+  <div class="stats-row" id="quiz-stats">
+    <div class="stat-card"><div class="num" id="qz-total">0</div><div class="lbl">Tentativi totali</div></div>
+    <div class="stat-card"><div class="num p" id="qz-consult">0</div><div class="lbl">Consulenze richieste</div></div>
+    <div class="stat-card"><div class="num l" id="qz-booking">0</div><div class="lbl">Con prenotazione</div></div>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-hdr"><h3>Risultati più frequenti</h3><span class="count" id="qz-count">0</span></div>
+    <div class="sec-body" style="padding:1.2rem 1.5rem;">
+      <div id="qz-summary" style="font-size:.85rem;color:var(--muted-d);">Caricamento…</div>
+    </div>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-hdr">
+      <h3>Ultimi percorsi</h3>
+      <button class="btn-sm reject" onclick="clearQuizResults()">Cancella storico</button>
+    </div>
+    <div class="sec-body" style="overflow-x:auto;max-height:420px;overflow-y:auto;">
+      <table>
+        <thead><tr><th>Risultato</th><th>Percorso</th><th>Data</th></tr></thead>
+        <tbody id="qz-body"><tr class="loading-row"><td colspan="3">Caricamento…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <div id="tab-settings" style="display:none;">
   <div class="page-title">
     <h1>Credenziali <span>│</span> Admin</h1>
@@ -569,7 +604,9 @@ function showTab(name, el){
   document.getElementById('tab-dashboard').style.display = name==='dashboard'?'':'none';
   document.getElementById('tab-appointments').style.display = name==='appointments'?'':'none';
   document.getElementById('tab-photos').style.display = name==='photos'?'':'none';
+  document.getElementById('tab-quiz').style.display = name==='quiz'?'':'none';
   document.getElementById('tab-settings').style.display = name==='settings'?'':'none';
+  if(name==='quiz') loadQuizResults();
 }
 
 function toast(msg, isErr){
@@ -580,6 +617,66 @@ function toast(msg, isErr){
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+/* ── Quiz Results ── */
+function loadQuizResults(){
+  let data = [];
+  try { data = JSON.parse(localStorage.getItem('wd_quiz_results')||'[]'); } catch(e) { data = []; }
+  const total = data.length;
+  const consult = data.filter(d => d.consult).length;
+  const booking = total - consult;
+
+  const t = document.getElementById('qz-total');
+  const c = document.getElementById('qz-consult');
+  const b = document.getElementById('qz-booking');
+  const cnt = document.getElementById('qz-count');
+  const summary = document.getElementById('qz-summary');
+  const body = document.getElementById('qz-body');
+  if(t) t.textContent = total;
+  if(c) c.textContent = consult;
+  if(b) b.textContent = booking;
+  if(cnt) cnt.textContent = total;
+
+  // Frequencies by result
+  const freq = {};
+  data.forEach(d => { freq[d.result] = (freq[d.result]||0) + 1; });
+  const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]);
+
+  if(summary){
+    if(!sorted.length){
+      summary.textContent = 'Nessun tentativo registrato ancora.';
+    } else {
+      summary.innerHTML = sorted.map(([r,n]) =>
+        '<div style="display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;border-bottom:1px solid rgba(245,245,247,.05);">' +
+        '<span>' + esc(r) + '</span>' +
+        '<strong style="color:var(--green);">' + n + '</strong>' +
+        '</div>'
+      ).join('');
+    }
+  }
+
+  if(body){
+    if(!data.length){
+      body.innerHTML = '<tr class="loading-row"><td colspan="3">Nessun tentativo ancora</td></tr>';
+      return;
+    }
+    const recent = data.slice().reverse().slice(0,50);
+    body.innerHTML = recent.map(d => {
+      const when = d.ts ? new Date(d.ts).toLocaleString('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+      const path = (d.path||[]).map(esc).join(' → ') || '—';
+      return '<tr><td style="font-size:.78rem;">' + esc(d.result||'—') + '</td>' +
+        '<td style="font-size:.72rem;color:var(--muted-d);max-width:420px;">' + path + '</td>' +
+        '<td style="font-size:.72rem;color:var(--muted-d);white-space:nowrap;">' + when + '</td></tr>';
+    }).join('');
+  }
+}
+
+function clearQuizResults(){
+  if(!confirm('Cancellare tutto lo storico del quiz?')) return;
+  localStorage.removeItem('wd_quiz_results');
+  loadQuizResults();
+  toast('Storico quiz cancellato');
+}
+
 /* ── Init ── */
 async function init(){
   document.getElementById('dash-date').textContent = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -588,6 +685,7 @@ async function init(){
     loadPhotos(),
     loadCategories(),
     loadDayData(),
+    loadQuizResults(),
   ]);
   renderCalendar();
 }

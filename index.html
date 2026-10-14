@@ -1306,13 +1306,13 @@ const quizFlow={
     {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, poi una sessione lunga (anche più fasce intere).'}},
     {label:'Ho i capelli mossi 🌊', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli mossi', text:'Capelli mossi + estensioni: volume naturale già presente. Ottimo per estensioni leggere e result morbido, anche in mezza giornata.'}},
     {label:'Ho i capelli ricci 🌀', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli ricci', text:'Capelli ricci + estensioni: texture perfetta. Pochi dread ma molto scenici, spesso completabili in una fascia.'}},
-    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', text:'Nessun problema: prenota una consulenza. Valutiamo lunghezza, texture e stile e scegliamo insieme la fascia più adatta.'}},
+    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Nessun problema: prenota una consulenza. Valutiamo lunghezza, texture e stile e scegliamo insieme la fascia più adatta.'}},
   ]},
   hairNat:{q:'Che tipo di capelli hai?', options:[
     {label:'Ho i capelli lisci 📏', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli lisci', text:'Nuovi dread naturali su capelli lisci: lavorazione a uncinetto, durata media-lunga. Meglio prenotare una giornata intera.'}},
     {label:'Ho i capelli mossi 🌊', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli mossi', text:'Nuovi dread naturali su capelli mossi: presa naturale, lavoro più rapido. Prenotazione anche in mezza giornata.'}},
     {label:'Ho i capelli ricci 🌀', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli ricci', text:'Nuovi dread naturali su capelli ricci: texture ideale, dread compatti e resistenti. Buone per seduta intera o mezza giornata.'}},
-    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', text:'Prenota una consulenza: misuriamo lunghezza e volume per stimare il tempo e la fascia migliore.'}},
+    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Prenota una consulenza: misuriamo lunghezza e volume per stimare il tempo e la fascia migliore.'}},
   ]},
   repairTime:{q:'Da quanto non ripari i dread?', options:[
     {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairState'},
@@ -1353,13 +1353,25 @@ function renderQuiz(id){
 function finishQuiz(result){
   document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
   document.getElementById('qsr').classList.add('active');
+  const consult = !!result.consult || /consulenza/i.test(result.title||'');
   const path=quizPath.map(x=>x.replace(/</g,'&lt;')).join(' → ');
+  const cta = consult
+    ? '<a href="https://wa.me/TUONUMERO" target="_blank" rel="noopener" class="btn btn-g">💬 Contattaci su WhatsApp</a>'
+    : '<a href="#appt" class="btn btn-gl">Prenota ora →</a>';
+  // Salva il percorso nel localStorage per il pannello admin
+  try{
+    const key='wd_quiz_results';
+    const arr=JSON.parse(localStorage.getItem(key)||'[]');
+    arr.push({ result: result.title||'Risultato', consult, path: quizPath.slice(), ts:new Date().toISOString() });
+    if(arr.length>300) arr.splice(0, arr.length-300);
+    localStorage.setItem(key, JSON.stringify(arr));
+  }catch(e){}
   document.getElementById('qres-box').innerHTML=
     '<div class="qres-emoji">'+(result.emoji||'🌀')+'</div>'+
     '<h3>'+ (result.title||'Risultato') +'</h3>'+
     '<p>'+ (result.text||'') +'</p>'+
     '<p style="font-size:.72rem;color:var(--muted-l);margin-top:.6rem;">Percorso: '+path+'</p>'+
-    '<div class="qres-btns"><a href="#appt" class="btn btn-gl">Prenota ora →</a><button class="btn-restart" onclick="qreset()">↩ Rifai il quiz</button></div>';
+    '<div class="qres-btns">'+cta+'<button class="btn-restart" onclick="qreset()">↩ Rifai il quiz</button></div>';
 }
 function qreset(){ quizPath=[]; renderQuiz('root'); }
 renderQuiz('root');
