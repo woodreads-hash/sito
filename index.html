@@ -1114,7 +1114,6 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
           <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
         </div>
         <div class="cal-days" id="cal-days"></div>
-        <div id="cal-sync-status" style="font-size:.7rem;color:var(--muted-d);margin:.6rem 0 .2rem;min-height:1rem;">Calendario sincronizzato.</div>
         <div id="day-band-info" style="display:none;background:rgba(140,255,0,.08);border:1px solid rgba(140,255,0,.2);border-radius:8px;padding:.7rem .8rem;margin-top:.4rem;font-size:.9rem;line-height:1.4;color:var(--text-d);"></div>
         <div class="cal-note-box" id="cal-note-box">
           <div class="cal-note-label">📝 Nota del giorno</div>
@@ -1873,7 +1872,6 @@ function applyDayConfig(notes, overrides, bands){
   APPT.dayOverrides = overrides || {};
   APPT.dayBands = bands || {};
   try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: APPT.dayNotes, overrides: APPT.dayOverrides, bands: APPT.dayBands })); } catch(e){}
-  const status = document.getElementById('cal-sync-status');
   const changed = [];
   document.querySelectorAll('.cal-day[data-date]').forEach((btn)=>{
     const ds = btn.dataset.date;
@@ -1928,9 +1926,6 @@ function applyDayConfig(notes, overrides, bands){
       }
     }
   });
-  if (status) {
-    status.textContent = 'Sync ' + new Date().toLocaleTimeString('it-IT') + ' — ' + (changed.filter(x=>x.endsWith(':ROSSO')).length) + ' rossi, ' + (changed.filter(x=>x.endsWith(':VERDE')).length) + ' verdi.';
-  }
   console.debug('[calendar-sync] applyDayConfig', APPT.dayNotes, APPT.dayOverrides, APPT.dayBands);
 }
 
