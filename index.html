@@ -1879,6 +1879,16 @@ try {
       refreshCalendarState();
     }
   };
+  window.addEventListener('storage', (ev) => {
+    if (ev.key === 'wd_calendar_data' && ev.newValue) {
+      try {
+        const c = JSON.parse(ev.newValue);
+        applyDayConfig(c.notes || {}, c.overrides || {});
+      } catch (_) {
+        refreshCalendarState();
+      }
+    }
+  });
 } catch(e) {}
 </script>
 </body>

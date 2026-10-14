@@ -772,7 +772,7 @@ async function toggleOverride(dateStr){
   localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides }));
   toast(dayOverrides[dateStr] ? '⛔ Giorno non disponibile (rosso)' : '✅ Giorno disponibile (verde)');
 
-  try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
+  broadcastCalendar();
 
   // 4. Sincronizza col backend (fire & forget — se fallisce il locale rimane)
   try {
