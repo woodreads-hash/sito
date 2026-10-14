@@ -759,7 +759,7 @@ async function toggleOverride(dateStr){
     statusEl.classList.add('override-flash');
   }
 
-  toast(dayOverrides[dateStr] ? '✅ Disponibile (override verde)' : '↩️ Override rimosso');
+  toast(dayOverrides[dateStr] ? '⛔ Giorno non disponibile (rosso)' : '✅ Giorno disponibile (verde)');
 
   try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
 
