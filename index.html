@@ -463,11 +463,14 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   z-index:0;
   pointer-events:none;
   background:
-    radial-gradient(circle at 25% 35%, rgba(181,140,255,.95) 0 1.1px, transparent 1.9px),
-    radial-gradient(circle at 70% 60%, rgba(181,140,255,.85) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 50% 82%, rgba(230,255,77,.8) 0 1px, transparent 1.6px);
-  opacity:.35;
-  animation:purple-sparkle 2s ease-in-out infinite;
+    radial-gradient(circle at 20% 85%, rgba(181,140,255,.95) 0 1.3px, transparent 2.2px),
+    radial-gradient(circle at 65% 70%, rgba(181,140,255,.85) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle at 40% 95%, rgba(230,255,77,.85) 0 1.1px, transparent 1.8px),
+    radial-gradient(circle at 85% 60%, rgba(181,140,255,.75) 0 1px, transparent 1.7px);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  opacity:.55;
+  animation:cyber-particles 2.2s linear infinite;
 }
 .cal-day.available .cal-band,.cal-day.available *{position:relative;z-index:1;}
 .cal-day.available:hover{background:var(--lime);}
@@ -526,6 +529,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 @keyframes neon-pulse{0%,100%{box-shadow:0 0 6px 0 rgba(140,255,0,.4),inset 0 0 0 1px rgba(140,255,0,.25);}50%{box-shadow:0 0 20px 2px rgba(140,255,0,.8),inset 0 0 10px rgba(140,255,0,.35);}}
 @keyframes purple-sparkle{0%{opacity:.25;transform:translate(0,0);}50%{opacity:.7;transform:translate(1px,-1px);}100%{opacity:.25;transform:translate(0,0);}}
+@keyframes cyber-particles{0%{background-position:0 0,0 0,0 0,0 0;opacity:.3;}25%{opacity:.7;}75%{opacity:.5;}100%{background-position:0 -130%,0 -95%,0 -150%,0 -110%;opacity:.3;}}
 
 </style>
 </head>
