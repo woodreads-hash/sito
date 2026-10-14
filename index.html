@@ -1368,8 +1368,10 @@ function renderCalendar(){
   maxDay.setDate(maxDay.getDate() + 60);
 
   APPT.selDate = null;
-  document.getElementById('appt-slots').style.display = 'none';
-  document.getElementById('appt-selected-info').style.display = 'none';
+  const slotsEl = document.getElementById('appt-slots');
+  if (slotsEl) slotsEl.style.display = 'none';
+  const selInfoEl = document.getElementById('appt-selected-info');
+  if (selInfoEl) selInfoEl.style.display = 'none';
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month, day);
@@ -1481,9 +1483,12 @@ function selectTime(time, btn){
   APPT.selTime = time;
 
   // Update selected info
-  document.getElementById('appt-selected-info').style.display = 'block';
-  document.getElementById('appt-selected-date').textContent = formatDate(APPT.selDate);
-  document.getElementById('appt-selected-time').textContent = time;
+  const selInfoEl2 = document.getElementById('appt-selected-info');
+  if (selInfoEl2) selInfoEl2.style.display = 'block';
+  const selDateEl = document.getElementById('appt-selected-date');
+  if (selDateEl) selDateEl.textContent = formatDate(APPT.selDate);
+  const selTimeEl = document.getElementById('appt-selected-time');
+  if (selTimeEl) selTimeEl.textContent = time;
 }
 
 /* ── Submit ── */
