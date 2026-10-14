@@ -1086,6 +1086,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
           <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
         </div>
         <div class="cal-days" id="cal-days"></div>
+        <div id="cal-sync-status" style="font-size:.7rem;color:var(--muted-d);margin:.6rem 0 .2rem;min-height:1rem;">Calendario sincronizzato.</div>
         <div class="cal-note-box" id="cal-note-box">
           <div class="cal-note-label">📝 Nota del giorno</div>
           <div id="cal-note-text"></div>
@@ -1815,6 +1816,8 @@ function applyDayConfig(notes, overrides){
   APPT.dayNotes = notes || {};
   APPT.dayOverrides = overrides || {};
   try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: APPT.dayNotes, overrides: APPT.dayOverrides })); } catch(e){}
+  const status = document.getElementById('cal-sync-status');
+  const changed = [];
   document.querySelectorAll('.cal-day[data-date]').forEach((btn)=>{
     const ds = btn.dataset.date;
     const isPast = btn.classList.contains('past');
@@ -1832,12 +1835,25 @@ function applyDayConfig(notes, overrides){
       if (APPT.dayOverrides[ds]) {
         btn.classList.remove('available');
         btn.classList.add('fully-booked');
+        // Forza il rosso anche se il CSS non viene applicato
+        btn.style.background = 'rgba(255, 71, 87, 0.22)';
+        btn.style.borderColor = 'rgba(255, 71, 87, 0.45)';
+        btn.style.color = '#ff6b7a';
+        changed.push(ds + ':ROSSO');
       } else {
         btn.classList.remove('fully-booked');
         btn.classList.add('available');
+        btn.style.background = 'rgba(140, 255, 0, 0.14)';
+        btn.style.borderColor = 'rgba(140, 255, 0, 0.3)';
+        btn.style.color = '';
+        changed.push(ds + ':VERDE');
       }
     }
   });
+  if (status) {
+    status.textContent = 'Sync ' + new Date().toLocaleTimeString('it-IT') + ' — ' + (changed.filter(x=>x.endsWith(':ROSSO')).length) + ' rossi, ' + (changed.filter(x=>x.endsWith(':VERDE')).length) + ' verdi.';
+  }
+  console.debug('[calendar-sync] applyDayConfig', APPT.dayNotes, APPT.dayOverrides);
 }
 
 async function refreshCalendarState(){
