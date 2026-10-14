@@ -271,6 +271,80 @@ app.get('/.netlify/functions/blog', async (req, res) => {
   } catch (e) { res.status(502).json({ error: e.message }); }
 });
 
+// ── Day Config (availability): helper to upsert a day ──
+async function dcFind(date) {
+  const r = await fetch(`${STRAPI}/api/day-configs?filters[date][$eq]=${encodeURIComponent(date)}`);
+  const d = await r.json();
+  const item = (d.data || [])[0];
+  return item ? { id: item.id, ...(item.attributes || item) } : null;
+}
+async function dcUpsert(date, fields) {
+  const cfg = await dcFind(date);
+  const payload = { data: { date, closed: !!(fields.closed), note: fields.note === undefined ? (cfg && cfg.note) : (fields.note || null) } };
+  const url = cfg ? `${STRAPI}/api/day-configs/${cfg.id}` : `${STRAPI}/api/day-configs`;
+  const method = cfg ? 'PUT' : 'POST';
+  const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  return r.json();
+}
+async function dcAll() {
+  const r = await fetch(`${STRAPI}/api/day-configs?pagination[pageSize]=1000`);
+  const d = await r.json();
+  return (d.data || []).map(i => ({ id: i.id, ...(i.attributes || i) }));
+}
+
+// ── Day Notes ──
+app.get('/.netlify/functions/day-notes', async (req, res) => {
+  try {
+    const configs = await dcAll();
+    const notes = {};
+    configs.forEach(c => { if (c.note) notes[c.date] = c.note; });
+    res.json(notes);
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
+app.post('/.netlify/functions/day-notes', async (req, res) => {
+  try {
+    const { date, note } = req.body || {};
+    if (!date) return res.status(400).json({ error: 'date required' });
+    const cfg = await dcUpsert(date, { note: note ? String(note) : null, closed: (await dcFind(date))?.closed || false });
+    const item = cfg.data || cfg;
+    res.json({ ok: true, note: item?.attributes?.note || item?.note || null });
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
+app.delete('/.netlify/functions/day-notes/:date', async (req, res) => {
+  try {
+    const date = decodeURIComponent(req.params.date);
+    const cfg = await dcFind(date);
+    if (cfg) await dcUpsert(date, { note: null, closed: cfg.closed });
+    res.json({ ok: true });
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
+// ── Day Overrides ──
+app.get('/.netlify/functions/day-overrides', async (req, res) => {
+  try {
+    const configs = await dcAll();
+    const overrides = {};
+    configs.forEach(c => { if (c.closed) overrides[c.date] = true; });
+    res.json(overrides);
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
+app.post('/.netlify/functions/day-overrides', async (req, res) => {
+  try {
+    const { date } = req.body || {};
+    if (!date) return res.status(400).json({ error: 'date required' });
+    const cfg = await dcFind(date);
+    const newClosed = cfg ? !cfg.closed : true;
+    await dcUpsert(date, { closed: newClosed });
+    const configs = await dcAll();
+    const overrides = {};
+    configs.forEach(c => { if (c.closed) overrides[c.date] = true; });
+    res.json({ ok: true, overrides });
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+
 // ── Health check ──
 app.get('/health', (req, res) => res.json({ ok: true }));
 

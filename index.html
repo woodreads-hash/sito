@@ -1539,8 +1539,7 @@ async function loadSiteData(){
       fetch('/.netlify/functions/day-overrides').then(r=>r.json()).catch(()=>({})),
     ]);
 
-    APPT.dayNotes = dn || {};
-    APPT.dayOverrides = dor || {};
+    applyDayConfig(dn || {}, dor || {});
 
     // Load tickers from old data endpoint (backward compat)
     if(tr && tr.ok){
@@ -1810,10 +1809,57 @@ async function loadBlogPreview(){
   }
 }
 
+/* ── Real-time calendar state sync (polling + broadcast) ── */
+function applyDayConfig(notes, overrides){
+  APPT.dayNotes = notes || {};
+  APPT.dayOverrides = overrides || {};
+  document.querySelectorAll('.cal-day[data-date]').forEach((btn)=>{
+    const ds = btn.dataset.date;
+    const isPast = btn.classList.contains('past');
+    // note dot
+    const oldDot = btn.querySelector('.cal-note-dot');
+    if (oldDot) oldDot.remove();
+    btn.classList.remove('has-note');
+    if (APPT.dayNotes[ds]) {
+      btn.classList.add('has-note');
+      const dot = document.createElement('span');
+      dot.className = 'cal-note-dot';
+      btn.appendChild(dot);
+    }
+    if (!isPast) {
+      if (APPT.dayOverrides[ds]) {
+        btn.classList.remove('available');
+        btn.classList.add('fully-booked');
+      } else {
+        btn.classList.remove('fully-booked');
+        btn.classList.add('available');
+      }
+    }
+  });
+}
+
+async function refreshCalendarState(){
+  try {
+    const [nr, or] = await Promise.all([
+      fetch('/.netlify/functions/day-notes').catch(()=>null),
+      fetch('/.netlify/functions/day-overrides').catch(()=>null),
+    ]);
+    const notes = nr && nr.ok ? await nr.json() : APPT.dayNotes;
+    const overrides = or && or.ok ? await or.json() : APPT.dayOverrides;
+    applyDayConfig(notes, overrides);
+  } catch(e) {}
+}
+
 /* Init */
 loadSiteData();
 loadShowroom();
 loadBlogPreview();
+refreshCalendarState();
+setInterval(refreshCalendarState, 8000);
+try {
+  const bc = new BroadcastChannel('woodreads-calendar');
+  bc.onmessage = () => refreshCalendarState();
+} catch(e) {}
 </script>
 </body>
 </html>

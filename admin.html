@@ -720,6 +720,7 @@ async function saveNote(){
     else delete dayNotes[noteTargetDate];
     renderCalendar();
     toast('Nota salvata ✅ — visibile sul sito');
+    try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
   }catch(e){
     toast('Errore salvataggio nota', true);
   }
@@ -734,6 +735,7 @@ async function deleteNote(){
     document.getElementById('np-text').value = '';
     renderCalendar();
     toast('Nota eliminata');
+    try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
   }catch(e){
     toast('Errore eliminazione nota', true);
   }
@@ -758,6 +760,8 @@ async function toggleOverride(dateStr){
   }
 
   toast(dayOverrides[dateStr] ? '✅ Disponibile (override verde)' : '↩️ Override rimosso');
+
+  try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
 
   // 4. Sincronizza col backend (fire & forget — se fallisce il locale rimane)
   try {

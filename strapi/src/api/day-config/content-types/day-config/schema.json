@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "day_configs",
+  "info": {
+    "singularName": "day-config",
+    "pluralName": "day-configs",
+    "displayName": "Day Config",
+    "description": "Disponibilità e note dei giorni del calendario"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "unique": true
+    },
+    "closed": {
+      "type": "boolean",
+      "default": false
+    },
+    "note": {
+      "type": "text"
+    }
+  }
+}
