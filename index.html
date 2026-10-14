@@ -1890,6 +1890,12 @@ try {
       }
     }
   });
+  window.addEventListener('focus', () => {
+    try {
+      const raw = localStorage.getItem('wd_calendar_data');
+      if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}); }
+    } catch (_) {}
+  });
 } catch(e) {}
 </script>
 </body>
