@@ -267,7 +267,7 @@ nav a:hover{color:var(--green);}
 /* ════════════════════════════════════════════════════
    APPUNTAMENTO – DARK
 ════════════════════════════════════════════════════ */
-.appt-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;position:relative;z-index:2;}
+.appt-grid{display:grid;grid-template-columns:1fr;gap:2rem;align-items:start;position:relative;z-index:2;max-width:760px;margin:0 auto;}
 .steps{margin-top:2rem;display:flex;flex-direction:column;gap:1.4rem;}
 .step{display:flex;gap:1rem;align-items:flex-start;}
 .step-n{width:38px;height:38px;flex-shrink:0;background:var(--green);color:var(--dark);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.1rem;font-weight:900;}
@@ -481,6 +481,22 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
    SOCIAL STATS
 ════════════════════════════════════════════════════ */
 .pstat .num.loading{opacity:.2;}
+
+/* ════════════════════════════════════════════════════
+   BLOG PREVIEW (home)
+════════════════════════════════════════════════════ */
+.bp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;position:relative;z-index:2;}
+.bp-card{background:var(--mid);border:1px solid rgba(245,245,247,.08);border-radius:16px;overflow:hidden;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;}
+.bp-card:hover{transform:translateY(-5px);box-shadow:0 18px 40px rgba(0,0,0,.35);}
+.bp-card .bp-thumb{aspect-ratio:16/9;background:var(--dark2);overflow:hidden;}
+.bp-card .bp-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.bp-card:hover .bp-thumb img{transform:scale(1.05);}
+.bp-card .bp-body{padding:1.1rem 1.2rem 1.3rem;display:flex;flex-direction:column;gap:.35rem;flex:1;}
+.bp-card .bp-cat{color:var(--purple);font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.bp-card h3{font-family:var(--fd);font-size:.95rem;letter-spacing:.5px;line-height:1.25;}
+.bp-card p{color:var(--muted-d);font-size:.82rem;flex:1;}
+.bp-card .bp-read{color:var(--green);font-weight:700;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;margin-top:.6rem;}
+
 </style>
 </head>
 <body>
@@ -649,64 +665,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      PHOTO SHOWROOM – dinamico
 ═══════════════════════════════════ -->
-<section id="gallery" class="sec-warm">
-  <!-- Piante extra gallery -->
-  <svg class="plant" width="180" height="280" style="top:-25px;left:-35px;opacity:.55;animation:sway 10s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-mon"/>
-  </svg>
-  <svg class="plant" width="140" height="220" style="bottom:-15px;right:-25px;opacity:.48;animation:swayr 8s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-fern"/>
-  </svg>
-  <svg class="plant" width="110" height="180" style="top:25%;right:5%;opacity:.35;animation:leafbob 11s ease-in-out infinite;">
-    <use href="#lf-trop"/>
-  </svg>
-  <svg class="plant" width="100" height="160" style="bottom:20%;left:20%;opacity:.3;animation:sway 13s ease-in-out infinite;">
-    <use href="#lf-mon"/>
-  </svg>
-  <svg class="plant" width="90" height="140" style="top:10%;left:30%;opacity:.25;animation:sway 12s ease-in-out infinite reverse;">
-    <use href="#lf-fern"/>
-  </svg>
 
-  <!-- Marquee gallery -->
-  <div class="marquee-title-wrap" style="color:var(--leaf1);margin-bottom:0;">
-    <div class="marquee-title-track mtk1">
-      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
-    </div>
-  </div>
-
-  <span class="lbl lbl-g rev" style="margin-top:1.5rem;display:block;">— I nostri lavori</span>
-  <p class="sub sub-l rev">Ogni lavoro racconta una storia.</p>
-
-  <!-- Filtri categorie -->
-  <div id="showroom-filters" class="showroom-filters rev"></div>
-
-  <!-- Griglia foto dinamica -->
-  <div id="showroom-grid" class="showroom-grid rev-s"></div>
-
-  <!-- Load more -->
-  <div id="showroom-more" class="load-more-wrap rev" style="display:none;">
-    <button class="btn-load-more" onclick="loadMorePhotos()">Carica altre foto ↓</button>
-  </div>
-</section>
-
-<!-- ── TICKER 2: viola (reverse) ── -->
-<div class="ticker-wrap t-purple">
-  <div class="ticker-track tk3">
-    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
-    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
-  </div>
-</div>
-
-<div class="sec-divider"></div>
-
-<!-- ═══════════════════════════════════
-     SERVIZI – LIGHT
-═══════════════════════════════════ -->
 <section id="servizi" class="sec-dark">
   <div id="particles-srv"></div>
   <!-- Piante extra servizi -->
@@ -788,6 +747,66 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      CHI SIAMO – DARK
 ═══════════════════════════════════ -->
+
+<section id="gallery" class="sec-warm">
+  <!-- Piante extra gallery -->
+  <svg class="plant" width="180" height="280" style="top:-25px;left:-35px;opacity:.55;animation:sway 10s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="140" height="220" style="bottom:-15px;right:-25px;opacity:.48;animation:swayr 8s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-fern"/>
+  </svg>
+  <svg class="plant" width="110" height="180" style="top:25%;right:5%;opacity:.35;animation:leafbob 11s ease-in-out infinite;">
+    <use href="#lf-trop"/>
+  </svg>
+  <svg class="plant" width="100" height="160" style="bottom:20%;left:20%;opacity:.3;animation:sway 13s ease-in-out infinite;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="90" height="140" style="top:10%;left:30%;opacity:.25;animation:sway 12s ease-in-out infinite reverse;">
+    <use href="#lf-fern"/>
+  </svg>
+
+  <!-- Marquee gallery -->
+  <div class="marquee-title-wrap" style="color:var(--leaf1);margin-bottom:0;">
+    <div class="marquee-title-track mtk1">
+      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+    </div>
+  </div>
+
+  <span class="lbl lbl-g rev" style="margin-top:1.5rem;display:block;">— I nostri lavori</span>
+  <p class="sub sub-l rev">Ogni lavoro racconta una storia.</p>
+
+  <!-- Filtri categorie -->
+  <div id="showroom-filters" class="showroom-filters rev"></div>
+
+  <!-- Griglia foto dinamica -->
+  <div id="showroom-grid" class="showroom-grid rev-s"></div>
+
+  <!-- Load more -->
+  <div id="showroom-more" class="load-more-wrap rev" style="display:none;">
+    <button class="btn-load-more" onclick="loadMorePhotos()">Carica altre foto ↓</button>
+  </div>
+</section>
+
+<!-- ── TICKER 2: viola (reverse) ── -->
+<div class="ticker-wrap t-purple">
+  <div class="ticker-track tk3">
+    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
+    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
+  </div>
+</div>
+
+<div class="sec-divider"></div>
+
+<!-- ═══════════════════════════════════
+     SERVIZI – LIGHT
+═══════════════════════════════════ -->
+
 <section id="chisiamo" class="sec-dark">
   <div id="particles-about"></div>
 
@@ -848,6 +867,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      STATS – DARK2
 ═══════════════════════════════════ -->
+
 <section id="stats" class="sec-light">
   <div id="particles-stats"></div>
   <div id="particles-stats"></div>
@@ -946,6 +966,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      QUIZ – WARM
 ═══════════════════════════════════ -->
+
 <section id="quiz" class="sec-warm">
   <!-- Piante extra quiz -->
   <svg class="plant" width="150" height="240" style="top:-20px;right:-30px;opacity:.55;animation:swayr 9s ease-in-out infinite;transform-origin:bottom center;">
@@ -1005,6 +1026,26 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      APPUNTAMENTO – DARK – con calendario
 ═══════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════
+     BLOG PREVIEW – HOME
+═══════════════════════════════════ -->
+<section id="blog-preview" class="sec-dark2">
+  <div id="particles-blog"></div>
+  <div style="position:relative;z-index:2;">
+    <span class="lbl lbl-gd">— Blog</span>
+    <h2 class="ttl">Ultimi <span class="gd">articoli</span> dal blog</h2>
+    <p class="sub sub-d">Consigli, guide e trend sui dreadlocks naturali, cyberdreads e manutenzione.</p>
+  </div>
+  <div id="blog-preview-grid" class="bp-grid" style="position:relative;z-index:2;"></div>
+  <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
+    <a href="blog.html" class="btn btn-od">Vai al blog completo →</a>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+
 <section id="appt" class="sec-dark2">
   <div id="particles-appt"></div>
 
@@ -1061,34 +1102,6 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     </div>
 
     <!-- RIGHT: FORM -->
-    <div class="form-box rev" id="appt-form-box">
-      <h3>Richiesta appuntamento</h3>
-      <div id="appt-selected-info" style="display:none;">
-        <div class="appt-selected-badge">
-          📅 <span id="appt-selected-date"></span> · 🕐 <span id="appt-selected-time"></span>
-        </div>
-      </div>
-      <div class="fgrow">
-        <div class="fg"><label>Nome *</label><input type="text" id="f-nome" placeholder="Il tuo nome"/></div>
-        <div class="fg"><label>Telefono</label><input type="tel" id="f-tel" placeholder="+39 …"/></div>
-      </div>
-      <div class="fg"><label>Email *</label><input type="email" id="f-email" placeholder="tua@email.com"/></div>
-      <div class="fg">
-        <label>Servizio *</label>
-        <select id="f-srv">
-          <option value="">— Seleziona —</option>
-          <option>Dreadlocks Naturali (testa completa)</option>
-          <option>Cyberdreads</option>
-          <option>Manutenzione / Restauro</option>
-          <option>Estensioni</option>
-          <option>Consulenza gratuita</option>
-        </select>
-      </div>
-      <div class="fg"><label>Note</label><textarea id="f-note" placeholder="Lunghezza capelli, colori preferiti, domande…"></textarea></div>
-      <button class="btn btn-g" style="width:100%;justify-content:center;" onclick="submitAppt()" id="btn-submit">Invia richiesta →</button>
-      <div class="fsucc" id="fsucc">✅ Richiesta inviata! Ti rispondo entro 24 ore 🌀</div>
-      <div class="ferr" id="ferr"></div>
-    </div>
   </div>
 </section>
 
@@ -1097,6 +1110,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      SOCIAL – WARM
 ═══════════════════════════════════ -->
+
 <section id="social" class="sec-warm">
   <!-- Piante extra social -->
   <svg class="plant" width="160" height="250" style="top:-15px;left:-30px;opacity:.5;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;">
@@ -1140,6 +1154,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 </section>
 
 <!-- FOOTER -->
+
 <footer>
   <div class="foot-logo">
     <svg width="28" height="28" viewBox="0 0 120 120"><use href="#wdlogo"/></svg>
@@ -1240,6 +1255,7 @@ makeParticles('particles-hero',55,true);
 makeParticles('particles-stats',48,true);
 makeParticles('particles-about',42,true);
 makeParticles('particles-appt',50,true);
+makeParticles('particles-blog',40,true);
 /* Light sections */
 makeParticles('p-srv', 45, false, '#servizi');
 makeParticles('p-qz',  40, false, '#quiz');
@@ -1751,9 +1767,48 @@ function escHtml(s){
   return d.innerHTML;
 }
 
+
+/* BLOG PREVIEW (home) */
+const BLOG_API='/.netlify/functions/blog';
+function escHtml2(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function imgUrl2(img,size){
+  if(!img||!img.url) return '';
+  const base = img.url.startsWith('http')?'':(BLOG_API.replace(/\/[^/]+$/,''));
+  if(size && img.formats && img.formats[size]) return base+img.formats[size].url;
+  return base+img.url;
+}
+async function loadBlogPreview(){
+  const grid=document.getElementById('blog-preview-grid');
+  if(!grid) return;
+  try{
+    const r=await fetch(BLOG_API+'?p=1&n=3');
+    if(!r.ok) throw new Error('http '+r.status);
+    const d=await r.json();
+    const items=(d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    if(!items.length){ grid.innerHTML='<div style="color:var(--muted-d);">Nessun articolo pubblicato ancora.</div>'; return; }
+    grid.innerHTML=items.map(post=>{
+      const cover=imgUrl2(post.coverImage,'medium')||imgUrl2(post.coverImage);
+      const cat=post.category?.data?.attributes?.name||post.category?.name||'';
+      const date=post.publishedAt?new Date(post.publishedAt).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+      return '<article class="bp-card">'+
+        (cover?'<a class="bp-thumb" href="blog-post.html?slug='+encodeURIComponent(post.slug)+'"><img src="'+cover+'" alt="'+escHtml2(post.title)+'" loading="lazy" decoding="async"/></a>':'')+
+        '<div class="bp-body">'+
+        (cat?'<span class="bp-cat">'+escHtml2(cat)+'</span>':'')+
+        '<h3><a href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">'+escHtml2(post.title)+'</a></h3>'+
+        '<p>'+escHtml2(post.excerpt||'')+'</p>'+
+        (date?'<div style="font-size:.7rem;color:var(--muted-d);margin-top:.2rem;">'+date+'</div>':'')+
+        '<a class="bp-read" href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">Leggi →</a>'+
+        '</div></article>';
+    }).join('');
+  }catch(e){
+    grid.innerHTML='<div style="color:var(--muted-d);">Blog in aggiornamento…</div>';
+  }
+}
+
 /* Init */
 loadSiteData();
 loadShowroom();
+loadBlogPreview();
 </script>
 </body>
 </html>
