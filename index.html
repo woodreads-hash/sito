@@ -446,7 +446,30 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.82rem;border-radius:8px;cursor:var(--cur-pointer,none);transition:all .15s;color:rgba(245,245,247,.35);background:transparent;border:none;font-family:var(--fb);}
 .cal-day.past{background:rgba(255,71,87,.08);color:rgba(255,71,87,.45);cursor:default;}
-.cal-day.available{color:var(--dark);background:var(--green);border:1px solid var(--green);font-weight:700;}
+.cal-day.available{
+  color:var(--dark);
+  background:var(--green);
+  border:1px solid var(--green);
+  font-weight:700;
+  position:relative;
+  overflow:hidden;
+  animation:neon-pulse 1.8s ease-in-out infinite;
+  box-shadow:0 0 8px rgba(140,255,0,.4);
+}
+.cal-day.available::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 25% 35%, rgba(181,140,255,.95) 0 1.1px, transparent 1.9px),
+    radial-gradient(circle at 70% 60%, rgba(181,140,255,.85) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 50% 82%, rgba(230,255,77,.8) 0 1px, transparent 1.6px);
+  opacity:.35;
+  animation:purple-sparkle 2s ease-in-out infinite;
+}
+.cal-day.available .cal-band,.cal-day.available *{position:relative;z-index:1;}
 .cal-day.available:hover{background:var(--lime);}
 .cal-day.available.selected{background:var(--green);color:var(--dark);font-weight:700;}
 .cal-day.fully-booked{background:rgba(255,71,87,.12);color:rgba(255,71,87,.55);cursor:default;border:1px solid rgba(255,71,87,.25);}
@@ -499,6 +522,10 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .bp-card h3{font-family:var(--fd);font-size:.95rem;letter-spacing:.5px;line-height:1.25;}
 .bp-card p{color:var(--muted-d);font-size:.82rem;flex:1;}
 .bp-card .bp-read{color:var(--green);font-weight:700;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;margin-top:.6rem;}
+
+
+@keyframes neon-pulse{0%,100%{box-shadow:0 0 6px 0 rgba(140,255,0,.4),inset 0 0 0 1px rgba(140,255,0,.25);}50%{box-shadow:0 0 20px 2px rgba(140,255,0,.8),inset 0 0 10px rgba(140,255,0,.35);}}
+@keyframes purple-sparkle{0%{opacity:.25;transform:translate(0,0);}50%{opacity:.7;transform:translate(1px,-1px);}100%{opacity:.25;transform:translate(0,0);}}
 
 </style>
 </head>
@@ -1096,10 +1123,6 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         </div>
       </div>
 
-      <div id="appt-slots" class="rev" style="display:none;">
-        <div class="slots-label">Orari disponibili per <strong id="slot-date-label">—</strong></div>
-        <div class="slots-grid" id="slots-grid"></div>
-      </div>
 
       <div class="appt-whatsapp rev">
         <a href="https://wa.me/TUONUMERO" target="_blank" class="btn btn-g" style="animation:pulse-glow 3s ease-in-out infinite;">💬 Scrivimi su WhatsApp</a>
