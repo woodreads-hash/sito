@@ -446,8 +446,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.82rem;border-radius:8px;cursor:var(--cur-pointer,none);transition:all .15s;color:rgba(245,245,247,.35);background:transparent;border:none;font-family:var(--fb);}
 .cal-day.past{background:rgba(255,71,87,.08);color:rgba(255,71,87,.45);cursor:default;}
-.cal-day.available{color:var(--text-d);background:rgba(140,255,0,.1);border:1px solid rgba(140,255,0,.2);}
-.cal-day.available:hover{background:rgba(140,255,0,.2);}
+.cal-day.available{color:var(--dark);background:var(--green);border:1px solid var(--green);font-weight:700;}
+.cal-day.available:hover{background:var(--lime);}
 .cal-day.available.selected{background:var(--green);color:var(--dark);font-weight:700;}
 .cal-day.fully-booked{background:rgba(255,71,87,.12);color:rgba(255,71,87,.55);cursor:default;border:1px solid rgba(255,71,87,.25);}
 .cal-day.today{font-weight:700;box-shadow:inset 0 0 0 1.5px var(--purple);}
@@ -1089,6 +1089,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         </div>
         <div class="cal-days" id="cal-days"></div>
         <div id="cal-sync-status" style="font-size:.7rem;color:var(--muted-d);margin:.6rem 0 .2rem;min-height:1rem;">Calendario sincronizzato.</div>
+        <div id="day-band-info" style="display:none;background:rgba(140,255,0,.08);border:1px solid rgba(140,255,0,.2);border-radius:8px;padding:.7rem .8rem;margin-top:.4rem;font-size:.78rem;color:var(--text-d);"></div>
         <div class="cal-note-box" id="cal-note-box">
           <div class="cal-note-label">📝 Nota del giorno</div>
           <div id="cal-note-text"></div>
@@ -1436,6 +1437,23 @@ async function selectDate(ds){
     noteBox.classList.add('show');
   } else {
     noteBox.classList.remove('show');
+  }
+
+  // Fascia oraria + nota predefinita
+  const infoEl = document.getElementById('day-band-info');
+  if (infoEl) {
+    const band = APPT.dayBands[ds];
+    const dateLabel = formatDate(ds);
+    if (!band) {
+      infoEl.style.display = 'block';
+      infoEl.innerHTML = 'Orari disponibili per ' + dateLabel + ': <strong>non disponibile</strong>';
+    } else {
+      const auto = band === '09:00-20:00'
+        ? 'Giornata intera: ottimo per prenotare sedute lunghe come una testa da zero, estensioni, lavaggio + riparazione.'
+        : 'Mezza giornata: ottimo per ritocchi (riparazioni sotto 50 dread) o applicazione di Cyber Dread.';
+      infoEl.style.display = 'block';
+      infoEl.innerHTML = 'Orari disponibili per ' + dateLabel + ': <strong>' + band + '</strong><br/>' + auto;
+    }
   }
 
   if (APPT.slotsCache[ds]) {
@@ -1855,28 +1873,21 @@ function applyDayConfig(notes, overrides, bands){
       if (band) {
         btn.classList.remove('fully-booked');
         btn.classList.add('available');
-        btn.style.background = 'rgba(140, 255, 0, 0.16)';
-        btn.style.borderColor = 'rgba(140, 255, 0, 0.35)';
-        btn.style.color = '';
+        btn.style.background = 'var(--green)';
+        btn.style.borderColor = 'var(--green)';
+        btn.style.color = 'var(--dark)';
         const b = document.createElement('span');
         b.className = 'cal-band';
-        b.textContent = band.replace('09:00-','9-').replace('16:00-','16-').replace(':00',''); // shorthand
+        b.textContent = band.replace('09:00', '9').replace('16:00', '16').replace(':00', '');
         btn.appendChild(b);
         changed.push(ds + ':VERDE');
-      } else if (APPT.dayOverrides[ds]) {
+      } else {
         btn.classList.remove('available');
         btn.classList.add('fully-booked');
         btn.style.background = 'rgba(255, 71, 87, 0.22)';
         btn.style.borderColor = 'rgba(255, 71, 87, 0.45)';
         btn.style.color = '#ff6b7a';
         changed.push(ds + ':ROSSO');
-      } else {
-        btn.classList.remove('fully-booked');
-        btn.classList.add('available');
-        btn.style.background = 'rgba(140, 255, 0, 0.10)';
-        btn.style.borderColor = 'rgba(140, 255, 0, 0.2)';
-        btn.style.color = '';
-        changed.push(ds + ':VERDE');
       }
     }
   });

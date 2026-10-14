@@ -810,10 +810,15 @@ async function saveBand(){
   if (band) {
     dayBands[noteTargetDate] = band;
     delete dayOverrides[noteTargetDate];
+    const autoNote = band === '09:00-20:00'
+      ? 'Giornata intera (09:00–20:00): ottimo per prenotare sedute lunghe come una testa da zero, estensioni, lavaggio + riparazione.'
+      : 'Mezza giornata (' + band + '): ottimo per ritocchi (riparazioni sotto 50 dread) o applicazione di Cyber Dread.';
+    document.getElementById('np-text').value = autoNote;
   } else {
     delete dayBands[noteTargetDate];
     dayOverrides[noteTargetDate] = true;
   }
+  updateNotePreview();
   renderCalendar();
   localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
   toast(band ? 'Fascia salvata: ' + band : 'Giorno impostato non disponibile (rosso)');
