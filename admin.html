@@ -118,8 +118,9 @@ tr:hover{background:rgba(140,255,0,.02);}
 .cal-day:hover{background:rgba(245,245,247,.08);}
 .cal-day.other{opacity:.15;cursor:default;pointer-events:none;}
 .cal-day.today{box-shadow:inset 0 0 0 2px var(--muted-d);}
-.cal-day.available{background:rgba(140,255,0,.08);color:var(--green);}
-.cal-day.available::after{content:'';position:absolute;inset:-2px;border-radius:10px;background:var(--green);opacity:0;z-index:-1;filter:blur(8px);animation:glow-pulse 2s ease-in-out infinite;}
+.cal-day.available{background:var(--green);color:var(--dark);font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.cal-day.available::after{content:'';position:absolute;inset:-2px;border-radius:10px;background:var(--green);opacity:.35;z-index:-1;filter:blur(10px);animation:glow-pulse 2s ease-in-out infinite;}
+.cal-day .band-label{font-size:.5rem;font-weight:700;opacity:.9;line-height:1;}
 @keyframes glow-pulse{0%,100%{opacity:.25}50%{opacity:.5}}
 .cal-day.unavailable{background:rgba(255,71,87,.08);color:var(--red);text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px;}
 .cal-day.unavailable::after{content:'✕';position:absolute;font-size:.55rem;color:var(--red);top:2px;right:4px;opacity:.7;}
@@ -354,11 +355,6 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
-      <div class="sec-card" id="recent-appts">
-        <div class="sec-hdr">
-          <h3>Appuntamenti Recenti</h3>
-          <span class="count" id="r-count">0</span>
-        </div>
         <div class="sec-body">
           <table><thead><tr><th>Cliente</th><th>Servizio</th><th>Data</th><th>Ora</th><th>Status</th><th class="hide-mob">Note</th><th></th></tr></thead>
           <tbody id="r-body"><tr class="loading-row"><td colspan="7">Caricamento…</td></tr></tbody></table>
@@ -376,11 +372,6 @@ tr:hover{background:rgba(140,255,0,.02);}
           <a class="qlink" href="/" target="_blank"><span class="icon">🌐</span><span class="name">Vedi Sito</span></a>
         </div>
       </div>
-
-      <div class="sec-card">
-        <div class="sec-hdr"><h3>Orari di Lavoro</h3></div>
-        <div class="hours-grid" id="hours-grid">
-          <div style="grid-column:1/-1;text-align:center;color:var(--muted-d);padding:1rem;font-size:.85rem;">Caricamento…</div>
         </div>
       </div>
     </div>
@@ -595,7 +586,6 @@ async function init(){
   await Promise.all([
     loadAppointments(),
     loadPhotos(),
-    loadHours(),
     loadCategories(),
     loadDayData(),
   ]);
@@ -618,15 +608,8 @@ async function loadAppointments(){
 function renderAppointments(){
   const filtered = apptFilter === 'all' ? appts : appts.filter(a => a.status === apptFilter);
 
-  const recent = appts.slice(0,5);
-  const rb = document.getElementById('r-body');
   const rc = document.getElementById('r-count');
   if(rc) rc.textContent = appts.length;
-  if(!recent.length){
-    rb.innerHTML = '<tr class="loading-row"><td colspan="7">Nessun appuntamento ancora</td></tr>';
-  } else {
-    rb.innerHTML = recent.map(a => rowHTML(a)).join('');
-  }
 
   const ab = document.getElementById('appt-body');
   const ac = document.getElementById('appt-count');
@@ -840,31 +823,18 @@ function updateDayCell(dateStr){
   const dt = new Date(dateStr + 'T12:00:00');
   const isPast = dateStr < toDateStr(now);
   const isToday = dt.toDateString() === now.toDateString();
-  const isOverridden = dayOverrides[dateStr];
+  const band = dayBands[dateStr];
 
   cell.className = 'cal-day';
   if(isPast){ cell.classList.add('past'); return; }
   if(isToday) cell.classList.add('today');
 
-  if(isOverridden){
+  if(band){
+    cell.classList.add('available', 'banded');
+  } else if(dayOverrides[dateStr]){
     cell.classList.add('available', 'overridden');
   } else {
-    // Calcola stato normale da orari lavoro + prenotazioni
-    let enabledDays = [];
-    try{
-      document.querySelectorAll('.hour-day').forEach(el => {
-        const dayEl = el.querySelector('.day');
-        const timeEl = el.querySelector('.time');
-        if(dayEl && timeEl && timeEl.textContent !== 'Chiuso')
-          enabledDays.push(dayEl.textContent.trim().toLowerCase());
-      });
-    }catch(e){}
-    const dayMap = {lunedì:'monday',martedì:'tuesday',mercoledì:'wednesday',giovedì:'thursday',venerdì:'friday',sabato:'saturday',domenica:'sunday'};
-    const dayNameIt = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'][dt.getDay()];
-    const isEnabled = enabledDays.includes(dayMap[dayNameIt]) || enabledDays.includes(dayNameIt);
-    const booked = appts.filter(a => a.date === dateStr && a.status === 'approved').length;
-    if(isEnabled && booked < 8) cell.classList.add('available');
-    else cell.classList.add('unavailable');
+    cell.classList.add('unavailable');
   }
   if(dayNotes[dateStr]) cell.classList.add('has-note');
 }
@@ -927,27 +897,26 @@ function renderCalendar(){
     if(isToday) cls += ' today';
     if(isPast) cls += ' past';
 
-    // Check override
-    const isOverridden = dayOverrides[dateStr];
+    // Disponibilità basata SOLO sulla fascia scelta dall'admin
+    const band = dayBands[dateStr];
 
-    if(!isPast && !isOverridden){
-      const isEnabled = enabledDays.includes(englishDay) || enabledDays.includes(dayNameIt);
-      const booked = bookedCounts[dateStr] || 0;
-      const fullyBooked = booked >= 8;
-      if(isEnabled && !fullyBooked){
-        cls += ' available';
+    if(!isPast){
+      if(band){
+        cls += ' available banded';
+      } else if(dayOverrides[dateStr]){
+        cls += ' available overridden';
       } else {
         cls += ' unavailable';
       }
-    } else if(!isPast && isOverridden){
-      cls += ' available overridden';
     }
 
     if(dayNotes[dateStr]) cls += ' has-note';
 
     const noteDot = dayNotes[dateStr] ? '<span class="note-dot"></span>' : '';
+    const dayBand = dayBands[dateStr];
+    const bandLabel = dayBand ? `<span class="band-label">${dayBand.replace('09:00','9').replace('16:00','16').replace(':00','')}</span>` : '';
 
-    html += `<div class="${cls}" data-date="${dateStr}">${d}${noteDot}</div>`;
+    html += `<div class="${cls}" data-date="${dateStr}">${d}${noteDot}${bandLabel}</div>`;
   }
 
   grid.innerHTML = html;
