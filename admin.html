@@ -253,9 +253,10 @@ tr:hover{background:rgba(140,255,0,.02);}
 <div class="lock" id="lock">
   <h1>WOO<em>DREADS</em></h1>
   <p style="color:var(--muted-d);font-size:.82rem;margin-bottom:-.5rem;">Admin Panel</p>
-  <input class="lock-input" type="password" id="lock-pass" placeholder="Password" autofocus onkeydown="if(event.key==='Enter')unlock()"/>
+  <input class="lock-input" type="text" id="lock-id" placeholder="ID / Username" autofocus onkeydown="if(event.key==='Enter')unlock()"/>
+  <input class="lock-input" type="password" id="lock-pass" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()"/>
   <button class="lock-btn" onclick="unlock()">Entra</button>
-  <div class="lock-err" id="lock-err">Password errata</div>
+  <div class="lock-err" id="lock-err">Credenziali errate</div>
 </div>
 
 <!-- TOAST -->
@@ -268,6 +269,7 @@ tr:hover{background:rgba(140,255,0,.02);}
     <a href="#" class="active" onclick="showTab('dashboard',this)">Dashboard</a>
     <a href="#" onclick="showTab('appointments',this)">Appuntamenti</a>
     <a href="#" onclick="showTab('photos',this)">Foto</a>
+    <a href="#" onclick="showTab('settings',this)">Credenziali</a>
     <a href="https://wa.me/TUONUMERO" target="_blank" class="hide-mob">💬 WhatsApp</a>
     <button class="logout" onclick="logout()">Esci</button>
   </div>
@@ -452,6 +454,36 @@ tr:hover{background:rgba(140,255,0,.02);}
   </div>
 </div>
 
+
+<!-- settings tab -->
+<div id="tab-settings" style="display:none;">
+  <div class="page-title">
+    <h1>Credenziali <span>│</span> Admin</h1>
+    <p>Aggiorna in modo sicuro ID (Username) e password. Memorizzate su questo dispositivo in forma cifrata (hash SHA-256).</p>
+  </div>
+  <div class="sec-card">
+    <div class="sec-hdr"><h3>Aggiorna credenziali</h3></div>
+    <div style="padding:1.5rem;max-width:460px;">
+      <label style="display:block;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.35rem;">Password attuale *</label>
+      <input class="lock-input" type="password" id="set-current-pw" placeholder="Password attuale" style="margin-bottom:1rem;"/>
+      <label style="display:block;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.35rem;">Nuovo ID (Username)</label>
+      <input class="lock-input" type="text" id="set-new-id" placeholder="Nuovo username" style="margin-bottom:1rem;"/>
+      <label style="display:block;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.35rem;">Nuova password</label>
+      <input class="lock-input" type="password" id="set-new-pw" placeholder="Nuova password" style="margin-bottom:1rem;"/>
+      <label style="display:block;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.35rem;">Conferma password</label>
+      <input class="lock-input" type="password" id="set-confirm-pw" placeholder="Conferma password" style="margin-bottom:1.2rem;"/>
+      <button class="lock-btn" onclick="updateCredentials()">Aggiorna credenziali</button>
+      <div id="set-msg" style="font-size:.82rem;margin-top:.8rem;display:none;"></div>
+    </div>
+  </div>
+  <div class="sec-card">
+    <div class="sec-hdr"><h3>Info sicurezza</h3></div>
+    <div style="padding:1.2rem 1.5rem;font-size:.82rem;color:var(--muted-d);line-height:1.7;">
+      Credenziali di default: <strong style="color:var(--green);">ID 0000</strong> / <strong style="color:var(--green);">Password 0000</strong>. Cambiale al primo accesso. Memorizzate in forma cifrata (SHA-256) su questo dispositivo. Per ambienti condivisi usa il backend Strapi con autenticazione JWT.
+    </div>
+  </div>
+</div>
+
 <script>
 /* ── Config ── */
 const API = '/.netlify/functions';
@@ -467,11 +499,25 @@ let dayNotes = {};
 let dayOverrides = {};
 let noteTargetDate = null;
 
+/* ── Crypto helpers ── */
+async function sha256(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function getStoredIdHash(){ return localStorage.getItem('wd_id_hash') || null; }
+function getStoredPwHash(){ return localStorage.getItem('wd_pw_hash') || null; }
+async function defaultIdHash(){ return await sha256('0000'); }
+async function defaultPwHash(){ return await sha256('0000'); }
+
 /* ── Login ── */
-function unlock(){
-  const p = document.getElementById('lock-pass').value;
-  const pw = localStorage.getItem('wd_pw') || 'admin2025';
-  if(p === pw){
+async function unlock(){
+  const id = (document.getElementById('lock-id').value||'').trim();
+  const pw = document.getElementById('lock-pass').value;
+  const idHash = await sha256(id);
+  const pwHash = await sha256(pw);
+  const storedId = getStoredIdHash() || await defaultIdHash();
+  const storedPw = getStoredPwHash() || await defaultPwHash();
+  if(idHash === storedId && pwHash === storedPw){
     document.getElementById('lock').classList.add('hidden');
     document.getElementById('admin-header').style.display = '';
     document.getElementById('admin-app').style.display = '';
@@ -479,6 +525,30 @@ function unlock(){
   } else {
     document.getElementById('lock-err').style.display = 'block';
   }
+}
+
+/* ── Update credentials ── */
+async function updateCredentials(){
+  const msg = document.getElementById('set-msg');
+  const currentPw = document.getElementById('set-current-pw').value;
+  const newId = (document.getElementById('set-new-id').value||'').trim();
+  const newPw = document.getElementById('set-new-pw').value;
+  const confirmPw = document.getElementById('set-confirm-pw').value;
+  const storedPw = getStoredPwHash() || await defaultPwHash();
+  const currentHash = await sha256(currentPw);
+  if(currentHash !== storedPw){
+    msg.textContent='Password attuale errata.'; msg.style.color='var(--red)'; msg.style.display='block'; return;
+  }
+  if(!newId){ msg.textContent='Inserisci un nuovo ID.'; msg.style.color='var(--red)'; msg.style.display='block'; return; }
+  if(newPw.length < 4){ msg.textContent='La password deve avere almeno 4 caratteri.'; msg.style.color='var(--red)'; msg.style.display='block'; return; }
+  if(newPw !== confirmPw){ msg.textContent='Le password non coincidono.'; msg.style.color='var(--red)'; msg.style.display='block'; return; }
+  localStorage.setItem('wd_id_hash', await sha256(newId));
+  localStorage.setItem('wd_pw_hash', await sha256(newPw));
+  document.getElementById('set-current-pw').value='';
+  document.getElementById('set-new-pw').value='';
+  document.getElementById('set-confirm-pw').value='';
+  msg.textContent='Credenziali aggiornate con successo.'; msg.style.color='var(--green)'; msg.style.display='block';
+  toast('Credenziali aggiornate');
 }
 
 function logout(){
@@ -493,6 +563,7 @@ function showTab(name, el){
   document.getElementById('tab-dashboard').style.display = name==='dashboard'?'':'none';
   document.getElementById('tab-appointments').style.display = name==='appointments'?'':'none';
   document.getElementById('tab-photos').style.display = name==='photos'?'':'none';
+  document.getElementById('tab-settings').style.display = name==='settings'?'':'none';
 }
 
 function toast(msg, isErr){

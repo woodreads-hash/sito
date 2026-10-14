@@ -445,10 +445,11 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.6rem;}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.82rem;border-radius:8px;cursor:var(--cur-pointer,none);transition:all .15s;color:rgba(245,245,247,.35);background:transparent;border:none;font-family:var(--fb);}
-.cal-day.past{color:rgba(245,245,247,.12);cursor:default;}
-.cal-day.available{color:var(--text-d);}
-.cal-day.available:hover{background:rgba(140,255,0,.1);}
+.cal-day.past{background:rgba(255,71,87,.08);color:rgba(255,71,87,.45);cursor:default;}
+.cal-day.available{color:var(--text-d);background:rgba(140,255,0,.1);border:1px solid rgba(140,255,0,.2);}
+.cal-day.available:hover{background:rgba(140,255,0,.2);}
 .cal-day.available.selected{background:var(--green);color:var(--dark);font-weight:700;}
+.cal-day.fully-booked{background:rgba(255,71,87,.12);color:rgba(255,71,87,.55);cursor:default;border:1px solid rgba(255,71,87,.25);}
 .cal-day.today{font-weight:700;box-shadow:inset 0 0 0 1.5px var(--purple);}
 .cal-day.fully-booked{color:rgba(245,245,247,.2);cursor:default;position:relative;}
 .cal-day.fully-booked::after{content:'';position:absolute;width:20px;height:1.5px;background:rgba(255,80,80,.4);border-radius:2px;transform:rotate(-45deg);}
@@ -1458,6 +1459,10 @@ function formatDate(ds){
 }
 
 function renderSlots(dateStr, slots){
+  const selBtn = document.querySelector('.cal-day.selected');
+  if (selBtn) {
+    if (!slots.length) selBtn.classList.add('fully-booked'); else selBtn.classList.remove('fully-booked');
+  }
   const grid = document.getElementById('slots-grid');
   if (!slots.length) {
     grid.innerHTML = '<span style="color:var(--muted-d);font-size:.8rem;">Nessun orario disponibile per questa data</span>';
