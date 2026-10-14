@@ -1858,7 +1858,13 @@ refreshCalendarState();
 setInterval(refreshCalendarState, 8000);
 try {
   const bc = new BroadcastChannel('woodreads-calendar');
-  bc.onmessage = () => refreshCalendarState();
+  bc.onmessage = (ev) => {
+    if (ev && ev.data && ev.data.notes && ev.data.overrides) {
+      applyDayConfig(ev.data.notes, ev.data.overrides);
+    } else {
+      refreshCalendarState();
+    }
+  };
 } catch(e) {}
 </script>
 </body>

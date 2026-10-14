@@ -497,6 +497,8 @@ let calMonth = new Date().getMonth();
 let calYear = new Date().getFullYear();
 let dayNotes = {};
 let dayOverrides = {};
+
+function broadcastCalendar(){ try { new BroadcastChannel('woodreads-calendar').postMessage({ notes: dayNotes, overrides: dayOverrides }); } catch(e){} }
 let noteTargetDate = null;
 
 /* ── Crypto helpers ── */
@@ -720,7 +722,7 @@ async function saveNote(){
     else delete dayNotes[noteTargetDate];
     renderCalendar();
     toast('Nota salvata ✅ — visibile sul sito');
-    try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
+    broadcastCalendar();
   }catch(e){
     toast('Errore salvataggio nota', true);
   }
@@ -735,7 +737,7 @@ async function deleteNote(){
     document.getElementById('np-text').value = '';
     renderCalendar();
     toast('Nota eliminata');
-    try { new BroadcastChannel('woodreads-calendar').postMessage('refresh'); } catch(e){}
+    broadcastCalendar();
   }catch(e){
     toast('Errore eliminazione nota', true);
   }
