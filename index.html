@@ -1018,37 +1018,17 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
   <div class="quiz-inner">
     <span class="quiz-badge rev">🎮 Mini gioco</span>
-    <h2 class="quiz-title rev">Che tipo di <span class="g">dread</span> sei?</h2>
-    <p class="quiz-intro rev">3 domande veloci. Zero giudizi. Solo vibes. 🤙</p>
-    <div class="qprog rev"><div class="qpd a" id="pd0"></div><div class="qpd" id="pd1"></div><div class="qpd" id="pd2"></div></div>
+    <h2 class="quiz-title rev">Che intervento <span class="g">ti serve?</span></h2>
+    <p class="quiz-intro rev">Rispondi e scopri il tipo di lavoro consigliato. Nessun giudizio, solo vibes. 🤙</p>
 
-    <div class="qstep active" id="qs0">
-      <p class="qq">🪞 Mattina. Specchio. Come sei con i capelli?</p>
-      <div class="qopts">
-        <div class="qopt" onclick="qnext(0,'n')">Naturali al vento — quello che viene, viene 🌬️</div>
-        <div class="qopt" onclick="qnext(0,'c')">Già penso al colore che voglio la prossima settimana 🎨</div>
-        <div class="qopt" onclick="qnext(0,'r')">Sono anni che li trascuro… aiuto 😬</div>
-      </div>
-    </div>
-    <div class="qstep" id="qs1">
-      <p class="qq">🎵 La tua playlist del momento?</p>
-      <div class="qopts">
-        <div class="qopt" onclick="qnext(1,'n')">Reggae / Soul / Roots — lente e profonde 🌍</div>
-        <div class="qopt" onclick="qnext(1,'c')">Hyperpop / EDM / qualcosa di assurdo 🔊</div>
-        <div class="qopt" onclick="qnext(1,'r')">Shuffle su tutto, non lo so neanche io 🤷</div>
-      </div>
-    </div>
-    <div class="qstep" id="qs2">
-      <p class="qq">🌱 Cosa fa davvero la differenza?</p>
-      <div class="qopts">
-        <div class="qopt" onclick="qfinish('n')">La libertà di essere me ogni giorno ✊</div>
-        <div class="qopt" onclick="qfinish('c')">Che la gente si giri a guardarmi 👀</div>
-        <div class="qopt" onclick="qfinish('r')">Ritrovare me stesso dopo tanto caos 🌱</div>
-      </div>
+    <div class="qstep active" id="qs">
+      <p class="qq" id="qq">—</p>
+      <div class="qopts" id="qopts"></div>
     </div>
     <div class="qstep" id="qsr"><div class="qres" id="qres-box"></div></div>
   </div>
 </section>
+
 
 <div class="sec-divider"></div>
 
@@ -1313,36 +1293,76 @@ window.addEventListener('scroll', ()=>{
   setInterval(spawn, 180);
 })();
 
-/* ── QUIZ ── */
-let qa=[];
-const qr={
-  n:{emoji:'🌿',title:'Il Naturalista',text:'Autentico fino al midollo. I dreadlocks naturali a uncinetto sono la tua strada — senza cera, senza compromessi. Esattamente come te.'},
-  c:{emoji:'⚡',title:'Il Cyberpunk',text:'Esplosivo, creativo, vuoi che la gente si giri a guardarti. Cyberdreads colorati e personalizzati sono il tuo universo!'},
-  r:{emoji:'🌱',title:'Il Rinascente',text:'Stai cercando di ritrovarti — i dreads sono il tuo nuovo inizio. Da restaurare o da creare, noi siamo qui. Il caos si trasforma in bellezza. 💪'}
+/* ── QUIZ INTERATTIVO (diramazioni) ── */
+let quizPath=[];
+const quizFlow={
+  root:{q:'Cosa ti serve oggi?', options:[
+    {label:'Voglio farmi i dread con le estensioni 🌿', next:'hairExt'},
+    {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'hairNat'},
+    {label:'Ho già i dread e ho bisogno di sistemarli o ripararli 🔧', next:'repairTime'},
+    {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyType'},
+  ]},
+  hairExt:{q:'Che tipo di capelli hai?', options:[
+    {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, poi una sessione lunga (anche più fasce intere).'}},
+    {label:'Ho i capelli mossi 🌊', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli mossi', text:'Capelli mossi + estensioni: volume naturale già presente. Ottimo per estensioni leggere e result morbido, anche in mezza giornata.'}},
+    {label:'Ho i capelli ricci 🌀', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli ricci', text:'Capelli ricci + estensioni: texture perfetta. Pochi dread ma molto scenici, spesso completabili in una fascia.'}},
+    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', text:'Nessun problema: prenota una consulenza. Valutiamo lunghezza, texture e stile e scegliamo insieme la fascia più adatta.'}},
+  ]},
+  hairNat:{q:'Che tipo di capelli hai?', options:[
+    {label:'Ho i capelli lisci 📏', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli lisci', text:'Nuovi dread naturali su capelli lisci: lavorazione a uncinetto, durata media-lunga. Meglio prenotare una giornata intera.'}},
+    {label:'Ho i capelli mossi 🌊', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli mossi', text:'Nuovi dread naturali su capelli mossi: presa naturale, lavoro più rapido. Prenotazione anche in mezza giornata.'}},
+    {label:'Ho i capelli ricci 🌀', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli ricci', text:'Nuovi dread naturali su capelli ricci: texture ideale, dread compatti e resistenti. Buone per seduta intera o mezza giornata.'}},
+    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', text:'Prenota una consulenza: misuriamo lunghezza e volume per stimare il tempo e la fascia migliore.'}},
+  ]},
+  repairTime:{q:'Da quanto non ripari i dread?', options:[
+    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairState'},
+    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairState'},
+    {label:'Non li riparo da più di un anno 🕰️', next:'repairState'},
+  ]},
+  repairState:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi: ideale in mezza giornata. Prenota una fascia 09–15 o 16–20.'}},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia. Di solito una mezza giornata intera o poco più.'}},
+    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi. Prenota una giornata intera (09–20).'}},
+  ]},
+  heavyType:{q:'Quale intervento ti serve?', options:[
+    {label:'Devo solo riprendere le basi, li curo bene 🏗️', result:{emoji:'🏗️',title:'Ripresa basi mirata', text:'Intervento mirato sulle radici e punte, lavoro accurato. Prenota una fascia 09–15 o 16–20.'}},
+    {label:'Voglio riprenderli, sono incollati e ho qualche problema 🧶', result:{emoji:'🧶',title:'Sblocco + ripresa', text:'Sblocco delle incrostazioni e ripresa generale. Preferisci una fascia lunga o una giornata intera.'}},
+    {label:'Aiuto, sono un disastro totale, devo riprenderli e lavarli 🧼', result:{emoji:'🧼',title:'Recupero totale + lavaggio', text:'Recupero completo con pulizia profonda e ricostruzione. Prenota una giornata intera (09–20).'}},
+  ]},
 };
-function qnext(step,ans){
-  qa.push(ans);
-  document.getElementById('qs'+step).classList.remove('active');
-  document.getElementById('pd'+step).classList.remove('a');
-  const next=step+1;
-  if(next<3){document.getElementById('qs'+next).classList.add('active');document.getElementById('pd'+next).classList.add('a');}
+function renderQuiz(id){
+  const node=quizFlow[id];
+  if(!node) return;
+  document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
+  document.getElementById('qs').classList.add('active');
+  document.getElementById('qq').textContent=node.q;
+  const opts=document.getElementById('qopts');
+  opts.innerHTML='';
+  node.options.forEach(o=>{
+    const el=document.createElement('div');
+    el.className='qopt';
+    el.textContent=o.label;
+    el.addEventListener('click',()=>{
+      quizPath.push(o.label);
+      if(o.next) renderQuiz(o.next);
+      else finishQuiz(o.result||{});
+    });
+    opts.appendChild(el);
+  });
 }
-function qfinish(ans){
-  qa.push(ans);
-  const counts={};qa.forEach(a=>counts[a]=(counts[a]||0)+1);
-  const w=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
-  const r=qr[w];
-  document.getElementById('qres-box').innerHTML=`<div class="qres-emoji">${r.emoji}</div><h3>${r.title}</h3><p>${r.text}</p><div class="qres-btns"><a href="#appt" class="btn btn-gl">Prenota ora →</a><button class="btn-restart" onclick="qreset()">↩ Rigioca</button></div>`;
+function finishQuiz(result){
   document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
   document.getElementById('qsr').classList.add('active');
+  const path=quizPath.map(x=>x.replace(/</g,'&lt;')).join(' → ');
+  document.getElementById('qres-box').innerHTML=
+    '<div class="qres-emoji">'+(result.emoji||'🌀')+'</div>'+
+    '<h3>'+ (result.title||'Risultato') +'</h3>'+
+    '<p>'+ (result.text||'') +'</p>'+
+    '<p style="font-size:.72rem;color:var(--muted-l);margin-top:.6rem;">Percorso: '+path+'</p>'+
+    '<div class="qres-btns"><a href="#appt" class="btn btn-gl">Prenota ora →</a><button class="btn-restart" onclick="qreset()">↩ Rifai il quiz</button></div>';
 }
-function qreset(){
-  qa=[];
-  document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.qpd').forEach(d=>d.classList.remove('a'));
-  document.getElementById('qs0').classList.add('active');
-  document.getElementById('pd0').classList.add('a');
-}
+function qreset(){ quizPath=[]; renderQuiz('root'); }
+renderQuiz('root');
 
 /* ══════════════════════════════════════════
    APPOINTMENT CALENDAR & FORM
