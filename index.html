@@ -199,9 +199,9 @@ nav a:hover{color:var(--green);}
 ════════════════════════════════════════════════════ */
 .quiz-inner{max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:2;}
 .quiz-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(181,140,255,.15);color:#7c54cc;border-radius:999px;padding:.4rem 1.2rem;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:1.5rem;}
-.quiz-title{font-family:var(--fd);font-size:clamp(1.8rem,4vw,3rem);color:var(--text-l);margin-bottom:.8rem;}
+.quiz-title{font-family:var(--fd);font-size:clamp(1.8rem,4vw,3rem);color:var(--text-d);margin-bottom:.8rem;}
 .quiz-title .g{color:var(--leaf1);}
-.quiz-intro{font-size:.9rem;color:var(--muted-l);line-height:1.7;max-width:460px;margin:0 auto 2.5rem;}
+.quiz-intro{font-size:.9rem;color:var(--muted-d);line-height:1.7;max-width:460px;margin:0 auto 2.5rem;}
 .qprog{display:flex;gap:.5rem;justify-content:center;margin-bottom:2rem;}
 .qpd{width:30px;height:4px;border-radius:2px;background:rgba(26,26,30,.15);transition:background .3s,width .3s;}
 .qpd.a{background:var(--leaf1);width:50px;}
@@ -666,7 +666,6 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   <h1 class="hero-h1">
     <span class="word"><span class="hg flicker">WOO</span></span>
     <span class="word"><span>DREADS</span></span>
-    <span class="word"><span class="hp">MAKER</span></span>
   </h1>
 
   <p class="hero-desc">
@@ -695,7 +694,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
      PHOTO SHOWROOM – dinamico
 ═══════════════════════════════════ -->
 
-<section id="servizi" class="sec-dark">
+
+<section id="servizi" class="sec-light">
   <div id="particles-srv"></div>
   <!-- Piante extra servizi -->
   <svg class="plant" width="180" height="280" style="top:-30px;left:-40px;opacity:.55;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;">
@@ -777,64 +777,67 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
      CHI SIAMO – DARK
 ═══════════════════════════════════ -->
 
-<section id="gallery" class="sec-warm">
-  <!-- Piante extra gallery -->
-  <svg class="plant" width="180" height="280" style="top:-25px;left:-35px;opacity:.55;animation:sway 10s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-mon"/>
-  </svg>
-  <svg class="plant" width="140" height="220" style="bottom:-15px;right:-25px;opacity:.48;animation:swayr 8s ease-in-out infinite;transform-origin:bottom center;">
+
+<section id="quiz" class="sec-dark2">
+  <!-- Piante extra quiz -->
+  <svg class="plant" width="150" height="240" style="top:-20px;right:-30px;opacity:.55;animation:swayr 9s ease-in-out infinite;transform-origin:bottom center;">
     <use href="#lf-fern"/>
   </svg>
-  <svg class="plant" width="110" height="180" style="top:25%;right:5%;opacity:.35;animation:leafbob 11s ease-in-out infinite;">
+  <svg class="plant" width="120" height="200" style="bottom:-15px;left:-20px;opacity:.45;animation:sway 12s ease-in-out infinite;transform-origin:bottom center;">
     <use href="#lf-trop"/>
   </svg>
-  <svg class="plant" width="100" height="160" style="bottom:20%;left:20%;opacity:.3;animation:sway 13s ease-in-out infinite;">
-    <use href="#lf-mon"/>
-  </svg>
-  <svg class="plant" width="90" height="140" style="top:10%;left:30%;opacity:.25;animation:sway 12s ease-in-out infinite reverse;">
+  <svg class="plant" width="100" height="170" style="top:30%;left:5%;opacity:.35;animation:leafbob 10s ease-in-out infinite;">
     <use href="#lf-fern"/>
   </svg>
+  <svg class="plant" width="90" height="150" style="bottom:20%;right:15%;opacity:.3;animation:sway 13s ease-in-out infinite reverse;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="80" height="130" style="top:15%;right:35%;opacity:.25;animation:sway 11s ease-in-out infinite;">
+    <use href="#lf-trop"/>
+  </svg>
 
-  <!-- Marquee gallery -->
-  <div class="marquee-title-wrap" style="color:var(--leaf1);margin-bottom:0;">
-    <div class="marquee-title-track mtk1">
-      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
-      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+
+
+  <div class="quiz-inner">
+    <span class="quiz-badge rev">🎮 Mini gioco</span>
+    <h2 class="quiz-title rev">Che intervento <span class="g">ti serve?</span></h2>
+    <p class="quiz-intro rev">Rispondi e scopri il tipo di lavoro consigliato. Nessun giudizio, solo vibes. 🤙</p>
+
+    <div class="qstep active" id="qs">
+      <p class="qq" id="qq">—</p>
+      <div class="qopts" id="qopts"></div>
     </div>
-  </div>
-
-  <span class="lbl lbl-g rev" style="margin-top:1.5rem;display:block;">— I nostri lavori</span>
-  <p class="sub sub-l rev">Ogni lavoro racconta una storia.</p>
-
-  <!-- Filtri categorie -->
-  <div id="showroom-filters" class="showroom-filters rev"></div>
-
-  <!-- Griglia foto dinamica -->
-  <div id="showroom-grid" class="showroom-grid rev-s"></div>
-
-  <!-- Load more -->
-  <div id="showroom-more" class="load-more-wrap rev" style="display:none;">
-    <button class="btn-load-more" onclick="loadMorePhotos()">Carica altre foto ↓</button>
+    <div class="qstep" id="qsr"><div class="qres" id="qres-box"></div></div>
   </div>
 </section>
 
-<!-- ── TICKER 2: viola (reverse) ── -->
-<div class="ticker-wrap t-purple">
-  <div class="ticker-track tk3">
-    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
-    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
-  </div>
-</div>
 
 <div class="sec-divider"></div>
 
 <!-- ═══════════════════════════════════
-     SERVIZI – LIGHT
+     APPUNTAMENTO – DARK – con calendario
 ═══════════════════════════════════ -->
+
+<!-- ═══════════════════════════════════
+     BLOG PREVIEW – HOME
+═══════════════════════════════════ -->
+
+<section id="blog-preview" class="sec-light">
+  <div id="particles-blog"></div>
+  <div style="position:relative;z-index:2;">
+    <span class="lbl lbl-gd">— Blog</span>
+    <h2 class="ttl">Ultimi <span class="gd">articoli</span> dal blog</h2>
+    <p class="sub sub-d">Consigli, guide e trend sui dreadlocks naturali, cyberdreads e manutenzione.</p>
+  </div>
+  <div id="blog-preview-grid" class="bp-grid" style="position:relative;z-index:2;"></div>
+  <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
+    <a href="blog.html" class="btn btn-od">Vai al blog completo →</a>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+
 
 <section id="chisiamo" class="sec-dark">
   <div id="particles-about"></div>
@@ -896,6 +899,130 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <!-- ═══════════════════════════════════
      STATS – DARK2
 ═══════════════════════════════════ -->
+
+
+<section id="gallery" class="sec-warm">
+  <!-- Piante extra gallery -->
+  <svg class="plant" width="180" height="280" style="top:-25px;left:-35px;opacity:.55;animation:sway 10s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="140" height="220" style="bottom:-15px;right:-25px;opacity:.48;animation:swayr 8s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-fern"/>
+  </svg>
+  <svg class="plant" width="110" height="180" style="top:25%;right:5%;opacity:.35;animation:leafbob 11s ease-in-out infinite;">
+    <use href="#lf-trop"/>
+  </svg>
+  <svg class="plant" width="100" height="160" style="bottom:20%;left:20%;opacity:.3;animation:sway 13s ease-in-out infinite;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="90" height="140" style="top:10%;left:30%;opacity:.25;animation:sway 12s ease-in-out infinite reverse;">
+    <use href="#lf-fern"/>
+  </svg>
+
+  <!-- Marquee gallery -->
+  <div class="marquee-title-wrap" style="color:var(--leaf1);margin-bottom:0;">
+    <div class="marquee-title-track mtk1">
+      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-fill">GALLERY</span><span style="margin:0 2rem;opacity:.25;">—</span>
+      <span class="mt-outline">I NOSTRI LAVORI</span><span style="margin:0 2rem;opacity:.25;">—</span>
+    </div>
+  </div>
+
+  <span class="lbl lbl-g rev" style="margin-top:1.5rem;display:block;">— I nostri lavori</span>
+  <p class="sub sub-l rev">Ogni lavoro racconta una storia.</p>
+
+  <!-- Filtri categorie -->
+  <div id="showroom-filters" class="showroom-filters rev"></div>
+
+  <!-- Griglia foto dinamica -->
+  <div id="showroom-grid" class="showroom-grid rev-s"></div>
+
+  <!-- Load more -->
+  <div id="showroom-more" class="load-more-wrap rev" style="display:none;">
+    <button class="btn-load-more" onclick="loadMorePhotos()">Carica altre foto ↓</button>
+  </div>
+</section>
+
+<!-- ── TICKER 2: viola (reverse) ── -->
+<div class="ticker-wrap t-purple">
+  <div class="ticker-track tk3">
+    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
+    <span>NATURALE<span class="dot"> · </span></span><span>AUTENTICO<span class="dot"> · </span></span><span>LIBERO<span class="dot"> · </span></span><span>CREATIVO<span class="dot"> · </span></span><span>CONTEMPORANEO<span class="dot"> · </span></span><span>ARTIGIANALE<span class="dot"> · </span></span>
+  </div>
+</div>
+
+<div class="sec-divider"></div>
+
+<!-- ═══════════════════════════════════
+     SERVIZI – LIGHT
+═══════════════════════════════════ -->
+
+
+<section id="appt" class="sec-dark2">
+  <div id="particles-appt"></div>
+
+  <!-- Piante extra appt -->
+  <svg class="plant" width="140" height="220" style="top:-15px;right:-25px;opacity:.32;animation:swayr 10s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-trop"/>
+  </svg>
+  <svg class="plant" width="120" height="200" style="bottom:8%;left:-15px;opacity:.28;animation:sway 13s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-fern"/>
+  </svg>
+  <svg class="plant" width="100" height="160" style="top:15%;right:15%;opacity:.22;animation:leafbob 12s ease-in-out infinite;">
+    <use href="#lf-trop"/>
+  </svg>
+  <svg class="plant" width="90" height="140" style="bottom:25%;left:20%;opacity:.18;animation:sway 11s ease-in-out infinite reverse;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="80" height="130" style="top:30%;left:10%;opacity:.15;animation:sway 14s ease-in-out infinite;">
+    <use href="#lf-fern"/>
+  </svg>
+
+  <!-- Titolo shimmer in dark -->
+  <div style="margin-bottom:3rem;position:relative;z-index:2;" class="rev">
+    <span class="lbl lbl-gd">— Prenota</span>
+    <h2 class="ttl"><span class="shimmer-text">Prenota</span><br>la tua seduta</h2>
+  </div>
+
+  <div class="appt-grid">
+    <!-- LEFT: CALENDAR -->
+    <div style="position:relative;z-index:2;">
+      <div id="appt-calendar" class="rev">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="calMonth(-1)" aria-label="Mese precedente">◀</button>
+          <h4 id="cal-month-label">—</h4>
+          <button class="cal-nav" onclick="calMonth(1)" aria-label="Mese successivo">▶</button>
+        </div>
+        <div class="cal-weekdays">
+          <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
+        </div>
+        <div class="cal-days" id="cal-days"></div>
+        <div id="day-band-info" style="display:none;background:rgba(140,255,0,.08);border:1px solid rgba(140,255,0,.2);border-radius:8px;padding:.7rem .8rem;margin-top:.4rem;font-size:.9rem;line-height:1.4;color:var(--text-d);"></div>
+        <div class="cal-note-box" id="cal-note-box">
+          <div class="cal-note-label">📝 Nota del giorno</div>
+          <div id="cal-note-text"></div>
+        </div>
+      </div>
+
+
+      <div class="appt-whatsapp rev">
+        <a href="https://wa.me/TUONUMERO" target="_blank" class="btn btn-g" style="animation:pulse-glow 3s ease-in-out infinite;">💬 Scrivimi su WhatsApp</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: FORM -->
+  </div>
+</section>
+
+<div class="sec-divider-l"></div>
+
+<!-- ═══════════════════════════════════
+     SOCIAL – WARM
+═══════════════════════════════════ -->
+
 
 <section id="stats" class="sec-light">
   <div id="particles-stats"></div>
@@ -980,6 +1107,13 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     </div>
   </div>
 
+
+  <div class="rev" style="text-align:center;max-width:620px;margin:2.5rem auto 0;position:relative;z-index:2;">
+    <p style="color:var(--muted-d);font-size:.9rem;line-height:1.7;">
+      Se ti piace quello che vedi, un <strong style="color:var(--green);">like o un commento</strong> aiuta tanto l'algoritmo
+      a far conoscere il mio lavoro ad altre persone che cercano dreadlocks a Roma. Grazie di cuore! 💚
+    </p>
+  </div>
 </section>
 
 <!-- ── TICKER 3: dark/verde ── -->
@@ -996,128 +1130,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
      QUIZ – WARM
 ═══════════════════════════════════ -->
 
-<section id="quiz" class="sec-warm">
-  <!-- Piante extra quiz -->
-  <svg class="plant" width="150" height="240" style="top:-20px;right:-30px;opacity:.55;animation:swayr 9s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-fern"/>
-  </svg>
-  <svg class="plant" width="120" height="200" style="bottom:-15px;left:-20px;opacity:.45;animation:sway 12s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-trop"/>
-  </svg>
-  <svg class="plant" width="100" height="170" style="top:30%;left:5%;opacity:.35;animation:leafbob 10s ease-in-out infinite;">
-    <use href="#lf-fern"/>
-  </svg>
-  <svg class="plant" width="90" height="150" style="bottom:20%;right:15%;opacity:.3;animation:sway 13s ease-in-out infinite reverse;">
-    <use href="#lf-mon"/>
-  </svg>
-  <svg class="plant" width="80" height="130" style="top:15%;right:35%;opacity:.25;animation:sway 11s ease-in-out infinite;">
-    <use href="#lf-trop"/>
-  </svg>
 
-
-
-  <div class="quiz-inner">
-    <span class="quiz-badge rev">🎮 Mini gioco</span>
-    <h2 class="quiz-title rev">Che intervento <span class="g">ti serve?</span></h2>
-    <p class="quiz-intro rev">Rispondi e scopri il tipo di lavoro consigliato. Nessun giudizio, solo vibes. 🤙</p>
-
-    <div class="qstep active" id="qs">
-      <p class="qq" id="qq">—</p>
-      <div class="qopts" id="qopts"></div>
-    </div>
-    <div class="qstep" id="qsr"><div class="qres" id="qres-box"></div></div>
-  </div>
-</section>
-
-
-<div class="sec-divider"></div>
-
-<!-- ═══════════════════════════════════
-     APPUNTAMENTO – DARK – con calendario
-═══════════════════════════════════ -->
-
-<!-- ═══════════════════════════════════
-     BLOG PREVIEW – HOME
-═══════════════════════════════════ -->
-<section id="blog-preview" class="sec-dark2">
-  <div id="particles-blog"></div>
-  <div style="position:relative;z-index:2;">
-    <span class="lbl lbl-gd">— Blog</span>
-    <h2 class="ttl">Ultimi <span class="gd">articoli</span> dal blog</h2>
-    <p class="sub sub-d">Consigli, guide e trend sui dreadlocks naturali, cyberdreads e manutenzione.</p>
-  </div>
-  <div id="blog-preview-grid" class="bp-grid" style="position:relative;z-index:2;"></div>
-  <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
-    <a href="blog.html" class="btn btn-od">Vai al blog completo →</a>
-  </div>
-</section>
-
-<div class="sec-divider"></div>
-
-
-<section id="appt" class="sec-dark2">
-  <div id="particles-appt"></div>
-
-  <!-- Piante extra appt -->
-  <svg class="plant" width="140" height="220" style="top:-15px;right:-25px;opacity:.32;animation:swayr 10s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-trop"/>
-  </svg>
-  <svg class="plant" width="120" height="200" style="bottom:8%;left:-15px;opacity:.28;animation:sway 13s ease-in-out infinite;transform-origin:bottom center;">
-    <use href="#lf-fern"/>
-  </svg>
-  <svg class="plant" width="100" height="160" style="top:15%;right:15%;opacity:.22;animation:leafbob 12s ease-in-out infinite;">
-    <use href="#lf-trop"/>
-  </svg>
-  <svg class="plant" width="90" height="140" style="bottom:25%;left:20%;opacity:.18;animation:sway 11s ease-in-out infinite reverse;">
-    <use href="#lf-mon"/>
-  </svg>
-  <svg class="plant" width="80" height="130" style="top:30%;left:10%;opacity:.15;animation:sway 14s ease-in-out infinite;">
-    <use href="#lf-fern"/>
-  </svg>
-
-  <!-- Titolo shimmer in dark -->
-  <div style="margin-bottom:3rem;position:relative;z-index:2;" class="rev">
-    <span class="lbl lbl-gd">— Prenota</span>
-    <h2 class="ttl"><span class="shimmer-text">Prenota</span><br>la tua seduta</h2>
-  </div>
-
-  <div class="appt-grid">
-    <!-- LEFT: CALENDAR -->
-    <div style="position:relative;z-index:2;">
-      <div id="appt-calendar" class="rev">
-        <div class="cal-header">
-          <button class="cal-nav" onclick="calMonth(-1)" aria-label="Mese precedente">◀</button>
-          <h4 id="cal-month-label">—</h4>
-          <button class="cal-nav" onclick="calMonth(1)" aria-label="Mese successivo">▶</button>
-        </div>
-        <div class="cal-weekdays">
-          <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
-        </div>
-        <div class="cal-days" id="cal-days"></div>
-        <div id="day-band-info" style="display:none;background:rgba(140,255,0,.08);border:1px solid rgba(140,255,0,.2);border-radius:8px;padding:.7rem .8rem;margin-top:.4rem;font-size:.9rem;line-height:1.4;color:var(--text-d);"></div>
-        <div class="cal-note-box" id="cal-note-box">
-          <div class="cal-note-label">📝 Nota del giorno</div>
-          <div id="cal-note-text"></div>
-        </div>
-      </div>
-
-
-      <div class="appt-whatsapp rev">
-        <a href="https://wa.me/TUONUMERO" target="_blank" class="btn btn-g" style="animation:pulse-glow 3s ease-in-out infinite;">💬 Scrivimi su WhatsApp</a>
-      </div>
-    </div>
-
-    <!-- RIGHT: FORM -->
-  </div>
-</section>
-
-<div class="sec-divider-l"></div>
-
-<!-- ═══════════════════════════════════
-     SOCIAL – WARM
-═══════════════════════════════════ -->
-
-<section id="social" class="sec-warm">
+<section id="social" class="sec-dark2">
   <!-- Piante extra social -->
   <svg class="plant" width="160" height="250" style="top:-15px;left:-30px;opacity:.5;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;">
     <use href="#lf-mon"/>
@@ -1146,7 +1160,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
       <span class="mt-fill">#WOODREADS</span><span style="margin:0 1.5rem;opacity:.2;">—</span>
     </div>
   </div>
-  <p class="rev" style="color:var(--muted-l);font-size:.9rem;max-width:420px;margin:.8rem auto 0;line-height:1.7;text-align:center;">
+  <p class="rev" style="color:var(--muted-d);font-size:.9rem;max-width:420px;margin:.8rem auto 0;line-height:1.7;text-align:center;">
     Taggaci con <strong style="color:var(--leaf1);">#WooDreads</strong> e mostra il tuo look!
   </p>
   <div class="soc-row rev">
@@ -1160,6 +1174,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 </section>
 
 <!-- FOOTER -->
+
 
 <footer>
   <div class="foot-logo">
