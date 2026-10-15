@@ -1331,6 +1331,7 @@ const quizFlow={
     {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'natThickness'},
     {label:'Ho già i dread e ho bisogno di sistemarli o ripararli 🔧', next:'repairCount'},
     {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyCount'},
+    {label:'Desidero o voglio applicare dei Cyber Dread 🔌', next:'cyberOwn'},
   ]},
   extType:{q:'Che tipo di capelli hai?', options:[
     {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
@@ -1396,6 +1397,19 @@ const quizFlow={
   repairWashOver:{q:'Vuoi aggiungere anche il lavaggio?', options:[
     {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per 70 o più dread, il volume dell\'intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
     {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede comunque una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+  ]},
+  cyberOwn:{q:'Hai già i Cyber Dread o vuoi che li realizziamo noi?', options:[
+    {label:'Li ho già, voglio che li applichino 🤝', next:'cyberQty'},
+    {label:'Voglio che li realizziate voi, personalizzati 🛠️', next:'cyberMake'},
+  ]},
+  cyberQty:{q:'Quanti Cyber Dread hai già a disposizione?', options:[
+    {label:'30 Cyber Dread 🤏', result:{emoji:'🔌',title:'Applicazione Cyber Dread — 30 unità', text:'Hai già 30 Cyber Dread: applicazione e posizionamento richiedono una mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
+    {label:'50 Cyber Dread ⚖️', result:{emoji:'🔌',title:'Applicazione Cyber Dread — 50 unità', text:'Hai già 50 Cyber Dread: posizionamento e rifinitura richiedono una mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
+    {label:'Più di 50 Cyber Dread 💪', result:{emoji:'🔌',title:'Applicazione Cyber Dread — 50+ unità', text:'Hai già più di 50 Cyber Dread: posizionamento e rifinitura richiedono una mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
+  ]},
+  cyberMake:{q:'Vuoi progettare e realizzare i tuoi Cyber Dread personalizzati?', options:[
+    {label:'Sì, sentiamoci su WhatsApp per dettagli 📲', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Realizzazione custom dei Cyber Dread: contattaci su WhatsApp per definire tipo, colore, lunghezza e quantità. Ti aiutiamo a personalizzare il design.'}},
+    {label:'Voglio solo informazioni generali 📋', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Nessun problema: prenota una consulenza o scrivici su WhatsApp per scoprire dimensioni, colori e tempi disponibili.'}},
   ]},
   heavyCount:{q:'Quanti dread ha il tuo lavoro da un sacco di tempo?', options:[
     {label:'30 o meno (≤ 30) 🔢', next:'heavyType'},
