@@ -213,7 +213,8 @@ nav a:hover{color:var(--green);}
 
 .qopt:active,.qopt.qp-selected,.qopt.selected{background:var(--lime);color:#1A1A1E;border-color:var(--green);box-shadow:0 0 24px rgba(140,255,0,.5);z-index:2;}
 .qopts.qp-running{position:relative;overflow:hidden;}
-.qopts.qp-running .qopt{animation:qpShred .39s steps(6,end) forwards;}
+.qopts.qp-running .qopt{animation:qpQuiet .32s ease forwards;}
+@keyframes qpQuiet{0%{opacity:1;transform:translate(0,0);filter:none;}100%{opacity:.08;transform:translate(0,4px);filter:blur(.5px);}}
 
 .qopts.qp-running .qopt.qp-selected{z-index:4;animation:qpEvolve .39s steps(6,end) forwards;box-shadow:0 0 30px rgba(140,255,0,.7);}
 @keyframes qpEvolve{0%{transform:scale(1) translate(0,0);filter:saturate(2);clip-path:inset(0 0 0 0);}20%{transform:scale(1.08) skewX(10deg);background:var(--lime);clip-path:inset(5% 5% 5% 5%);}40%{transform:scale(1.2) skewX(-18deg) translate(8px,-6px);filter:blur(1px);clip-path:inset(15% 15% 15% 15%);}70%{transform:scale(1.4) skewX(12deg) translate(-10px,8px);opacity:.7;filter:hue-rotate(90deg);clip-path:inset(35% 25% 35% 25%);}100%{transform:scale(1.8);opacity:.06;clip-path:inset(50% 50% 50% 50%);}}
@@ -1327,22 +1328,42 @@ window.addEventListener('scroll', ()=>{
 let quizPath=[];
 const quizFlow={
   root:{q:'Cosa ti serve oggi?', options:[
-    {label:'Voglio farmi i dread con le estensioni 🌿', next:'hairExt'},
-    {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'hairNat'},
+    {label:'Voglio farmi i dread con le estensioni 🌿', next:'extLength'},
+    {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'natLength'},
     {label:'Ho già i dread e ho bisogno di sistemarli o ripararli 🔧', next:'repairTime'},
-    {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyType'},
+    {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyDetail'},
   ]},
-  hairExt:{q:'Che tipo di capelli hai?', options:[
+  extType:{q:'Che tipo di capelli hai?', options:[
     {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, poi una sessione lunga (anche più fasce intere).'}},
     {label:'Ho i capelli mossi 🌊', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli mossi', text:'Capelli mossi + estensioni: volume naturale già presente. Ottimo per estensioni leggere e result morbido, anche in mezza giornata.'}},
     {label:'Ho i capelli ricci 🌀', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli ricci', text:'Capelli ricci + estensioni: texture perfetta. Pochi dread ma molto scenici, spesso completabili in una fascia.'}},
     {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Nessun problema: prenota una consulenza. Valutiamo lunghezza, texture e stile e scegliamo insieme la fascia più adatta.'}},
   ]},
-  hairNat:{q:'Che tipo di capelli hai?', options:[
+  natType:{q:'Che tipo di capelli hai?', options:[
     {label:'Ho i capelli lisci 📏', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli lisci', text:'Nuovi dread naturali su capelli lisci: lavorazione a uncinetto, durata media-lunga. Meglio prenotare una giornata intera.'}},
     {label:'Ho i capelli mossi 🌊', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli mossi', text:'Nuovi dread naturali su capelli mossi: presa naturale, lavoro più rapido. Prenotazione anche in mezza giornata.'}},
     {label:'Ho i capelli ricci 🌀', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli ricci', text:'Nuovi dread naturali su capelli ricci: texture ideale, dread compatti e resistenti. Buone per seduta intera o mezza giornata.'}},
     {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Prenota una consulenza: misuriamo lunghezza e volume per stimare il tempo e la fascia migliore.'}},
+  ]},
+  extLength:{q:'Che lunghezza attuale hanno i tuoi capelli?', options:[
+    {label:'Cortissimi, sopra le orecchie ✂️', next:'extType'},
+    {label:'Media, fino alle spalle ↔️', next:'extType'},
+    {label:'Lunghi, sotto le spalle ⬇️', next:'extType'},
+  ]},
+  natLength:{q:'Che lunghezza attuale hanno i tuoi capelli?', options:[
+    {label:'Corti, voglio crescita e forma nuova ✂️', next:'natType'},
+    {label:'Media, Voglio definire il volume ↔️', next:'natType'},
+    {label:'Lunghi, voglio mantenerli lunghi ⬇️', next:'natType'},
+  ]},
+  heavyDetail:{q:'Che esame hai fatto recentemente sul cuoio capelluto?', options:[
+    {label:'Nessuno, ma non ho fastidi 🌿', next:'heavyCare'},
+    {label:'Controllo generale, voglio prevenire 🔎', next:'heavyCare'},
+    {label:'Ho dermatite o dermatite ad alta intensità 🚨', next:'heavyCare'},
+  ]},
+  heavyCare:{q:'Come valuti la salute attuale dei dread?', options:[
+    {label:'Solidi, solo rifiniture necessarie ✅', next:'heavyType'},
+    {label:'Un po’ incollati o pesanti, necessitano sblocco 🧩', next:'heavyType'},
+    {label:'Molto trascurati, rotti o annodati in blocco ⚠️', next:'heavyType'},
   ]},
   repairTime:{q:'Da quanto non ripari i dread?', options:[
     {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairState'},
@@ -1381,7 +1402,7 @@ function renderQuizNow(id){
         quizPath.push(o.label);
         if(nx) renderQuizNow(nx);
         else finishQuiz(res||{});
-      });
+      }, el);
     });
     opts.appendChild(el);
   });
@@ -1410,18 +1431,24 @@ function finishQuiz(result){
     '<p style="font-size:.72rem;color:var(--muted-l);margin-top:.6rem;">Percorso: '+path+'</p>'+
     '<div class="qres-btns">'+cta+'<button class="btn-restart" onclick="qreset()">↩ Rifai il quiz</button></div>';
 }
-function startQuizGlitch(cb){
+function startQuizGlitch(cb, source){
   const qoptsEl=document.getElementById('qopts');
   if(qoptsEl.classList.contains('qp-running')) return;
   qoptsEl.classList.add('qp-running');
   // selected option is marked separately during click
   const ov=document.createElement('div');
   ov.className='qp-overlay';
+  const box=opts.getBoundingClientRect();
+  const sr=source ? source.getBoundingClientRect() : box;
+  const cx=sr.left-box.left+sr.width/2;
+  const cy=sr.top-box.top+sr.height/2;
   const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*';
   let html='';
-  for(let i=0;i<90;i++){
+  for(let i=0;i<48;i++){
     const c=chars[Math.floor(Math.random()*chars.length)];
-    html+='<span style="left:'+ (Math.random()*100).toFixed(1)+'%;top:'+ (Math.random()*100).toFixed(1)+'%;">'+c+'</span>';
+    const x=Math.max(0, Math.min(box.width, cx + (Math.random()-0.5)*160));
+    const y=Math.max(0, Math.min(box.height, cy + (Math.random()-0.5)*120));
+    html+='<span style="left:'+x.toFixed(0)+'px;top:'+y.toFixed(0)+'px;">'+c+'</span>';
   }
   ov.innerHTML=html;
   qoptsEl.appendChild(ov);
