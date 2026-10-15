@@ -1755,6 +1755,44 @@ async function submitAppt(){
 }
 
 /* ══════════════════════════════════════════
+   SOCIAL STATS — cache locale + refresh periodico
+══════════════════════════════════════════ */
+function applySocialStatsData(d){
+  const s = d && (d.data?.attributes || d);
+  const map = [
+    ['ig-followers', s.instagramFollowers],
+    ['ig-posts', s.instagramPosts],
+    ['ig-following', s.instagramFollowing],
+    ['tt-f', s.tiktokFollowers],
+    ['tt-l', s.tiktokLikes],
+    ['tt-v', s.tiktokViews],
+    ['tt-vid', s.tiktokVideos],
+    ['yt-s', s.youtubeSubscribers],
+    ['yt-v', s.youtubeViews],
+    ['yt-vid', s.youtubeVideos],
+    ['yt-w', s.youtubeWatchHours],
+  ];
+  map.forEach(([id, val]) => {
+    if (val !== null && val !== undefined && val !== '' && val !== '–') {
+      animNum2(id, Number(val));
+    }
+  });
+}
+async function loadSocialStats(){
+  try {
+    const raw = localStorage.getItem('wd_social_stats');
+    if (raw) applySocialStatsData(JSON.parse(raw));
+  } catch(_) {}
+  try {
+    const r = await fetch('/.netlify/functions/social-stats');
+    if (!r.ok) throw new Error('http '+r.status);
+    const d = await r.json();
+    const s = d && (d.data?.attributes || d);
+    localStorage.setItem('wd_social_stats', JSON.stringify(s));
+    applySocialStatsData(d);
+  } catch(_) {}
+}
+/* ══════════════════════════════════════════
    SILENT LOADER — legge i dati dal backend.
 ══════════════════════════════════════════ */
 async function loadSiteData(){
@@ -1789,28 +1827,12 @@ async function loadSiteData(){
       }
     }
 
-    // Load social stats from Strapi single type
-    if(sr && sr.ok){
-      const d=await sr.json();
-      const s = d.data?.attributes || {};
-      const map = [
-        ['ig-followers', s.instagramFollowers],
-        ['ig-posts', s.instagramPosts],
-        ['ig-following', s.instagramFollowing],
-        ['tt-f', s.tiktokFollowers],
-        ['tt-l', s.tiktokLikes],
-        ['tt-v', s.tiktokViews],
-        ['tt-vid', s.tiktokVideos],
-        ['yt-s', s.youtubeSubscribers],
-        ['yt-v', s.youtubeViews],
-        ['yt-vid', s.youtubeVideos],
-        ['yt-w', s.youtubeWatchHours],
-      ];
-      map.forEach(([id, val]) => {
-        if (val !== null && val !== undefined && val !== '' && val !== '–') {
-          animNum2(id, Number(val));
-        }
-      });
+    // Load social stats with local cache and fresh fetch fallback
+    loadSocialStats();
+
+    // Periodic refresh while the section/page stays open
+    if (!window.__socialStatsInterval) {
+      window.__socialStatsInterval = setInterval(loadSocialStats, 300000);
     }
   }catch(e){}
 }
