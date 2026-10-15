@@ -554,18 +554,30 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 .sec-light .plant,.sec-warm .plant,.sec-mid .plant,.sec-light .purple-leaf{filter:hue-rotate(225deg) saturate(1.5) brightness(1.05);}
 
-#beta-notice{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);z-index:9999;width:min(92vw,720px);padding:.85rem 1.2rem;border-radius:14px;background:rgba(13,13,15,.92);border:1px solid rgba(181,140,255,.55);box-shadow:0 0 28px rgba(181,140,255,.2), inset 0 0 20px rgba(140,255,0,.06);backdrop-filter:blur(14px);color:var(--text-d);font-size:.82rem;line-height:1.5;display:flex;align-items:center;gap:.8rem;transition:opacity .45s,transform .45s;}
-#beta-notice.hide{opacity:0;transform:translate(-50%,-1.2rem) scale(.98);pointer-events:none;}
-#beta-notice .beta-icon{font-size:1.1rem;}
-#beta-notice a{color:var(--green);font-weight:700;text-decoration:underline;}
+#beta-notice{position:fixed;top:.8rem;left:50%;transform:translateX(-50%);z-index:9999;width:min(94vw,780px);padding:1rem 1.25rem;border-radius:10px;background:linear-gradient(135deg,rgba(13,13,15,.96),rgba(18,8,30,.96));border:1px solid rgba(181,140,255,.75);box-shadow:0 0 34px rgba(181,140,255,.22),0 0 14px rgba(140,255,0,.12),inset 0 0 24px rgba(0,0,0,.5);backdrop-filter:blur(14px);color:var(--text-d);font-size:.82rem;line-height:1.55;display:flex;align-items:center;gap:.9rem;overflow:hidden;animation:beta-flicker 2.3s steps(24,end) infinite;}
+#beta-notice::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(181,140,255,.12) 0px,rgba(140,255,0,.05) 1px,transparent 2px,transparent 4px);mix-blend-mode:screen;opacity:.75;animation:scan-shift .8s linear infinite;}
+#beta-notice::after{content:"";position:absolute;inset:-1px;pointer-events:none;border:1px solid rgba(140,255,0,.35);animation:glitch-frame 1.6s steps(8,end) infinite;}
+#beta-notice.hide{opacity:0;transform:translate(-50%,-1.2rem) scale(.98);pointer-events:none;animation:none;}
+#beta-notice .beta-icon{position:relative;z-index:2;font-size:1rem;color:var(--green);text-shadow:0 0 10px rgba(140,255,0,.8);}
+#beta-notice .beta-text{position:relative;z-index:2;letter-spacing:.2px;}
+#beta-notice strong{display:inline-block;color:var(--green);}
+#beta-notice a{color:var(--purple);font-weight:800;text-decoration:none;border-bottom:1px dashed rgba(181,140,255,.7);text-shadow:0 0 8px rgba(181,140,255,.5);}
+#beta-notice a:hover{color:var(--lime);border-bottom-color:var(--lime);}
+@keyframes scan-shift{0%{transform:translateY(0);}100%{transform:translateY(4px);}}
+@keyframes beta-flicker{0%,100%{opacity:1;filter:contrast(1) brightness(1);}20%{opacity:.88;filter:contrast(1.08) brightness(1.06);clip-path:inset(0 0 0 0);}40%{opacity:1;transform:translate(calc(-50% + 2px),0);}65%{opacity:.94;transform:translate(calc(-50% - 1px),0);}85%{opacity:1;transform:translate(-50%,0);}}
+@keyframes glitch-frame{0%,100%{transform:translate(0,0);}25%{transform:translate(2px,-1px);box-shadow:0 0 0 rgba(140,255,0,.0);}50%{transform:translate(-2px,1px);}75%{transform:translate(1px,0);}}
+@media(max-width:640px){#beta-notice{font-size:.74rem;}}
+
 @media(max-width:640px){#beta-notice{font-size:.75rem;}}
 </style>
 </head>
 <body>
 
 <div id="beta-notice" role="status" aria-live="polite">
-  <span class="beta-icon">🧪</span>
-  <span><strong style="color:var(--purple);">Beta mode:</strong> WooDreads è in fase di beta testing. Alcune funzioni potrebbero non essere ancora definitive, ma saranno operative nella prossima settimana. Se noti bug, lag o malfunzionamenti, scrivi a <strong>Budz</strong> su <a href="https://wa.me/393485393826?text=Ciao%20Budz,%20ho%20trovato%20un%20possibile%20bug%20sul%20sito." target="_blank" rel="noopener">WhatsApp</a>: il tuo feedback è super appreciated ✨</span>
+  <span class="beta-icon">⚠</span>
+  <span class="beta-text">
+    <strong>[ BETA_MODE :: LOAD incomplete ]</strong> Il portale WOODREADS è attualmente in fase di beta testing. Alcune funzioni sono disattivate o in fase di compilazione, ma la prossima settimana il sistema sarà completamente operativo. Se noti bug, lag o malfunzionamenti, comunica ESCLUSIVAMENTE tramite <a href="https://wa.me/393485393826?text=Ssegalo%20bug%20sito%20WooDreads" target="_blank" rel="noopener">WHATSAPP</a> usando i link dedicati.
+  </span>
 </div>
 
 
