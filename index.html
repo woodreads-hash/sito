@@ -51,6 +51,9 @@ nav a:hover{color:var(--green);}
 .btn-ol{background:transparent;color:var(--text-l);border:1.5px solid rgba(26,26,30,.2);}
 .btn-ol:hover{border-color:var(--purple);color:var(--text-l);}
 
+.btn-vp{background:var(--dark2);border:1.5px solid var(--green);color:var(--green);border-radius:6px;padding:.8rem 1.9rem;font-family:var(--fb);font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:none;display:inline-flex;align-items:center;gap:.5rem;transition:all .2s;box-shadow:0 0 18px rgba(140,255,0,.25);}
+.btn-vp:hover,.btn-vp:focus,.btn-vp.active{border-color:var(--purple);color:var(--purple);box-shadow:0 0 18px rgba(181,140,255,.3);}
+
 /* ═══════════════════ SECTION SHELLS ═══════════════════ */
 .sec-dark{background:var(--dark);color:var(--text-d);position:relative;overflow:hidden;padding:7rem 3rem;}
 .sec-dark2{background:var(--dark2);color:var(--text-d);position:relative;overflow:hidden;padding:7rem 3rem;}
@@ -489,9 +492,9 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .slots-label{font-size:.75rem;font-weight:600;color:var(--muted-d);margin-bottom:1rem;}
 .slots-label strong{color:var(--green);font-weight:700;font-family:var(--fd);letter-spacing:1px;}
 .slots-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
-.slot-btn{background:var(--dark2);border:1.5px solid var(--green);border-radius:8px;padding:.5rem 1.1rem;font-family:var(--fb);font-size:.78rem;color:var(--green);cursor:var(--cur-pointer,none);transition:all .2s;box-shadow:0 0 10px rgba(140,255,0,.25);}
+.slot-btn{background:transparent;border:1.5px solid rgba(245,245,247,.12);border-radius:8px;padding:.5rem 1.1rem;font-family:var(--fb);font-size:.78rem;color:var(--text-d);cursor:var(--cur-pointer,none);transition:all .2s;}
 .slot-btn:hover{border-color:var(--green);color:var(--green);background:rgba(140,255,0,.06);}
-.slot-btn.selected{background:var(--purple);color:var(--dark);border-color:var(--purple);font-weight:700;box-shadow:0 0 12px rgba(181,140,255,.35);}
+.slot-btn.selected{background:var(--green);color:var(--dark);border-color:var(--green);font-weight:700;}
 .appt-whatsapp{margin-top:1rem;text-align:center;position:relative;z-index:2;}
 
 /* FORM ENHANCEMENTS */
@@ -832,7 +835,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   </div>
   <div id="blog-preview-grid" class="bp-grid" style="position:relative;z-index:2;"></div>
   <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
-    <a href="blog.html" class="btn btn-ol">Vai al blog completo →</a>
+    <a href="blog.html" class="btn btn-vp">Vai al blog completo →</a>
   </div>
 </section>
 
