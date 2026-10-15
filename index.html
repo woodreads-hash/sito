@@ -565,7 +565,12 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 #beta-notice a:hover{color:var(--lime);border-bottom-color:var(--lime);}
 @keyframes scan-shift{0%{transform:translateY(0);}100%{transform:translateY(4px);}}
 @keyframes beta-flicker{0%,100%{opacity:1;filter:contrast(1) brightness(1);}20%{opacity:.88;filter:contrast(1.08) brightness(1.06);clip-path:inset(0 0 0 0);}40%{opacity:1;transform:translate(calc(-50% + 2px),0);}65%{opacity:.94;transform:translate(calc(-50% - 1px),0);}85%{opacity:1;transform:translate(-50%,0);}}
-@keyframes glitch-frame{0%,100%{transform:translate(0,0);}25%{transform:translate(2px,-1px);box-shadow:0 0 0 rgba(140,255,0,.0);}50%{transform:translate(-2px,1px);}75%{transform:translate(1px,0);}}
+@keyframes glitch-frame{0%,100%{transform:translate(0,0);}25%{transform:translate(2px,-1px);box-shadow:0 0 0 rgba(140,255,0,.0);}50%{transform:translate(-2px,1px);}75%{transform:translate(1px,0);}}#beta-notice.beta-glitching{animation:none;position:fixed;filter:url(#beta-glitch-filter) contrast(1.4) saturate(1.8) hue-rotate(10deg);box-shadow:0 0 48px rgba(181,140,255,.45),0 0 24px rgba(140,255,0,.35);overflow:visible;}
+#beta-notice.beta-glitching::before{opacity:1;animation:scan-break .12s steps(4,end) infinite;}
+#beta-notice.beta-glitching::after{animation:glitch-final .12s steps(3,end) infinite;}
+@keyframes scan-break{0%{transform:translateY(0) skewX(0deg);}25%{transform:translateY(3px) skewX(8deg);}50%{transform:translateY(-2px) skewX(-10deg);}75%{transform:translateY(4px) skewX(6deg);}100%{transform:translateY(0) skewX(0deg);}}
+@keyframes glitch-final{0%{transform:translate(0,0);box-shadow:-8px 0 rgba(140,255,0,.55),8px 0 rgba(181,140,255,.55);}20%{transform:translate(-9px,2px) skewX(14deg);box-shadow:-12px 0 rgba(181,140,255,.7),10px 0 rgba(140,255,0,.65);}40%{transform:translate(8px,-3px) skewX(-16deg);box-shadow:10px 0 rgba(140,255,0,.7),-10px 0 rgba(181,140,255,.65);}60%{transform:translate(-5px,3px) skewX(12deg);box-shadow:-8px 0 rgba(140,255,0,.55),8px 0 rgba(181,140,255,.55);}80%{transform:translate(6px,0) skewX(-8deg);box-shadow:6px 0 rgba(181,140,255,.65),-6px 0 rgba(140,255,0,.55);}100%{transform:translate(0,0);box-shadow:0 0 0 transparent;}}
+
 @media(max-width:640px){#beta-notice{font-size:.74rem;}}
 
 @media(max-width:640px){#beta-notice{font-size:.75rem;}}
@@ -573,6 +578,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 </head>
 <body>
 
+<svg width="0" height="0" style="position:fixed;" aria-hidden="true"><defs><filter id="beta-glitch-filter" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+<svg width="0" height="0" style="position:fixed;" aria-hidden="true"><defs><filter id="beta-glitch-filter" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
 <div id="beta-notice" role="status" aria-live="polite">
   <span class="beta-icon">⚠</span>
   <span class="beta-text">
@@ -1347,13 +1354,16 @@ makeParticles('p-soc', 38, false, '#social');
 
 const betaNotice = document.getElementById('beta-notice');
 if (betaNotice) {
-  const hideBeta = () => {
-    if (betaNotice.dataset.hidden) return;
-    betaNotice.dataset.hidden = '1';
-    betaNotice.classList.add('hide');
+  const finalizeBeta = () => {
+    if (betaNotice.dataset.finalized) return;
+    betaNotice.dataset.finalized = '1';
+    betaNotice.classList.add('beta-glitching');
+    setTimeout(() => {
+      betaNotice.classList.remove('beta-glitching');
+      betaNotice.classList.add('hide');
+    }, 1000);
   };
-  setTimeout(hideBeta, 45000);
-  ['click','scroll','keydown','touchstart','wheel'].forEach(evt => window.addEventListener(evt, hideBeta, { once: true, passive: true }));
+  setTimeout(finalizeBeta, 5000);
 }
 
 
