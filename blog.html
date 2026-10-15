@@ -46,6 +46,8 @@ nav a:hover{color:var(--green);}
 .empty,.loading{padding:3rem 1rem;text-align:center;color:var(--muted-d);}
 .more{display:block;margin:0 auto 3rem;padding:.75rem 1.6rem;border-radius:8px;border:1px solid rgba(140,255,0,.3);background:transparent;color:var(--green);font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
 .more:disabled{opacity:.4;cursor:not-allowed;}
+.blog-home-btn{display:inline-flex;padding:.8rem 1.6rem;border:1px solid rgba(140,255,0,.4);border-radius:10px;color:var(--green);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:.8rem;background:rgba(140,255,0,.06);transition:.2s;}
+.blog-home-btn:hover{background:var(--green);color:var(--dark);box-shadow:0 0 24px rgba(140,255,0,.35);}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
 @media(max-width:640px){.grid{grid-template-columns:1fr;}}
 
@@ -112,6 +114,9 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
 <main class="wrap">
   <div id="grid" class="grid" aria-live="polite"></div>
   <div id="empty" class="empty" style="display:none;">Nessun articolo pubblicato in questa categoria.</div>
+  <div style="text-align:center;margin:2rem auto 3rem;">
+    <a href="index.html" class="btn btn-vp blog-home-btn">← Torna alla home</a>
+  </div>
 </main>
 <footer>© 2025 WooDreads – Roma & Provincia · <a href="/admin" rel="nofollow">Area admin</a></footer>
 

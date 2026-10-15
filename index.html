@@ -2061,6 +2061,15 @@ function imgUrl2(img,size){
   if(size && img.formats && img.formats[size]) return base+img.formats[size].url;
   return base+img.url;
 }
+const HOME_DEFAULT_POST = {
+  title:"Guida definitiva alla manutenzione dei dreadlocks naturali a Roma: come curarli senza cera",
+  slug:"guida-manutenzione-dreads-naturali-roma",
+  category:{name:'Manutenzione'},
+  excerpt:"Scopri come lavare, idratare, proteggere e prevenire odori o frizz senza usare cera.",
+  coverImage:{url:"https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80"},
+  publishedAt:"2026-01-15T09:00:00.000Z",
+  readingTime:6
+};
 async function loadBlogPreview(){
   const grid=document.getElementById('blog-preview-grid');
   if(!grid) return;
@@ -2068,7 +2077,8 @@ async function loadBlogPreview(){
     const r=await fetch(BLOG_API+'?p=1&n=3');
     if(!r.ok) throw new Error('http '+r.status);
     const d=await r.json();
-    const items=(d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    const apiItems=(d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    const items=[HOME_DEFAULT_POST,...apiItems.filter(p=>(p.slug||'')!==HOME_DEFAULT_POST.slug)];
     if(!items.length){ grid.innerHTML='<div style="color:var(--muted-d);">Nessun articolo pubblicato ancora.</div>'; return; }
     grid.innerHTML=items.map(post=>{
       const cover=imgUrl2(post.coverImage,'medium')||imgUrl2(post.coverImage);
@@ -2085,7 +2095,7 @@ async function loadBlogPreview(){
         '</div></article>';
     }).join('');
   }catch(e){
-    grid.innerHTML='<div style="color:var(--muted-d);">Blog in aggiornamento…</div>';
+    grid.innerHTML = '<article class="bp-card"><div class="bp-thumb"><img src="'+HOME_DEFAULT_POST.coverImage.url+'" alt="'+escHtml2(HOME_DEFAULT_POST.title)+'" loading="lazy" decoding="async"/></div><div class="bp-body"><span class="bp-cat">'+escHtml2(HOME_DEFAULT_POST.category.name)+'</span><h3><a href="blog-post.html?slug='+encodeURIComponent(HOME_DEFAULT_POST.slug)+'">'+escHtml2(HOME_DEFAULT_POST.title)+'</a></h3><p>'+escHtml2(HOME_DEFAULT_POST.excerpt)+'</p><a class="bp-read" href="blog-post.html?slug='+encodeURIComponent(HOME_DEFAULT_POST.slug)+'">Leggi →</a></div></article>';
   }
 }
 
