@@ -177,18 +177,19 @@ nav a:hover{color:var(--green);}
 .platform-card{background:var(--mid);border-radius:20px;padding:2rem;border:1px solid rgba(245,245,247,.07);position:relative;overflow:hidden;transition:transform .3s,border-color .3s;}
 .platform-card:hover{transform:translateY(-5px);}
 .platform-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pc,#fff);}
-.platform-card.ig{--pc:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);}
+.platform-card.ig{--pc:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);background:linear-gradient(135deg,rgba(131,58,180,.3),rgba(253,29,29,.24),rgba(252,176,69,.14));border-color:rgba(253,29,29,.25);}
 .platform-card.ig:hover{border-color:#fd1d1d;}
-.platform-card.tt{--pc:linear-gradient(90deg,#010101,#69C9D0);}
+.platform-card.tt{--pc:linear-gradient(90deg,#010101,#69C9D0);background:linear-gradient(135deg,rgba(1,1,1,.95),rgba(105,201,208,.18));border-color:rgba(105,201,208,.25);}
 .platform-card.tt:hover{border-color:#69C9D0;}
-.platform-card.yt{--pc:linear-gradient(90deg,#FF0000,#444);}
+.platform-card.yt{--pc:linear-gradient(90deg,#FF0000,#444);background:linear-gradient(135deg,rgba(255,0,0,.24),rgba(20,20,24,.92));border-color:rgba(255,0,0,.25);}
 .platform-card.yt:hover{border-color:#FF0000;}
 .plat-header{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;}
 .plat-icon{font-size:1.6rem;}
 .plat-name{font-family:var(--fd);font-size:.85rem;letter-spacing:2px;}
 .plat-handle{font-size:.7rem;color:var(--muted-d);}
 .plat-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.pstat .num{font-family:var(--fd);font-size:1.8rem;line-height:1;color:var(--text-l);}
+.pstat .num{font-family:var(--fd);font-size:1.8rem;line-height:1;color:var(--green);text-shadow:0 0 12px rgba(140,255,0,.45);}
+.pstat.pp .num{color:var(--purple);text-shadow:0 0 12px rgba(181,140,255,.45);}
 .pstat.pp .num{color:var(--text-l);}
 .pstat.pl .num{color:var(--text-l);}
 .pstat .lbl{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-top:.2rem;}
