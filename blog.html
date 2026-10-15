@@ -70,15 +70,24 @@ footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--mut
 <main class="wrap">
   <div id="grid" class="grid" aria-live="polite"></div>
   <div id="empty" class="empty" style="display:none;">Nessun articolo pubblicato in questa categoria.</div>
-  <button id="more" class="more" type="button">Carica altri articoli</button>
 </main>
 <footer>© 2025 WooDreads – Roma & Provincia · <a href="/admin" rel="nofollow">Area admin</a></footer>
 
 <script>
 const API = '/.netlify/functions/blog';
+const DEFAULT_POST = {
+  id:'default-guida',
+  slug:'guida-manutenzione-dreads-naturali-roma',
+  title:"Guida definitiva alla manutenzione dei dreadlocks naturali a Roma: come curarli senza cera",
+  category:{name:'Manutenzione'},
+  excerpt:"Scopri come lavare, idratare, proteggere e prevenire odori o frizz senza usare cera. Una guida editoriale step-by-step per mantenere i tuoi dreadlocks naturali sani, puliti e perfettamente ordinati con il metodo WooDreads.",
+  coverImage:{url:"https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80"},
+  publishedAt:"2026-01-15T09:00:00.000Z",
+  readingTime:6,
+  content:`<h2>Perché evitare la cera</h2><p>La cera rende i dreadlocks pesanti, pastosi e difficili da lavare. Nel metodo WooDreads la manutenzione si basa su acqua controllata, shampoo delicato, palm rolling e routine settimanale.</p><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80" alt="Manutenzione dreadlocks naturali" loading="lazy"/><h3>Lavaggio corretto</h3><p>Usa uno shampoo leggero due volte, risciacqua abbondantemente e tampona con microfibra. Non coprire il lavoro con prodotti pesanti: l\'aria e il movimento fissano la struttura.</p><div style="margin:1.2rem 0;"><img src="https://media.giphy.com/media/3o7TKB3IUHuOqQVdWU/giphy.gif" alt="Mini video loop cura dreadlocks" style="max-width:100%;border-radius:12px;"/><p style="font-size:.75rem;color:var(--muted-d);margin-top:.4rem;">Loop stile GIF — cura e manipolazione leggera.</p></div><h2>Anteprima video YouTube</h2><p>Durante la manutenzione osserva sempre il movimento naturale dei dread: tensione uniforme, radice pulita e nessun accumulo.</p><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;margin:1.2rem 0;"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ" title="Anteprima YouTube" frameborder="0" allow="autoplay;encrypted-media" style="position:absolute;inset:0;width:100%;height:100%;"></iframe></div><h3>Routine settimanale</h3><ul><li>Giorno 1: lavaggio delicato.</li><li>Giorno 2: asciugatura completa all\'aria.</li><li>Giorno 4: idratazione leggera.</li><li>Giorno 7: controllo radice e palm rolling.</li></ul><p>Con costanza otterrai dreadlocks lucidi, ordinati e senza cera, con meno stress per capelli e scalp.</p>`
+};
 const grid = document.getElementById('grid');
 const empty = document.getElementById('empty');
-const moreBtn = document.getElementById('more');
 const filtersEl = document.getElementById('filters');
 let page = 1, pageSize = 9, category = null, hasMore = true, loading = false;
 
@@ -117,13 +126,13 @@ async function loadCategories(){
 async function loadPosts(append){
   if(loading) return; loading=true;
   if(!append){ page=1; grid.innerHTML='<div class="loading">Caricamento articoli…</div>'; empty.style.display='none'; }
-  moreBtn.disabled=true;
   try{
     const url = API+'?p='+page+'&n='+pageSize+(category?('&cat='+encodeURIComponent(category)):'');
     const r = await fetch(url);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
-    const items = (d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    let items = (d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    if(!items.some(p=>(p.slug||'')===DEFAULT_POST.slug)) items = [DEFAULT_POST, ...items];
     const pagination = d.meta?.pagination;
     hasMore = pagination ? (pagination.page < pagination.pageCount) : items.length===pageSize;
 
@@ -150,16 +159,19 @@ async function loadPosts(append){
         '</div>';
       grid.appendChild(card);
     });
-    moreBtn.style.display = hasMore ? 'block' : 'none';
   }catch(e){
-    if(!append) grid.innerHTML='<div class="empty">Errore nel caricamento degli articoli. Riprova più tardi.</div>';
+    if(!append){
+      grid.innerHTML='';
+      const card = document.createElement('article');
+      card.className='card';
+      card.innerHTML = '<div class="thumb"><img src="'+(DEFAULT_POST.coverImage.url)+'" alt="'+esc(DEFAULT_POST.title)+'" loading="lazy"/></div><div class="body"><span class="cat">'+esc(DEFAULT_POST.category.name)+'</span><h2><a href="blog-post.html?slug='+encodeURIComponent(DEFAULT_POST.slug)+'">'+esc(DEFAULT_POST.title)+'</a></h2><p>'+esc(DEFAULT_POST.excerpt)+'</p><div class="meta"><span>'+formatDate(DEFAULT_POST.publishedAt)+'</span><span>'+readTime(DEFAULT_POST.readingTime)+'</span></div><a class="read" href="blog-post.html?slug='+encodeURIComponent(DEFAULT_POST.slug)+'">Leggi l\'articolo →</a></div>';
+      grid.appendChild(card);
+    }
   }finally{
     loading=false;
-    moreBtn.disabled=false;
   }
 }
 function resetAndLoad(){ page=1; hasMore=true; loadPosts(false); }
-moreBtn.addEventListener('click',()=>{ if(hasMore){ page++; loadPosts(true);} });
 
 loadCategories();
 loadPosts(false);

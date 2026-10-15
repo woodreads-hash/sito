@@ -48,6 +48,13 @@ article .content code{background:var(--mid);padding:.15rem .4rem;border-radius:4
 .tags{display:flex;gap:.4rem;flex-wrap:wrap;margin:1.5rem 0;}
 .tag{padding:.3rem .7rem;border-radius:999px;border:1px solid rgba(181,140,255,.3);font-size:.7rem;color:var(--purple);}
 .loading,.error{padding:3rem 1rem;text-align:center;color:var(--muted-d);}
+
+.article-nav{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:space-between;margin-top:2.2rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.08);}
+.nav-btn{padding:.75rem 1rem;border-radius:10px;border:1px solid rgba(140,255,0,.3);color:var(--green);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:.75rem;transition:.2s;background:rgba(140,255,0,.05);}
+.nav-btn:hover{background:var(--green);color:var(--dark);}
+.nav-btn.next{border-color:rgba(181,140,255,.35);color:var(--purple);background:rgba(181,140,255,.05);}
+.nav-btn.next:hover{background:var(--purple);color:var(--dark);}
+
 footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
 @media(max-width:640px){h1{font-size:1.8rem;}}
 </style>
@@ -70,6 +77,18 @@ footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--mut
 <footer>© 2025 WooDreads – Roma & Provincia</footer>
 
 <script>
+const DEFAULT_POST = {
+  id:'default-guida',
+  slug:'guida-manutenzione-dreads-naturali-roma',
+  title:"Guida definitiva alla manutenzione dei dreadlocks naturali a Roma: come curarli senza cera",
+  category:{name:'Manutenzione'},
+  excerpt:"Scopri come lavare, idratare, proteggere e prevenire odori o frizz senza usare cera. Una guida editoriale step-by-step per mantenere i tuoi dreadlocks naturali sani, puliti e perfettamente ordinati con il metodo WooDreads.",
+  coverImage:{url:"https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80"},
+  publishedAt:"2026-01-15T09:00:00.000Z",
+  readingTime:6,
+  content:`<h2>Perché evitare la cera</h2><p>La cera rende i dreadlocks pesanti, pastosi e difficili da lavare. Nel metodo WooDreads la manutenzione si basa su acqua controllata, shampoo delicato, palm rolling e routine settimanale.</p><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80" alt="Manutenzione dreadlocks naturali" loading="lazy"/><h3>Lavaggio corretto</h3><p>Usa uno shampoo leggero due volte, risciacqua abbondantemente e tampona con microfibra. Non coprire il lavoro con prodotti pesanti: l\'aria e il movimento fissano la struttura.</p><div style="margin:1.2rem 0;"><img src="https://media.giphy.com/media/3o7TKB3IUHuOqQVdWU/giphy.gif" alt="Mini video loop cura dreadlocks" style="max-width:100%;border-radius:12px;"/><p style="font-size:.75rem;color:var(--muted-d);margin-top:.4rem;">Loop stile GIF — cura e manipolazione leggera.</p></div><h2>Anteprima video YouTube</h2><p>Durante la manutenzione osserva sempre il movimento naturale dei dread: tensione uniforme, radice pulita e nessun accumulo.</p><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;margin:1.2rem 0;"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ" title="Anteprima YouTube" frameborder="0" allow="autoplay;encrypted-media" style="position:absolute;inset:0;width:100%;height:100%;"></iframe></div><h3>Routine settimanale</h3><ul><li>Giorno 1: lavaggio delicato.</li><li>Giorno 2: asciugatura completa all\'aria.</li><li>Giorno 4: idratazione leggera.</li><li>Giorno 7: controllo radice e palm rolling.</li></ul><p>Con costanza otterrai dreadlocks lucidi, ordinati e senza cera, con meno stress per capelli e scalp.</p>`
+};
+
 const API = '/.netlify/functions/blog';
 const wrap = document.getElementById('wrap');
 const params = new URLSearchParams(location.search);
@@ -102,19 +121,11 @@ function injectJsonLd(obj){
   s.textContent = JSON.stringify(obj);
 }
 
-async function render(){
-  if(!slug){
-    wrap.innerHTML='<div class="error">Slug articolo mancante.</div>';return;
+function renderPost(post){
+  if(!post){
+    wrap.innerHTML='<div class="error">Articolo non trovato.</div>';return;
   }
   try{
-    const r = await fetch(API+'/post?slug='+encodeURIComponent(slug));
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d = await r.json();
-    const items = d.data||d||[];
-    if(!items.length){ wrap.innerHTML='<div class="error">Articolo non trovato.</div>'; return; }
-    const raw = items[0];
-    const post = raw.attributes ? {id:raw.id,...raw.attributes} : raw;
-
     const title = post.seoTitle || post.title;
     const description = post.seoDescription || post.excerpt || '';
     const cover = imgUrl(post.coverImage,'large') || imgUrl(post.coverImage);
@@ -178,6 +189,10 @@ async function render(){
       (tldrItems.length?'<section class="tldr" aria-label="Sommario"><h2>📌 In sintesi (TL;DR)</h2><ul>'+tldrItems.map(x=>'<li>'+esc(x.trim())+(x.trim().endsWith('.')?'':' .')+'</li>').join('')+'</ul></section>':'')+
       '<section class="content">'+sanitizeHtml(post.content||'')+'</section>'+
       (tags.length?'<div class="tags">'+tags.map(t=>'<span class="tag">#'+esc(t)+'</span>').join('')+'</div>':'')+
+      '<nav class="article-nav" aria-label="Navigazione articoli">'+
+      '<a class="nav-btn" href="blog.html">← Torna al blog</a>'+
+      '<a class="nav-btn next" href="blog.html">Prossimo articolo →</a>'+
+      '</nav>'+
       '</article>';
 
     injectJsonLd(jsonLd);
@@ -185,6 +200,25 @@ async function render(){
     wrap.innerHTML='<div class="error">Errore nel caricamento dell\'articolo. Riprova più tardi.</div>';
   }
 }
+async function render(){
+  if(!slug){
+    wrap.innerHTML='<div class="error">Slug articolo mancante.</div>';return;
+  }
+  if(slug === DEFAULT_POST.slug){ renderPost(DEFAULT_POST); return; }
+  try{
+    const r = await fetch(API+'/post?slug='+encodeURIComponent(slug));
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    const items = d.data||d||[];
+    if(!items.length){ wrap.innerHTML='<div class="error">Articolo non trovato.</div>'; return; }
+    const raw = items[0];
+    const post = raw.attributes ? {id:raw.id,...raw.attributes} : raw;
+    renderPost(post);
+  }catch(e){
+    wrap.innerHTML='<div class="error">Errore nel caricamento dell\'articolo. Riprova più tardi.</div>';
+  }
+}
+
 render();
 </script>
 </body>
