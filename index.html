@@ -1327,9 +1327,9 @@ window.addEventListener('scroll', ()=>{
 let quizPath=[];
 const quizFlow={
   root:{q:'Cosa ti serve oggi?', options:[
-    {label:'Voglio farmi i dread con le estensioni 🌿', next:'hairExt'},
-    {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'hairNat'},
-    {label:'Ho già i dread e ho bisogno di sistemarli o ripararli 🔧', next:'repairTime'},
+    {label:'Voglio farmi i dread con le estensioni 🌿', next:'extThickness'},
+    {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'natThickness'},
+    {label:'Ho già i dread e ho bisogno di sistemarli o ripararli 🔧', next:'repairCount'},
     {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyType'},
   ]},
   hairExt:{q:'Che tipo di capelli hai?', options:[
@@ -1344,15 +1344,46 @@ const quizFlow={
     {label:'Ho i capelli ricci 🌀', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli ricci', text:'Nuovi dread naturali su capelli ricci: texture ideale, dread compatti e resistenti. Buone per seduta intera o mezza giornata.'}},
     {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Prenota una consulenza: misuriamo lunghezza e volume per stimare il tempo e la mezza giornata migliore.'}},
   ]},
-  repairTime:{q:'Da quanto non ripari i dread?', options:[
-    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairState'},
-    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairState'},
-    {label:'Non li riparo da più di un anno 🕰️', next:'repairState'},
+  extThickness:{q:'Quale spessore desideri per i nuovi dread?', options:[
+    {label:'Fini, leggeri ed eleganti 🪶', next:'extType'},
+    {label:'Medi, equilibrio perfetto ⚖️', next:'extType'},
+    {label:'Spessi, voluminosi e presenti 💪', next:'extType'},
   ]},
-  repairState:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi: ideale per ricrescite sotto i 50 dread, lavoro breve. Mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia. Se fino a 50 dread: mezza giornata (09:00–15:00 o 16:00–20:00); oltre 53 dread: giornata intera (09:00–20:00).'}},
-    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi. Con più di 6 mesi o lavaggio incluso: giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+  natThickness:{q:'Quale spessore desideri per i nuovi dread?', options:[
+    {label:'Fini, discreti ed eleganti 🪶', next:'natType'},
+    {label:'Medi, equilibrio perfetto ⚖️', next:'natType'},
+    {label:'Spessi, voluminosi e presenti 💪', next:'natType'},
+  ]},
+  repairCount:{q:'Quanti dread attualmente possiedi?', options:[
+    {label:'30 o meno (≤ 30)', next:'repairTimeUnder'},
+    {label:'50', next:'repairTimeOver'},
+    {label:'Da 50 a 70 (50-70)', next:'repairTimeOver'},
+    {label:'70 o più (≥ 70)', next:'repairTimeOver'},
+  ]},
+  repairTimeUnder:{q:'Da quanto non ripari i dread?', options:[
+    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairStateUnder'},
+    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairStateUnderLate'},
+    {label:'Non li riparo da più di un anno 🕰️', next:'repairStateUnderLate'},
+  ]},
+  repairTimeOver:{q:'Da quanto non ripari i dread?', options:[
+    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairStateOver'},
+    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairStateOver'},
+    {label:'Non li riparo da più di un anno 🕰️', next:'repairStateOver'},
+  ]},
+  repairStateUnder:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi sotto i 50 dread: intervento breve, mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia sotto i 50 dread: di solito mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi sotto i 50 dread: mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+  ]},
+  repairStateUnderLate:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi sotto i 50 dread dopo più di 6 mesi: smontaggio/riparazione con lavaggio richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia sotto i 50 dread dopo più di 6 mesi: lavoro medio-lungo, richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi sotto i 50 dread dopo più di 6 mesi: giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+  ]},
+  repairStateOver:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi con 50 dread o più: richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia con 50 dread o più: richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi con 50 dread o più: giornata intera (09:00–20:00). Prenota una giornata intera.'}},
   ]},
   heavyType:{q:'Quale intervento ti serve?', options:[
     {label:'Devo solo riprendere le basi, li curo bene 🏗️', result:{emoji:'🏗️',title:'Ripresa basi mirata', text:'Ripresa basi mirata. Se il lavoro è sotto i 50 dread richiede mezza giornata; in caso di recupero più esteso può richiedere una giornata intera.'}},
