@@ -2070,15 +2070,36 @@ const HOME_DEFAULT_POST = {
   publishedAt:"2026-01-15T09:00:00.000Z",
   readingTime:6
 };
+
+function mapLandingSupabasePost(row){
+  return {
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt || (row.text||'').replace(/<[^>]+>/g,'').slice(0,180),
+    category: row.category ? {name: row.category} : null,
+    coverImage: row.cover_url ? {url: row.cover_url} : null,
+    publishedAt: row.created_at,
+    readingTime: row.reading_time || 5
+  };
+}
+
 async function loadBlogPreview(){
   const grid=document.getElementById('blog-preview-grid');
   if(!grid) return;
   try{
-    const r=await fetch(BLOG_API+'?p=1&n=3');
-    if(!r.ok) throw new Error('http '+r.status);
-    const d=await r.json();
-    const apiItems=(d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
-    const items=[HOME_DEFAULT_POST,...apiItems.filter(p=>(p.slug||'')!==HOME_DEFAULT_POST.slug)];
+    let items=[];
+    try {
+      const rows = await window.supabaseFetch('/rest/v1/'+window.SUPABASE_TABLE+'?select=*&status=eq.published&order=created_at.desc&limit=3');
+      items = (rows||[]).map(mapLandingSupabasePost);
+    } catch(_) {
+      const r=await fetch(BLOG_API+'?p=1&n=3');
+      if(!r.ok) throw new Error('http '+r.status);
+      const d=await r.json();
+      const apiItems=(d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+      items=apiItems;
+    }
+    if(!items.length){ items=[HOME_DEFAULT_POST]; }
+    if(!items.some(p=>(p.slug||'')===HOME_DEFAULT_POST.slug)) items=[HOME_DEFAULT_POST,...items];
     if(!items.length){ grid.innerHTML='<div style="color:var(--muted-d);">Nessun articolo pubblicato ancora.</div>'; return; }
     grid.innerHTML=items.map(post=>{
       const cover=imgUrl2(post.coverImage,'medium')||imgUrl2(post.coverImage);

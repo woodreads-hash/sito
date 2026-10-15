@@ -120,6 +120,7 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
 </div>
 <footer>© 2025 WooDreads – Roma & Provincia</footer>
 
+<script src="supabase-config.js"></script>
 <script>
 const DEFAULT_POST = {
   id:'default-guida',
@@ -245,19 +246,41 @@ function renderPost(post){
     wrap.innerHTML='<div class="error">Errore nel caricamento dell\'articolo. Riprova più tardi.</div>';
   }
 }
+
+function mapSupabasePost(row){
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt || (row.text || '').replace(/<[^>]+>/g,'').slice(0,240),
+    category: row.category ? {name: row.category} : null,
+    coverImage: row.cover_url ? {url: row.cover_url} : null,
+    publishedAt: row.created_at,
+    readingTime: row.reading_time || 5,
+    content: row.text || ''
+  };
+}
+
 async function render(){
   if(!slug){
     wrap.innerHTML='<div class="error">Slug articolo mancante.</div>';return;
   }
   if(slug === DEFAULT_POST.slug){ renderPost(DEFAULT_POST); return; }
   try{
-    const r = await fetch(API+'/post?slug='+encodeURIComponent(slug));
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d = await r.json();
-    const items = d.data||d||[];
-    if(!items.length){ wrap.innerHTML='<div class="error">Articolo non trovato.</div>'; return; }
-    const raw = items[0];
-    const post = raw.attributes ? {id:raw.id,...raw.attributes} : raw;
+    let post = null;
+    try {
+      const rows = await window.supabaseFetch('/rest/v1/' + window.SUPABASE_TABLE + '?select=*&slug=eq.' + encodeURIComponent(slug) + '&limit=1');
+      if (rows && rows.length) post = mapSupabasePost(rows[0]);
+    } catch (_) {}
+    if (!post) {
+      const r = await fetch(API+'/post?slug='+encodeURIComponent(slug));
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const d = await r.json();
+      const items = d.data||d||[];
+      if(!items.length){ wrap.innerHTML='<div class="error">Articolo non trovato.</div>'; return; }
+      const raw = items[0];
+      post = raw.attributes ? {id:raw.id,...raw.attributes} : raw;
+    }
     renderPost(post);
   }catch(e){
     wrap.innerHTML='<div class="error">Errore nel caricamento dell\'articolo. Riprova più tardi.</div>';

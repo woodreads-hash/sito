@@ -120,6 +120,7 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
 </main>
 <footer>© 2025 WooDreads – Roma & Provincia</footer>
 
+<script src="supabase-config.js"></script>
 <script>
 const API = '/.netlify/functions/blog';
 const DEFAULT_POST = {
@@ -170,18 +171,48 @@ async function loadCategories(){
   }catch(e){filtersEl.innerHTML='';}
 }
 
+
+function sanitizeCategory(v){ return String(v||'').replace(/[^\w\-. ]/g,'').trim().slice(0,80); }
+function mapSupabasePost(row){
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt || (row.text || '').replace(/<[^>]+>/g,'').slice(0,240),
+    category: row.category ? {name: row.category} : null,
+    coverImage: row.cover_url ? {url: row.cover_url} : null,
+    publishedAt: row.created_at,
+    readingTime: row.reading_time || 5,
+    content: row.text || ''
+  };
+}
+
 async function loadPosts(append){
   if(loading) return; loading=true;
   if(!append){ page=1; grid.innerHTML='<div class="loading">Caricamento articoli…</div>'; empty.style.display='none'; }
   try{
-    const url = API+'?p='+page+'&n='+pageSize+(category?('&cat='+encodeURIComponent(category)):'');
-    const r = await fetch(url);
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d = await r.json();
-    let items = (d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+    let items = [];
+    let hasMoreRemote = false;
+    try {
+      const qs = new URLSearchParams();
+      qs.set('select', '*');
+      qs.set('status', 'eq.published');
+      qs.set('order', 'created_at.desc');
+      if (category) qs.set('category', 'eq.'+sanitizeCategory(category));
+      const rows = await window.supabaseFetch('/rest/v1/' + window.SUPABASE_TABLE + '?' + qs.toString());
+      items = (rows || []).map(mapSupabasePost);
+      hasMoreRemote = false;
+    } catch (sbErr) {
+      const url = API+'?p='+page+'&n='+pageSize+(category?('&cat='+encodeURIComponent(category)):'');
+      const r = await fetch(url);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const d = await r.json();
+      items = (d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
+      const pagination = d.meta?.pagination;
+      hasMoreRemote = pagination ? (pagination.page < pagination.pageCount) : items.length===pageSize;
+    }
     if(!items.some(p=>(p.slug||'')===DEFAULT_POST.slug)) items = [DEFAULT_POST, ...items];
-    const pagination = d.meta?.pagination;
-    hasMore = pagination ? (pagination.page < pagination.pageCount) : items.length===pageSize;
+    hasMore = hasMoreRemote;
 
     if(!append) grid.innerHTML='';
     if(!items.length && page===1){
