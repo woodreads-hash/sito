@@ -213,8 +213,8 @@ nav a:hover{color:var(--green);}
 @keyframes fadeQ{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 .qq{font-size:1.05rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-d);line-height:1.5;}
 .qopts{display:flex;flex-direction:column;gap:.75rem;}
-.qopt{background:#fff;border:1.5px solid rgba(26,26,30,.1);border-radius:12px;padding:.95rem 1.5rem;font-size:.9rem;cursor:none;transition:all .2s;text-align:left;color:var(--text-l);}
-.qopt:hover{border-color:var(--green);background:rgba(140,255,0,.08);transform:translateX(6px);}
+.qopt{background:var(--dark2);border:1.5px solid var(--green);border-radius:12px;padding:.95rem 1.5rem;font-size:.9rem;cursor:none;transition:all .2s;text-align:left;color:var(--green);box-shadow:0 0 10px rgba(140,255,0,.2);}
+.qopt:hover,.qopt:focus,.qopt:active{border-color:var(--purple);color:var(--purple);background:var(--dark2);transform:translateX(6px);box-shadow:0 0 10px rgba(181,140,255,.25);opacity:.35;}
 .qres{padding:2rem;background:#fff;border-radius:18px;border:2px solid var(--leaf1);}
 .qres-emoji{font-size:4rem;margin-bottom:1rem;animation:bouncein .6s cubic-bezier(.34,1.56,.64,1) forwards;}
 @keyframes bouncein{from{transform:scale(0);}to{transform:scale(1);}}
