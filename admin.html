@@ -398,9 +398,24 @@ tr:hover{background:rgba(140,255,0,.02);}
 
         <div style="margin-bottom:1.5rem;">
           <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:.8rem;">Editor di testo</div>
-          <div class="fg">
-            <label>Testo principale</label>
-            <textarea id="bl-text" style="min-height:300px;line-height:1.8;" placeholder="Inserisci il testo del blog con gerarchia tipografica, spaziature ampie e massima leggibilità..."></textarea>
+          <div class="fg" style="gap:.7rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem;margin-bottom:.3rem;">
+              <label style="margin:0;">Editor full-width</label>
+              <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                <button type="button" class="btn-sm" onclick="blogFormat('bold')" title="Grassetto" style="padding:.35rem .75rem;">B</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h2')" style="padding:.35rem .75rem;">H2</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h3')" style="padding:.35rem .75rem;">H3</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('insertUnorderedList')" style="padding:.35rem .75rem;">• Lista</button>
+                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(181,140,255,.35);color:var(--purple);" onclick="triggerBlogMedia('image')">📷 Immagine</button>
+                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(255,107,241,.35);color:var(--pink, #ff7bf1);" onclick="triggerBlogMedia('video')">🎬 Video/GIF</button>
+              </div>
+            </div>
+            <div id="bl-editor" contenteditable="true" spellcheck="true" onblur="saveEditorSelection()" style="width:100%;min-height:460px;height:460px;resize:vertical;overflow:auto;background:rgba(6,8,16,.88);border:1px solid rgba(181,140,255,.28);border-radius:12px;padding:1.25rem 1.5rem;color:var(--text-d);font-family:inherit;font-size:1rem;line-height:1.85;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 0 30px rgba(181,140,255,.08);"></div>
+            <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:.2rem;">
+              <span style="font-size:.72rem;color:var(--muted-d);">Posiziona il cursore e usa i pulsanti per inserire foto/video/GIF in linea. Gli elementi multimediali caricati vengono inseriti al punto del cursore.</span>
+            </div>
+            <input type="file" id="bl-inline-image" accept="image/*" style="display:none;" onchange="insertBlogMedia(this,'image')">
+            <input type="file" id="bl-inline-video" accept="video/*,image/gif" style="display:none;" onchange="insertBlogMedia(this,'video')">
           </div>
         </div>
 
@@ -727,7 +742,7 @@ function saveBlogArticle(status){
     id: Date.now(),
     title,
     slug: (document.getElementById('bl-slug').value||'').trim(),
-    text: document.getElementById('bl-text').value.trim(),
+    text: document.getElementById('bl-editor').innerHTML.trim(),
     imageName: (document.getElementById('bl-image').files[0]||{}).name || '',
     videoName: (document.getElementById('bl-video').files[0]||{}).name || '',
     youtube: document.getElementById('bl-yt').value.trim(),
@@ -744,7 +759,7 @@ function saveBlogArticle(status){
   toast(status === 'published' ? 'Articolo pubblicato (locale)' : 'Bozza salvata');
 }
 function clearBlogEditor(){
-  ['bl-title','bl-slug','bl-text','bl-image','bl-video','bl-yt'].forEach(id=>{
+  ['bl-title','bl-slug','bl-image','bl-video','bl-yt'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
 }
@@ -778,7 +793,7 @@ function loadBlogEdit(id){
   if(!a) return;
   document.getElementById('bl-title').value=a.title||'';
   document.getElementById('bl-slug').value=a.slug||'';
-  document.getElementById('bl-text').value=a.text||'';
+  document.getElementById('bl-editor').innerHTML=a.text||'';
   document.getElementById('bl-yt').value=a.youtube||'';
   toast('Articolo caricato in editor');
 }
@@ -789,6 +804,83 @@ function updateBlogAnalytics(){
   const interactions=all.reduce((t,a)=>t+(a.interactions||0),0);
   const v=document.getElementById('bl-views'), ti=document.getElementById('bl-time'), inm=document.getElementById('bl-ig');
   if(v) v.textContent=views; if(ti) ti.textContent=time+'s'; if(inm) inm.textContent=interactions;
+}
+/* -- Rich blog editor helpers -- */
+let blogEditorRange=null;
+function saveEditorSelection(){
+  const editor=document.getElementById('bl-editor');
+  if(!editor) return;
+  const sel=window.getSelection();
+  if(!sel || !sel.rangeCount) return;
+  const range=sel.getRangeAt(0);
+  if(editor.contains(range.commonAncestorContainer)){ blogEditorRange=range.cloneRange(); }
+}
+function blogFormat(command, value){
+  const editor=document.getElementById('bl-editor');
+  if(!editor) return;
+  editor.focus();
+  try { document.execCommand(command, false, value); } catch(e){}
+}
+function triggerBlogMedia(type){
+  saveEditorSelection();
+  const id=type==='image'?'bl-inline-image':'bl-inline-video';
+  const el=document.getElementById(id);
+  if(el) el.click();
+}
+function insertBlogMedia(input, type){
+  if(!input || !input.files || !input.files[0]) return;
+  const file=input.files[0];
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const editor=document.getElementById('bl-editor');
+    if(!editor) return;
+    editor.focus();
+    const sel=window.getSelection();
+    let range=blogEditorRange;
+    if(range) { try { sel.removeAllRanges(); sel.addRange(range); } catch(e){} }
+    if(!sel || !sel.rangeCount){
+      range=document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    range=sel.getRangeAt(0);
+    range.deleteContents();
+    let node=null;
+    if(type==='image'){
+      node=document.createElement('img');
+      node.src=ev.target.result;
+      node.alt=file.name;
+      node.style.maxWidth='100%';
+      node.style.height='auto';
+      node.style.borderRadius='10px';
+      node.style.margin='1rem 0';
+      node.style.display='block';
+    } else {
+      node=document.createElement('video');
+      node.src=ev.target.result;
+      node.autoplay=true;
+      node.loop=true;
+      node.muted=true;
+      node.controls=true;
+      node.playsInline=true;
+      node.style.maxWidth='100%';
+      node.style.height='auto';
+      node.style.borderRadius='10px';
+      node.style.margin='1rem 0';
+      node.style.display='block';
+    }
+    range.insertNode(node);
+    const after=document.createRange();
+    after.setStartAfter(node);
+    after.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(after);
+    saveEditorSelection();
+    input.value='';
+  };
+  reader.readAsDataURL(file);
 }
 /* ── Init ── */
 async function init(){
