@@ -1355,35 +1355,47 @@ const quizFlow={
     {label:'Spessi, voluminosi e presenti 💪', next:'natType'},
   ]},
   repairCount:{q:'Quanti dread attualmente possiedi?', options:[
-    {label:'30 o meno (≤ 30)', next:'repairTimeUnder'},
-    {label:'50', next:'repairTimeUnder'},
-    {label:'Da 50 a 70 (50-70)', next:'repairTimeUnder'},
-    {label:'70 o più (≥ 70)', next:'repairTimeOver'},
+    {label:'30 o meno (≤ 30)', next:'repairTimeUnder70'},
+    {label:'Più o meno 50', next:'repairTimeUnder70'},
+    {label:'Da 50 a 70 (50-70)', next:'repairTimeUnder70'},
+    {label:'70 o più (≥ 70)', next:'repairTimeOver70'},
   ]},
-  repairTimeUnder:{q:'Da quanto non ripari i dread?', options:[
-    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairStateUnder'},
-    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairStateUnderLate'},
-    {label:'Non li riparo da più di un anno 🕰️', next:'repairStateUnderLate'},
+  repairTimeUnder70:{q:'Da quanto non ripari i dread?', options:[
+    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairQualityEarly'},
+    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairQualityLate'},
+    {label:'Non li riparo da più di un anno 🕰️', next:'repairQualityLate'},
   ]},
-  repairTimeOver:{q:'Da quanto non ripari i dread?', options:[
-    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairStateOver'},
-    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairStateOver'},
-    {label:'Non li riparo da più di un anno 🕰️', next:'repairStateOver'},
+  repairQualityEarly:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', next:'repairWashEarly'},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', next:'repairWashEarly'},
+    {label:'Sono un disastro, aiuto! 🆘', next:'repairWashEarly'},
   ]},
-  repairStateUnder:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi fino a 70 dread: intervento breve, mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia fino a 70 dread: di solito mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
-    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi fino a 70 dread: mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+  repairQualityLate:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', next:'repairWashLate'},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', next:'repairWashLate'},
+    {label:'Sono un disastro, aiuto! 🆘', next:'repairWashLate'},
   ]},
-  repairStateUnderLate:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi fino a 70 dread dopo più di 6 mesi: smontaggio/riparazione con lavaggio richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia fino a 70 dread dopo più di 6 mesi: lavoro medio-lungo, richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
-    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi fino a 70 dread dopo più di 6 mesi: giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+  repairTimeOver70:{q:'Da quanto non ripari i dread?', options:[
+    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairQualityOver'},
+    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairQualityOver'},
+    {label:'Non li riparo da più di un anno 🕰️', next:'repairQualityOver'},
   ]},
-  repairStateOver:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi con 50 dread o più: richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia con 50 dread o più: richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
-    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi con 50 dread o più: giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+  repairQualityOver:{q:'In che stato sono?', options:[
+    {label:'Sono messi bene, semplice riparazione ✨', next:'repairWashOver'},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', next:'repairWashOver'},
+    {label:'Sono un disastro, aiuto! 🆘', next:'repairWashOver'},
+  ]},
+  repairWashEarly:{q:'Vuoi aggiungere anche il lavaggio?', options:[
+    {label:'Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per i dread selezionati, fino a 70 dread senza lavaggio richiede mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+    {label:'Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
+  ]},
+  repairWashLate:{q:'Vuoi aggiungere anche il lavaggio?', options:[
+    {label:'Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Dread da più di 6 mesi senza lavaggio: intervento straordinario con sblocco/pulizia richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
+  ]},
+  repairWashOver:{q:'Vuoi aggiungere anche il lavaggio?', options:[
+    {label:'Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per 70 o più dread il volume richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede comunque una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
   ]},
   heavyCount:{q:'Quanti dread ha il tuo lavoro da un sacco di tempo?', options:[
     {label:'30 o meno (≤ 30)', next:'heavyType'},
