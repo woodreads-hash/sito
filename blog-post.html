@@ -57,9 +57,51 @@ article .content code{background:var(--mid);padding:.15rem .4rem;border-radius:4
 
 footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
 @media(max-width:640px){h1{font-size:1.8rem;}}
+
+/* ── Purple neon particles & plants ── */
+#blog-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.plant{position:absolute;pointer-events:none;z-index:1;}
+.plant.purple-leaf{filter:hue-rotate(225deg) saturate(1.45) brightness(1.08);}
+@keyframes particlefloat{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:.9;}90%{opacity:.7;}100%{transform:translateY(-120vh) rotate(720deg);opacity:0;}}
+@keyframes sway{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
+@keyframes swayr{0%,100%{transform:scaleX(-1) rotate(-6deg);}50%{transform:scaleX(-1) rotate(6deg);}}
+@keyframes leafbob{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-8px) rotate(3deg);}}
+.particle{position:absolute;border-radius:50%;pointer-events:none;animation:particlefloat linear infinite;}
+nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
+
 </style>
 </head>
 <body>
+
+<div id="blog-particles"></div>
+<svg width="0" height="0" style="position:absolute;" aria-hidden="true"><defs>
+<!-- fern -->
+<symbol id="lf-fern" viewBox="0 0 120 220">
+  <path d="M60 215 Q58 150 62 80 Q58 40 60 8" stroke="#3A7334" stroke-width="2" fill="none"/>
+  <path d="M62 195 Q38 185 30 175 Q40 172 56 185Z" fill="#4A8C3F"/>
+  <path d="M62 165 Q36 155 28 145 Q38 142 56 158Z" fill="#3A7334"/>
+  <path d="M62 135 Q34 125 26 115 Q36 112 56 128Z" fill="#4A8C3F"/>
+  <path d="M62 105 Q36 95 28 85 Q38 82 56 98Z" fill="#3A7334"/>
+  <path d="M62 75 Q34 65 26 55 Q36 52 56 68Z" fill="#4A8C3F"/>
+  <path d="M62 48 Q36 38 28 28 Q38 25 56 42Z" fill="#3A7334"/>
+  <path d="M62 25 Q40 18 34 10 Q42 8 56 22Z" fill="#4A8C3F"/>
+</symbol>
+<!-- monstera -->
+<symbol id="lf-mon" viewBox="0 0 100 140">
+  <path d="M50 135 Q48 90 52 60" stroke="#4A8C3F" stroke-width="2.5" fill="none"/>
+  <path d="M52 60 Q20 30 12 8 Q30 4 52 40 Q74 4 88 8 Q80 30 52 60Z" fill="#3A7334"/>
+</symbol>
+<!-- tropical -->
+<symbol id="lf-trop" viewBox="0 0 60 160">
+  <path d="M30 155 Q28 100 32 55" stroke="#4A8C3F" stroke-width="2" fill="none"/>
+  <path d="M32 55 Q10 35 6 5 Q22 -2 32 40 Q42 -2 54 5 Q50 35 32 55Z" fill="#3A7334"/>
+</symbol>
+</defs></svg>
+<svg class="plant purple-leaf" width="180" height="260" style="top:-20px;right:-30px;opacity:.35;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;"><use href="#lf-mon"/></svg>
+<svg class="plant purple-leaf" width="140" height="220" style="bottom:-10px;left:-20px;opacity:.3;animation:swayr 11s ease-in-out infinite;transform-origin:bottom center;"><use href="#lf-trop"/></svg>
+<svg class="plant purple-leaf" width="120" height="200" style="top:35%;left:8%;opacity:.22;animation:leafbob 12s ease-in-out infinite;"><use href="#lf-fern"/></svg>
+<svg class="plant purple-leaf" width="100" height="170" style="bottom:18%;right:12%;opacity:.2;animation:sway 13s ease-in-out infinite reverse;"><use href="#lf-trop"/></svg>
+
 <nav>
   <a href="index.html" class="nlogo">WOO<em>DREADS</em></a>
   <ul>
@@ -220,6 +262,22 @@ async function render(){
 }
 
 render();
+
+const purpleCols = ['rgba(181,140,255,.9)','rgba(255,107,241,.85)','rgba(230,180,255,.75)','rgba(181,140,255,.55)','rgba(255,255,255,.4)'];
+function makePurpleParticles(containerId,count){
+  const c=document.getElementById(containerId); if(!c) return;
+  c.style.cssText='position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;';
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    const size=Math.random()*5+2;
+    const col=purpleCols[Math.floor(Math.random()*purpleCols.length)];
+    p.className='particle';
+    p.style.cssText=`width:${size}px;height:${size}px;background:${col};border-radius:50%;left:${Math.random()*100}%;bottom:-20px;position:absolute;animation-name:particlefloat;animation-timing-function:linear;animation-iteration-count:infinite;animation-duration:${6+Math.random()*12}s;animation-delay:${Math.random()*8}s;`;
+    c.appendChild(p);
+  }
+}
+makePurpleParticles('blog-particles', 75);
+
 </script>
 </body>
 </html>
