@@ -533,7 +533,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 /* ════════════════════════════════════════════════════
    BLOG PREVIEW (home)
 ════════════════════════════════════════════════════ */
-.bp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;position:relative;z-index:2;}
+.bp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem;position:relative;z-index:2;}
 .bp-card{background:var(--mid);border:1px solid rgba(245,245,247,.08);border-radius:16px;overflow:hidden;transition:transform .25s,box-shadow .25s;display:flex;flex-direction:column;}
 .bp-card:hover{transform:translateY(-5px);box-shadow:0 18px 40px rgba(0,0,0,.35);}
 .bp-card .bp-thumb{aspect-ratio:16/9;background:var(--dark2);overflow:hidden;}
@@ -551,6 +551,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 @keyframes purple-sparkle{0%{opacity:.25;transform:translate(0,0);}50%{opacity:.7;transform:translate(1px,-1px);}100%{opacity:.25;transform:translate(0,0);}}
 @keyframes cell-particle-rise{0%{transform:translateY(0) scale(.8);opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{transform:translateY(-26px) scale(1.05);opacity:0;}}
 
+
+.sec-light .plant,.sec-warm .plant,.sec-mid .plant,.sec-light .purple-leaf{filter:hue-rotate(225deg) saturate(1.5) brightness(1.05);}
 </style>
 </head>
 <body>
@@ -849,6 +851,9 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 <section id="blog-preview" class="sec-light">
   <div id="particles-blog"></div>
+  <svg class="plant" width="150" height="240" style="top:-20px;left:-30px;opacity:.35;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;"><use href="#lf-mon"/></svg>
+  <svg class="plant" width="130" height="210" style="bottom:-15px;right:-25px;opacity:.3;animation:swayr 11s ease-in-out infinite;transform-origin:bottom center;"><use href="#lf-trop"/></svg>
+  <svg class="plant" width="110" height="180" style="top:35%;right:18%;opacity:.2;animation:leafbob 12s ease-in-out infinite;"><use href="#lf-fern"/></svg>
   <div style="position:relative;z-index:2;">
     <span class="lbl lbl-g">— Blog</span>
     <h2 class="ttl">Ultimi <span class="g">articoli</span> dal blog</h2>

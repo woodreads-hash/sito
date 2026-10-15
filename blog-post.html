@@ -54,6 +54,8 @@ article .content code{background:var(--mid);padding:.15rem .4rem;border-radius:4
 .nav-btn:hover{background:var(--green);color:var(--dark);}
 .nav-btn.next{border-color:rgba(181,140,255,.35);color:var(--purple);background:rgba(181,140,255,.05);}
 .nav-btn.next:hover{background:var(--purple);color:var(--dark);}
+.nav-btn.game{border-color:rgba(140,255,0,.45);color:var(--green);background:rgba(140,255,0,.08);}
+.nav-btn.game:hover{background:var(--green);color:var(--dark);}
 
 footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
 @media(max-width:640px){h1{font-size:1.8rem;}}
@@ -233,6 +235,7 @@ function renderPost(post){
       (tags.length?'<div class="tags">'+tags.map(t=>'<span class="tag">#'+esc(t)+'</span>').join('')+'</div>':'')+
       '<nav class="article-nav" aria-label="Navigazione articoli">'+
       '<a class="nav-btn" href="blog.html">← Torna al blog</a>'+
+      '<a class="nav-btn game" href="index.html#quiz">🎮 Mini-Game</a>'+
       '<a class="nav-btn next" href="blog.html">Prossimo articolo →</a>'+
       '</nav>'+
       '</article>';
