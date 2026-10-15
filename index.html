@@ -1442,7 +1442,7 @@ function finishQuiz(result){
   document.getElementById('qres-box').innerHTML=
     '<div class="qres-emoji">'+(safeResult.emoji||'🌀')+'</div>'+
     '<h3>'+ (safeResult.title||'Risultato') +'</h3>'+
-    (function(){ window.__finalText = result.text||''; })();
+    (function(){ window.__finalText = (safeResult.text||''); })();
     (function(){ var _c=quizPath.find(function(x){return /^(Fini|Medi|Spessi)/.test(x);}); if(_c) window.__finalText += ' Spessore scelto: '+_c.replace(/[^\w\s]/g,'').trim()+'.'; })();
     '<p>'+ (window.__finalText||'') +'</p>'+
     '<p style="font-size:.72rem;color:var(--muted-l);margin-top:.6rem;">Percorso: '+path+'</p>'+
