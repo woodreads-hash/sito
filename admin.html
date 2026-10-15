@@ -382,48 +382,60 @@ tr:hover{background:rgba(140,255,0,.02);}
   <div id="tab-blog" style="display:none;">
     <div class="page-title">
       <h1>Blog <span>│</span> <span id="blog-total-count">0</span></h1>
-      <p>Editor editoriale, pubblicazione e analytics in tempo reale</p>
+      <p>Editor editoriale pulito, scuro e neon, pronto per bozze e pubblicazioni</p>
     </div>
 
-    <div class="appt-grid">
-      <div class="sec-card">
-        <div class="sec-hdr"><h3>✨ Componi articolo</h3></div>
-        <div class="sec-body" style="padding:1.5rem;">
+    <div class="sec-card">
+      <div class="sec-hdr"><h3>✨ Componi articolo</h3></div>
+      <div class="sec-body" style="padding:2rem;">
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;">Informazioni base</div>
           <div class="fgrow">
-            <div class="fg"><label>Titolo</label><input type="text" id="bl-title" placeholder="Titolo articolo"></div>
+            <div class="fg"><label>Titolo</label><input type="text" id="bl-title" placeholder="Titolo dell'articolo"></div>
             <div class="fg"><label>Slug URL</label><input type="text" id="bl-slug" placeholder="es. dread-manutenzione"></div>
           </div>
-          <div class="fg"><label>Testo principale</label>
-            <textarea id="bl-text" style="min-height:260px;" placeholder="Inserisci il testo del blog con titoli, spaziature e stile editoriale..."></textarea>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--green);font-weight:700;margin-bottom:.8rem;">Editor di testo</div>
+          <div class="fg">
+            <label>Testo principale</label>
+            <textarea id="bl-text" style="min-height:300px;line-height:1.8;" placeholder="Inserisci il testo del blog con gerarchia tipografica, spaziature ampie e massima leggibilità..."></textarea>
           </div>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;">Media e collegamenti</div>
           <div class="fgrow">
             <div class="fg"><label>Immagine di accompagnamento</label><input type="file" id="bl-image" accept="image/*"></div>
             <div class="fg"><label>Mini-video (loop stile GIF)</label><input type="file" id="bl-video" accept="video/*"></div>
           </div>
           <div class="fg"><label>Link video YouTube</label><input type="text" id="bl-yt" placeholder="https://www.youtube.com/watch?v=..."></div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <button class="btn-sm approve" onclick="saveBlogArticle('draft')">Salva bozza</button>
-            <button class="btn-sm approve" onclick="saveBlogArticle('published')" style="background:var(--green);color:var(--dark);">Pubblica</button>
-            <button class="btn-sm reject" onclick="clearBlogDraft()">Pulisci</button>
-          </div>
-          <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;">Pubblicazione cloud/permanente: richiede collegamento backend (Supabase/Strapi) con token di scrittura. Se attivo, l'articolo diventa immediatamente pubblico sul sito.</p>
         </div>
-      </div>
 
+        <div style="display:flex;gap:.7rem;flex-wrap:wrap;justify-content:flex-end;padding-top:.5rem;border-top:1px solid rgba(245,245,247,.08);">
+          <button class="btn-sm" onclick="saveBlogArticle('draft')" style="border-color:rgba(181,140,255,.35);color:var(--purple);padding:.55rem 1rem;">💾 Salva bozza</button>
+          <button class="btn-sm approve" onclick="saveBlogArticle('published')" style="background:var(--green);color:var(--dark);border-color:var(--green);padding:.55rem 1.2rem;font-weight:800;">🚀 Pubblica</button>
+          <button class="btn-sm reject" onclick="clearBlogEditor()" style="padding:.55rem 1rem;">Pulisci</button>
+        </div>
+        <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;line-height:1.6;">Pubblicazione cloud/permanente richiede collegamento backend (Supabase/Strapi) con token di scrittura. In locale, i post pubblicati restano in lista pubblicata e sono modificabili in qualunque momento.</p>
+      </div>
+    </div>
+
+    <div class="appt-grid">
       <div class="sec-card">
         <div class="sec-hdr"><h3>📄 Bozze locali</h3><span class="count" id="blog-draft-total">0</span></div>
         <div class="sec-body" id="blog-drafts" style="overflow-x:auto;max-height:320px;overflow-y:auto;padding:1rem 1.5rem;"></div>
       </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-hdr"><h3>✅ Blog pubblicati</h3><span class="count" id="blog-published-total">0</span></div>
-      <div class="sec-body" id="blog-published" style="overflow-x:auto;max-height:360px;overflow-y:auto;padding:1rem 1.5rem;"></div>
+      <div class="sec-card">
+        <div class="sec-hdr"><h3>✅ Blog pubblicati</h3><span class="count" id="blog-published-total">0</span></div>
+        <div class="sec-body" id="blog-published" style="overflow-x:auto;max-height:320px;overflow-y:auto;padding:1rem 1.5rem;"></div>
+      </div>
     </div>
 
     <div class="stats-row" id="blog-analytics-row">
       <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali</div></div>
-      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio permanenza</div></div>
+      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio di permanenza</div></div>
       <div class="stat-card"><div class="num l" id="bl-ig">0</div><div class="lbl">Interazioni (link/video)</div></div>
     </div>
   </div>
