@@ -1398,6 +1398,9 @@ function renderQuizNow(id){
   document.getElementById('qs').classList.add('active');
   document.getElementById('qq').textContent=node.q;
   const opts=document.getElementById('qopts');
+  opts.classList.remove('qp-running');
+  opts.querySelectorAll('.qp-overlay').forEach(function(x){x.remove();});
+  opts.querySelectorAll('.qp-selected,.qp-active').forEach(function(x){x.classList.remove('qp-selected','qp-active');});
   opts.innerHTML='';
   node.options.forEach(o=>{
     const el=document.createElement('div');
@@ -1464,7 +1467,7 @@ function startQuizGlitch(cb){
     cb();
   },390);
 }
-function qreset(){ quizPath=[]; renderQuiz('root'); }
+function qreset(){ quizPath=[]; const qo=document.getElementById('qopts'); if(qo){qo.classList.remove('qp-running'); qo.querySelectorAll('.qp-overlay').forEach(function(x){x.remove();});} renderQuiz('root'); }
 renderQuiz('root');
 
 /* ══════════════════════════════════════════
