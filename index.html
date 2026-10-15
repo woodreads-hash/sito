@@ -231,7 +231,7 @@ nav a:hover{color:var(--green);}
 .qopt{overflow:hidden;}
 .qopt-text{position:relative;z-index:2;display:block;pointer-events:none;}
 .qpt{position:absolute;width:6px;height:6px;border-radius:50%;opacity:.55;pointer-events:none;z-index:1;animation:qptFloat 4s ease-in-out infinite;}
-@keyframes qptFloat{0%{opacity:.7;transform:translate(0,0) scale(.75);}12%{opacity:1;}50%{transform:translate(var(--qx,10px),var(--qy,-18px)) scale(1.2);opacity:.95;}88%{opacity:.65;}100%{opacity:.7;transform:translate(calc(var(--qx,10px)*1.6),calc(var(--qy,-18px)*-1.2)) scale(.65);}}
+@keyframes qptFloat{0%{opacity:.22;transform:translate(0,0) scale(.75);}12%{opacity:.45;}50%{transform:translate(var(--qx,10px),var(--qy,-18px)) scale(1.2);opacity:.4;}88%{opacity:.25;}100%{opacity:.22;transform:translate(calc(var(--qx,10px)*1.6),calc(var(--qy,-18px)*-1.2)) scale(.65);}}
 .qres{padding:2rem;background:#fff;border-radius:18px;border:2px solid var(--leaf1);}
 .qres-emoji{font-size:4rem;margin-bottom:1rem;animation:bouncein .6s cubic-bezier(.34,1.56,.64,1) forwards;}
 @keyframes bouncein{from{transform:scale(0);}to{transform:scale(1);}}
@@ -1448,7 +1448,7 @@ function renderQuizNow(id){
     _txt.textContent=o.label;
     el.appendChild(_txt);
     // Light internal neon particle stream (green/purple, low opacity)
-    for(let _i=0;_i<40;_i++){
+    for(let _i=0;_i<10;_i++){
       const pp=document.createElement('span');
       pp.className='qpt';
       const pc=Math.random() < 0.5 ? '#8CFF00' : '#B58CFF';
