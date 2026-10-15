@@ -226,6 +226,11 @@ nav a:hover{color:var(--green);}
 .qopts{display:flex;flex-direction:column;gap:.75rem;}
 .qopt{background:#fff;border:1.5px solid rgba(26,26,30,.15);border-radius:12px;padding:.95rem 1.5rem;font-size:.9rem;cursor:none;transition:all .2s;text-align:left;color:#1A1A1E;box-shadow:0 0 8px rgba(140,255,0,.12);}
 .qopt:hover{border-color:var(--purple);color:var(--text-l);background:#fff;transform:translateX(6px);box-shadow:0 0 16px rgba(181,140,255,.35);}
+
+.qopt{overflow:hidden;}
+.qopt-text{position:relative;z-index:2;display:block;pointer-events:none;}
+.qpt{position:absolute;width:4px;height:4px;border-radius:50%;opacity:0;mix-blend-mode:multiply;pointer-events:none;z-index:1;animation:qptFloat 6s ease-in-out infinite;}
+@keyframes qptFloat{0%{opacity:0;transform:translate(0,0) scale(.6);}12%{opacity:.75;}50%{transform:translate(var(--qx,10px),var(--qy,-18px)) scale(1.1);opacity:.55;}88%{opacity:.2;}100%{opacity:0;transform:translate(calc(var(--qx,10px)*1.6),calc(var(--qy,-18px)*-1.2)) scale(.5);}}
 .qres{padding:2rem;background:#fff;border-radius:18px;border:2px solid var(--leaf1);}
 .qres-emoji{font-size:4rem;margin-bottom:1rem;animation:bouncein .6s cubic-bezier(.34,1.56,.64,1) forwards;}
 @keyframes bouncein{from{transform:scale(0);}to{transform:scale(1);}}
@@ -1437,7 +1442,20 @@ function renderQuizNow(id){
   node.options.forEach(o=>{
     const el=document.createElement('div');
     el.className='qopt';
-    el.textContent=o.label;
+    const _txt=document.createElement('span');
+    _txt.className='qopt-text';
+    _txt.textContent=o.label;
+    el.appendChild(_txt);
+    // Light internal neon particle stream (green/purple, low opacity)
+    for(let _i=0;_i<18;_i++){
+      const pp=document.createElement('span');
+      pp.className='qpt';
+      const pc=Math.random() < 0.5 ? '#8CFF00' : '#B58CFF';
+      const qx=(Math.random()*24-12).toFixed(1);
+      const qy=(Math.random()*-30-6).toFixed(1);
+      pp.style.cssText='left:'+(Math.random()*96).toFixed(1)+'%;top:'+(Math.random()*86).toFixed(1)+'%;background:'+pc+';box-shadow:0 0 8px '+pc+';--qx:'+qx+'px;--qy:'+qy+'px;animation-delay:'+(Math.random()*5).toFixed(2)+'s;animation-duration:'+(5+Math.random()*4).toFixed(2)+'s;';
+      el.appendChild(pp);
+    }
     el.addEventListener('click',()=>{
       const qoptsEl=document.getElementById('qopts');
       if(qoptsEl.classList.contains('qp-running')) return;
