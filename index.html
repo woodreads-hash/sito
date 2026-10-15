@@ -1424,7 +1424,9 @@ function renderQuiz(id){ renderQuizNow(id); }
 function finishQuiz(result){
   document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
   document.getElementById('qsr').classList.add('active');
-  const consult = !!result.consult || /consulenza/i.test(result.title||'');
+  if(!Array.isArray(quizPath)) quizPath=[];
+  const safeResult = result || {};
+  const consult = !!safeResult.consult || /consulenza/i.test(safeResult.title||'');
   const path=quizPath.map(x=>x.replace(/</g,'&lt;')).join(' → ');
   const cta = consult
     ? '<a href="https://wa.me/TUONUMERO" target="_blank" rel="noopener" class="btn btn-g">💬 Contattaci su WhatsApp</a>'
@@ -1433,13 +1435,13 @@ function finishQuiz(result){
   try{
     const key='wd_quiz_results';
     const arr=JSON.parse(localStorage.getItem(key)||'[]');
-    arr.push({ result: result.title||'Risultato', consult, path: quizPath.slice(), ts:new Date().toISOString() });
+    arr.push({ result: (safeResult.title||'Risultato'), consult, path: quizPath.slice(), ts:new Date().toISOString() });
     if(arr.length>300) arr.splice(0, arr.length-300);
     localStorage.setItem(key, JSON.stringify(arr));
   }catch(e){}
   document.getElementById('qres-box').innerHTML=
-    '<div class="qres-emoji">'+(result.emoji||'🌀')+'</div>'+
-    '<h3>'+ (result.title||'Risultato') +'</h3>'+
+    '<div class="qres-emoji">'+(safeResult.emoji||'🌀')+'</div>'+
+    '<h3>'+ (safeResult.title||'Risultato') +'</h3>'+
     (function(){ window.__finalText = result.text||''; })();
     (function(){ var _c=quizPath.find(function(x){return /^(Fini|Medi|Spessi)/.test(x);}); if(_c) window.__finalText += ' Spessore scelto: '+_c.replace(/[^\w\s]/g,'').trim()+'.'; })();
     '<p>'+ (window.__finalText||'') +'</p>'+
