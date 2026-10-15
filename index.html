@@ -1804,6 +1804,13 @@ async function loadSocialStats(){
     localStorage.setItem('wd_social_stats', JSON.stringify(s));
     applySocialStatsData(d);
   } catch(_) {}
+  try {
+    const ry = await fetch('/.netlify/functions/youtube-stats');
+    if (ry.ok) {
+      const dy = await ry.json();
+      if (!dy.error) applySocialStatsData(dy);
+    }
+  } catch(_) {}
 }
 /* ══════════════════════════════════════════
    SILENT LOADER — legge i dati dal backend.
