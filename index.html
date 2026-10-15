@@ -1355,10 +1355,10 @@ const quizFlow={
     {label:'Spessi, voluminosi e presenti 💪', next:'natType'},
   ]},
   repairCount:{q:'Quanti dread attualmente possiedi?', options:[
-    {label:'30 o meno (≤ 30)', next:'repairTimeUnder70'},
-    {label:'Più o meno 50', next:'repairTimeUnder70'},
-    {label:'Da 50 a 70 (50-70)', next:'repairTimeUnder70'},
-    {label:'70 o più (≥ 70)', next:'repairTimeOver70'},
+    {label:'30 o meno (≤ 30) 🔢', next:'repairTimeUnder70'},
+    {label:'Più o meno 50 🔢', next:'repairTimeUnder70'},
+    {label:'Da 50 a 70 (50-70) 🔢', next:'repairTimeUnder70'},
+    {label:'70 o più (≥ 70) 🔢', next:'repairTimeOver70'},
   ]},
   repairTimeUnder70:{q:'Da quanto non ripari i dread?', options:[
     {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairQualityEarly'},
@@ -1386,22 +1386,22 @@ const quizFlow={
     {label:'Sono un disastro, aiuto! 🆘', next:'repairWashOver'},
   ]},
   repairWashEarly:{q:'Vuoi aggiungere anche il lavaggio?', options:[
-    {label:'Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per i dread selezionati, fino a 70 dread senza lavaggio richiede mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
-    {label:'Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
+    {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per i dread selezionati, fino a 70 dread senza lavaggio richiede mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+    {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
   ]},
   repairWashLate:{q:'Vuoi aggiungere anche il lavaggio?', options:[
-    {label:'Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Dread da più di 6 mesi senza lavaggio: intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-    {label:'Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
+    {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Dread da più di 6 mesi senza lavaggio: intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
+    {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
   ]},
   repairWashOver:{q:'Vuoi aggiungere anche il lavaggio?', options:[
-    {label:'Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per 70 o più dread, il volume dell\'intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-    {label:'Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede comunque una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
+    {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per 70 o più dread, il volume dell\'intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
+    {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede comunque una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
   ]},
   heavyCount:{q:'Quanti dread ha il tuo lavoro da un sacco di tempo?', options:[
-    {label:'30 o meno (≤ 30)', next:'heavyType'},
-    {label:'50', next:'heavyType'},
-    {label:'Da 50 a 70 (50-70)', next:'heavyType'},
-    {label:'70 o più (≥ 70)', next:'heavyType'},
+    {label:'30 o meno (≤ 30) 🔢', next:'heavyType'},
+    {label:'Più o meno 50 🔢', next:'heavyType'},
+    {label:'Da 50 a 70 (50-70) 🔢', next:'heavyType'},
+    {label:'70 o più (≥ 70) 🔢', next:'heavyType'},
   ]},
   heavyType:{q:'Quale intervento ti serve?', options:[
     {label:'Devo solo riprendere le basi, li curo bene 🏗️', result:{emoji:'🏗️',title:'Ripresa basi mirata', text:'Ripresa basi mirata. Per la quantità selezionata si stima mezza giornata per recupero leggero, oppure giornata intera per recupero più esteso.'}},
