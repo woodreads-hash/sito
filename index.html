@@ -553,9 +553,21 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 
 .sec-light .plant,.sec-warm .plant,.sec-mid .plant,.sec-light .purple-leaf{filter:hue-rotate(225deg) saturate(1.5) brightness(1.05);}
+
+#beta-notice{position:fixed;top:.75rem;left:50%;transform:translateX(-50%);z-index:9999;width:min(92vw,720px);padding:.85rem 1.2rem;border-radius:14px;background:rgba(13,13,15,.92);border:1px solid rgba(181,140,255,.55);box-shadow:0 0 28px rgba(181,140,255,.2), inset 0 0 20px rgba(140,255,0,.06);backdrop-filter:blur(14px);color:var(--text-d);font-size:.82rem;line-height:1.5;display:flex;align-items:center;gap:.8rem;transition:opacity .45s,transform .45s;}
+#beta-notice.hide{opacity:0;transform:translate(-50%,-1.2rem) scale(.98);pointer-events:none;}
+#beta-notice .beta-icon{font-size:1.1rem;}
+#beta-notice a{color:var(--green);font-weight:700;text-decoration:underline;}
+@media(max-width:640px){#beta-notice{font-size:.75rem;}}
 </style>
 </head>
 <body>
+
+<div id="beta-notice" role="status" aria-live="polite">
+  <span class="beta-icon">🧪</span>
+  <span><strong style="color:var(--purple);">Beta mode:</strong> WooDreads è in fase di beta testing. Alcune funzioni potrebbero non essere ancora definitive, ma saranno operative nella prossima settimana. Se noti bug, lag o malfunzionamenti, scrivi a <strong>Budz</strong> su <a href="https://wa.me/393485393826?text=Ciao%20Budz,%20ho%20trovato%20un%20possibile%20bug%20sul%20sito." target="_blank" rel="noopener">WhatsApp</a>: il tuo feedback è super appreciated ✨</span>
+</div>
+
 
 <!-- ═══ SVG DEFS ═══ -->
 <svg width="0" height="0" style="position:absolute;overflow:hidden">
@@ -1319,6 +1331,19 @@ makeParticles('p-srv', 45, false, '#servizi');
 makeParticles('p-qz',  40, false, '#quiz');
 makeParticles('p-gal', 44, false, '#gallery');
 makeParticles('p-soc', 38, false, '#social');
+
+
+const betaNotice = document.getElementById('beta-notice');
+if (betaNotice) {
+  const hideBeta = () => {
+    if (betaNotice.dataset.hidden) return;
+    betaNotice.dataset.hidden = '1';
+    betaNotice.classList.add('hide');
+  };
+  setTimeout(hideBeta, 45000);
+  ['click','scroll','keydown','touchstart','wheel'].forEach(evt => window.addEventListener(evt, hideBeta, { once: true, passive: true }));
+}
+
 
 /* ── BACK TO TOP button ── */
 const btt = document.getElementById('btt');
