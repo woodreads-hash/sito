@@ -381,9 +381,10 @@ tr:hover{background:rgba(140,255,0,.02);}
   <!-- ══════ BLOG ══════ -->
   <div id="tab-blog" style="display:none;">
     <div class="page-title">
-      <h1>Blog <span>│</span> <span id="blog-draft-count">0</span></h1>
-      <p>Crea contenuti editoriali con testo, immagini, mini-video e anteprima YouTube</p>
+      <h1>Blog <span>│</span> <span id="blog-total-count">0</span></h1>
+      <p>Editor editoriale, pubblicazione e analytics in tempo reale</p>
     </div>
+
     <div class="appt-grid">
       <div class="sec-card">
         <div class="sec-hdr"><h3>✨ Componi articolo</h3></div>
@@ -392,24 +393,38 @@ tr:hover{background:rgba(140,255,0,.02);}
             <div class="fg"><label>Titolo</label><input type="text" id="bl-title" placeholder="Titolo articolo"></div>
             <div class="fg"><label>Slug URL</label><input type="text" id="bl-slug" placeholder="es. dread-manutenzione"></div>
           </div>
-          <div class="fg"><label>Testo principale (alta leggibilità)</label>
-            <textarea id="bl-text" style="min-height:220px;" placeholder="Inserisci il testo del blog..."></textarea>
+          <div class="fg"><label>Testo principale</label>
+            <textarea id="bl-text" style="min-height:260px;" placeholder="Inserisci il testo del blog con titoli, spaziature e stile editoriale..."></textarea>
           </div>
-          <div class="fg"><label>Immagine di accompagnamento</label><input type="file" id="bl-image" accept="image/*"></div>
-          <div class="fg"><label>Mini-video (loop stile GIF)</label><input type="file" id="bl-video" accept="video/*"></div>
+          <div class="fgrow">
+            <div class="fg"><label>Immagine di accompagnamento</label><input type="file" id="bl-image" accept="image/*"></div>
+            <div class="fg"><label>Mini-video (loop stile GIF)</label><input type="file" id="bl-video" accept="video/*"></div>
+          </div>
           <div class="fg"><label>Link video YouTube</label><input type="text" id="bl-yt" placeholder="https://www.youtube.com/watch?v=..."></div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <button class="btn-sm approve" onclick="saveBlogDraft()">Salva bozza</button>
+            <button class="btn-sm approve" onclick="saveBlogArticle('draft')">Salva bozza</button>
+            <button class="btn-sm approve" onclick="saveBlogArticle('published')" style="background:var(--green);color:var(--dark);">Pubblica</button>
             <button class="btn-sm reject" onclick="clearBlogDraft()">Pulisci</button>
           </div>
-          <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;">Le bozze vengono salvate in locale. Per la pubblicazione online serve il flusso Strapi/Netlify esistente.</p>
+          <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;">Pubblicazione cloud/permanente: richiede collegamento backend (Supabase/Strapi) con token di scrittura. Se attivo, l'articolo diventa immediatamente pubblico sul sito.</p>
         </div>
       </div>
+
       <div class="sec-card">
         <div class="sec-hdr"><h3>📄 Bozze locali</h3><span class="count" id="blog-draft-total">0</span></div>
-        <div class="sec-body" id="blog-drafts" style="overflow-x:auto;max-height:520px;overflow-y:auto;">
-        </div>
+        <div class="sec-body" id="blog-drafts" style="overflow-x:auto;max-height:320px;overflow-y:auto;padding:1rem 1.5rem;"></div>
       </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-hdr"><h3>✅ Blog pubblicati</h3><span class="count" id="blog-published-total">0</span></div>
+      <div class="sec-body" id="blog-published" style="overflow-x:auto;max-height:360px;overflow-y:auto;padding:1rem 1.5rem;"></div>
+    </div>
+
+    <div class="stats-row" id="blog-analytics-row">
+      <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali</div></div>
+      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio permanenza</div></div>
+      <div class="stat-card"><div class="num l" id="bl-ig">0</div><div class="lbl">Interazioni (link/video)</div></div>
     </div>
   </div>
 
@@ -690,54 +705,78 @@ function clearQuizResults(){
   toast('Storico quiz cancellato');
 }
 
-/* ── Blog drafts (local) ── */
-function getBlogDrafts(){ try { return JSON.parse(localStorage.getItem('wd_blog_drafts')||'[]'); } catch(e){ return []; } }
-function saveBlogDraft(){
-  const title=document.getElementById('bl-title').value.trim();
+/* ── Blog articles (local pipeline) ── */
+function getBlogArticles(){ try { return JSON.parse(localStorage.getItem('wd_blog_articles')||'[]'); } catch(e){ return []; } }
+function setBlogArticles(v){ localStorage.setItem('wd_blog_articles', JSON.stringify(v)); }
+function saveBlogArticle(status){
+  const title=(document.getElementById('bl-title').value||'').trim();
   if(!title){ toast('Inserisci un titolo'); return; }
-  const draft={
+  const article={
     id: Date.now(),
     title,
-    slug: document.getElementById('bl-slug').value.trim(),
+    slug: (document.getElementById('bl-slug').value||'').trim(),
     text: document.getElementById('bl-text').value.trim(),
+    imageName: (document.getElementById('bl-image').files[0]||{}).name || '',
+    videoName: (document.getElementById('bl-video').files[0]||{}).name || '',
     youtube: document.getElementById('bl-yt').value.trim(),
-    createdAt: new Date().toISOString(),
+    status: status === 'published' ? 'published' : 'draft',
+    views: 0, timeOnPage: 0, interactions: 0,
+    updatedAt: new Date().toISOString(),
   };
-  // optional file names only (local browser), not persisted for binary files
-  const image=document.getElementById('bl-image').files[0];
-  const video=document.getElementById('bl-video').files[0];
-  draft.imageName = image ? image.name : '';
-  draft.videoName = video ? video.name : '';
-  const drafts=getBlogDrafts();
-  drafts.unshift(draft);
-  localStorage.setItem('wd_blog_drafts', JSON.stringify(drafts.slice(0,100)));
-  renderBlogDrafts();
-  toast('Bozza salvata in locale');
+  const all=getBlogArticles();
+  all.unshift(article);
+  setBlogArticles(all.slice(0,200));
+  clearBlogEditor();
+  renderBlogLists();
+  updateBlogAnalytics();
+  toast(status === 'published' ? 'Articolo pubblicato (locale)' : 'Bozza salvata');
 }
-function clearBlogDraft(){
-  document.getElementById('bl-title').value='';
-  document.getElementById('bl-slug').value='';
-  document.getElementById('bl-text').value='';
-  document.getElementById('bl-image').value='';
-  document.getElementById('bl-video').value='';
-  document.getElementById('bl-yt').value='';
+function clearBlogEditor(){
+  ['bl-title','bl-slug','bl-text','bl-image','bl-video','bl-yt'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
 }
-function deleteBlogDraft(id){
-  const drafts=getBlogDrafts().filter(d=>d.id!==id);
-  localStorage.setItem('wd_blog_drafts', JSON.stringify(drafts));
-  renderBlogDrafts();
-  toast('Bozza eliminata');
+function deleteBlogArticle(id){
+  if(!confirm('Eliminare questo articolo?')) return;
+  setBlogArticles(getBlogArticles().filter(a=>a.id!==id));
+  renderBlogLists(); updateBlogAnalytics();
+  toast('Articolo eliminato');
 }
-function renderBlogDrafts(){
-  const el=document.getElementById('blog-drafts');
-  const cnt=document.getElementById('blog-draft-count');
-  const total=document.getElementById('blog-draft-total');
-  const drafts=getBlogDrafts();
-  if(cnt) cnt.textContent=drafts.length;
-  if(total) total.textContent=drafts.length;
-  if(!el) return;
-  if(!drafts.length){ el.innerHTML='<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessuna bozza</div>'; return; }
-  el.innerHTML=drafts.map(d=>'<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;"><strong style="color:var(--text-d);">'+esc(d.title)+'</strong><button class="btn-sm reject" onclick="deleteBlogDraft('+d.id+')">X</button></div><div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">'+esc(d.slug||'senza-slug')+' · '+new Date(d.createdAt).toLocaleString('it-IT')+'</div></div>').join('');
+function renderBlogLists(){
+  const draftsEl=document.getElementById('blog-drafts');
+  const pubEl=document.getElementById('blog-published');
+  const totalDraft=document.getElementById('blog-draft-total');
+  const totalPub=document.getElementById('blog-published-total');
+  const total=document.getElementById('blog-total-count');
+  const all=getBlogArticles();
+  const drafts=all.filter(a=>a.status==='draft');
+  const published=all.filter(a=>a.status==='published');
+  if(totalDraft) totalDraft.textContent=drafts.length;
+  if(totalPub) totalPub.textContent=published.length;
+  if(total) total.textContent=all.length;
+  if(draftsEl) draftsEl.innerHTML = drafts.length
+    ? drafts.map(a=>'<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;"><strong style="color:var(--text-d);">'+esc(a.title)+'</strong><div style="display:flex;gap:.4rem;"><button class="btn-sm approve" onclick="loadBlogEdit('+a.id+')">Modifica</button><button class="btn-sm reject" onclick="deleteBlogArticle('+a.id+')">X</button></div></div><div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">'+esc(a.slug||'senza-slug')+' · draft · '+new Date(a.updatedAt).toLocaleString('it-IT')+'</div></div>').join('')
+    : '<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessuna bozza</div>';
+  if(pubEl) pubEl.innerHTML = published.length
+    ? published.map(a=>'<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;"><strong style="color:var(--text-d);">'+esc(a.title)+'</strong><div style="display:flex;gap:.4rem;"><button class="btn-sm approve" onclick="loadBlogEdit('+a.id+')">Modifica</button><button class="btn-sm reject" onclick="deleteBlogArticle('+a.id+')">X</button></div></div><div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">'+esc(a.slug||'senza-slug')+' · published · '+new Date(a.updatedAt).toLocaleString('it-IT')+'</div><div style="font-size:.7rem;color:var(--muted-l);margin-top:.35rem;">Viste: '+a.views+' | Tempo: '+a.timeOnPage+'s | Interazioni: '+a.interactions+'</div></div>').join('')
+    : '<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessun articolo pubblicato</div>';
+}
+function loadBlogEdit(id){
+  const a=getBlogArticles().find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('bl-title').value=a.title||'';
+  document.getElementById('bl-slug').value=a.slug||'';
+  document.getElementById('bl-text').value=a.text||'';
+  document.getElementById('bl-yt').value=a.youtube||'';
+  toast('Articolo caricato in editor');
+}
+function updateBlogAnalytics(){
+  const all=getBlogArticles();
+  const views=all.reduce((t,a)=>t+(a.views||0),0);
+  const time=Math.round(all.reduce((t,a)=>t+(a.timeOnPage||0),0)/Math.max(1,all.length));
+  const interactions=all.reduce((t,a)=>t+(a.interactions||0),0);
+  const v=document.getElementById('bl-views'), ti=document.getElementById('bl-time'), inm=document.getElementById('bl-ig');
+  if(v) v.textContent=views; if(ti) ti.textContent=time+'s'; if(inm) inm.textContent=interactions;
 }
 /* ── Init ── */
 async function init(){
