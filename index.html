@@ -230,7 +230,7 @@ nav a:hover{color:var(--green);}
 .qopt{overflow:hidden;}
 .qopt-text{position:relative;z-index:2;display:block;pointer-events:none;}
 .qpt{position:absolute;width:4px;height:4px;border-radius:50%;opacity:0;mix-blend-mode:multiply;pointer-events:none;z-index:1;animation:qptFloat 6s ease-in-out infinite;}
-@keyframes qptFloat{0%{opacity:0;transform:translate(0,0) scale(.6);}12%{opacity:.75;}50%{transform:translate(var(--qx,10px),var(--qy,-18px)) scale(1.1);opacity:.55;}88%{opacity:.2;}100%{opacity:0;transform:translate(calc(var(--qx,10px)*1.6),calc(var(--qy,-18px)*-1.2)) scale(.5);}}
+@keyframes qptFloat{0%{opacity:.25;transform:translate(0,0) scale(.65);}12%{opacity:.8;}50%{transform:translate(var(--qx,10px),var(--qy,-18px)) scale(1.1);opacity:.65;}88%{opacity:.35;}100%{opacity:.22;transform:translate(calc(var(--qx,10px)*1.6),calc(var(--qy,-18px)*-1.2)) scale(.55);}}
 .qres{padding:2rem;background:#fff;border-radius:18px;border:2px solid var(--leaf1);}
 .qres-emoji{font-size:4rem;margin-bottom:1rem;animation:bouncein .6s cubic-bezier(.34,1.56,.64,1) forwards;}
 @keyframes bouncein{from{transform:scale(0);}to{transform:scale(1);}}
