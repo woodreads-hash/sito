@@ -210,6 +210,14 @@ nav a:hover{color:var(--green);}
 .qpd.a{background:var(--leaf1);width:50px;}
 .qstep{display:none;animation:fadeQ .45s steps(8,end);}
 .qstep.active{display:block;}
+
+.qopt:active,.qopt.qp-active,.qopt.selected{background:var(--lime);color:var(--dark);border-color:var(--green);box-shadow:0 0 24px rgba(140,255,0,.5);z-index:2;}
+.qopts.qp-running{position:relative;overflow:hidden;}
+.qopts.qp-running .qopt{animation:qpShred .39s steps(6,end) forwards;}
+.qp-overlay{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:6;}
+.qp-overlay span{position:absolute;font-family:var(--fd);font-size:clamp(.7rem,2vw,1.2rem);font-weight:700;color:var(--green);text-shadow:0 0 8px var(--green);opacity:0;animation:qpChars .39s steps(3,end) forwards;}
+@keyframes qpShred{0%{opacity:1;transform:translate(0,0) scale(1);filter:saturate(2);}25%{opacity:1;transform:translate(8px,-3px) scale(1.01);clip-path:inset(0 35% 25% 20%);}50%{opacity:.85;transform:translate(-12px,6px) scale(.97);filter:blur(1px);clip-path:inset(20% 15% 35% 20%);}75%{opacity:.35;transform:translate(6px,-8px) scale(.93);clip-path:inset(35% 25% 45% 20%);}100%{opacity:0;transform:translate(-4px,10px) scale(.88);clip-path:inset(50% 50% 50% 50%);}}
+@keyframes qpChars{0%{opacity:0;transform:scale(0) rotate(0deg);}15%{opacity:1;transform:scale(1.5) rotate(90deg);}45%{opacity:.9;transform:translate(14px,-10px) scale(1.1) rotate(-45deg);}80%{opacity:.4;transform:translate(-12px,12px) scale(.85);}100%{opacity:0;transform:scale(0);}}
 @keyframes fadeQ{0%{opacity:0;transform:translateY(8px) scale(.96) skewX(2deg);filter:blur(2px);clip-path:inset(0 100% 0 0);}25%{opacity:.6;transform:translateY(3px);clip-path:inset(0 10% 0 30%);}50%{opacity:.85;clip-path:inset(0 2% 0 2%);}75%{opacity:.96;clip-path:inset(0 0 0 3%);}100%{opacity:1;transform:none;filter:none;clip-path:inset(0 0 0 0);}}
 .qq{font-size:1.05rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-d);line-height:1.5;}
 .qopts{display:flex;flex-direction:column;gap:.75rem;}
@@ -1350,7 +1358,7 @@ const quizFlow={
     {label:'Aiuto, sono un disastro totale, devo riprenderli e lavarli 🧼', result:{emoji:'🧼',title:'Recupero totale + lavaggio', text:'Recupero completo con pulizia profonda e ricostruzione. Prenota una giornata intera (09–20).'}},
   ]},
 };
-function renderQuiz(id){
+function renderQuizNow(id){
   const node=quizFlow[id];
   if(!node) return;
   document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
@@ -1363,13 +1371,20 @@ function renderQuiz(id){
     el.className='qopt';
     el.textContent=o.label;
     el.addEventListener('click',()=>{
-      quizPath.push(o.label);
-      if(o.next) renderQuiz(o.next);
-      else finishQuiz(o.result||{});
+      const qoptsEl=document.getElementById('qopts');
+      if(qoptsEl.classList.contains('qp-running')) return;
+      el.classList.add('qp-active');
+      const nx=o.next, res=o.result;
+      startQuizGlitch(()=>{
+        quizPath.push(o.label);
+        if(nx) renderQuizNow(nx);
+        else finishQuiz(res||{});
+      });
     });
     opts.appendChild(el);
   });
 }
+function renderQuiz(id){ renderQuizNow(id); }
 function finishQuiz(result){
   document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
   document.getElementById('qsr').classList.add('active');
@@ -1392,6 +1407,27 @@ function finishQuiz(result){
     '<p>'+ (result.text||'') +'</p>'+
     '<p style="font-size:.72rem;color:var(--muted-l);margin-top:.6rem;">Percorso: '+path+'</p>'+
     '<div class="qres-btns">'+cta+'<button class="btn-restart" onclick="qreset()">↩ Rifai il quiz</button></div>';
+}
+function startQuizGlitch(cb){
+  const qoptsEl=document.getElementById('qopts');
+  if(qoptsEl.classList.contains('qp-running')) return;
+  qoptsEl.classList.add('qp-running');
+  qoptsEl.querySelectorAll('.qopt').forEach(x=>x.classList.add('qp-active'));
+  const ov=document.createElement('div');
+  ov.className='qp-overlay';
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*';
+  let html='';
+  for(let i=0;i<90;i++){
+    const c=chars[Math.floor(Math.random()*chars.length)];
+    html+='<span style="left:'+ (Math.random()*100).toFixed(1)+'%;top:'+ (Math.random()*100).toFixed(1)+'%;">'+c+'</span>';
+  }
+  ov.innerHTML=html;
+  qoptsEl.appendChild(ov);
+  setTimeout(()=>{
+    ov.remove();
+    qoptsEl.classList.remove('qp-running');
+    cb();
+  },390);
 }
 function qreset(){ quizPath=[]; renderQuiz('root'); }
 renderQuiz('root');
