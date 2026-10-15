@@ -1333,9 +1333,9 @@ const quizFlow={
     {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyType'},
   ]},
   hairExt:{q:'Che tipo di capelli hai?', options:[
-    {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, poi una sessione lunga (anche più fasce intere).'}},
-    {label:'Ho i capelli mossi 🌊', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli mossi', text:'Capelli mossi + estensioni: volume naturale già presente. Ottimo per estensioni leggere e result morbido, anche in mezza giornata.'}},
-    {label:'Ho i capelli ricci 🌀', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli ricci', text:'Capelli ricci + estensioni: texture perfetta. Pochi dread ma molto scenici, spesso completabili in una mezza giornata.'}},
+    {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
+    {label:'Ho i capelli mossi 🌊', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli mossi', text:'Capelli mossi + estensioni: volume naturale già presente. Ottimo per estensioni leggere e result morbido. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
+    {label:'Ho i capelli ricci 🌀', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli ricci', text:'Capelli ricci + estensioni: texture perfetta, dread scenici e resistenti. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
     {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Nessun problema: prenota una consulenza. Valutiamo lunghezza, texture e stile e scegliamo insieme la mezza giornata più adatta.'}},
   ]},
   hairNat:{q:'Che tipo di capelli hai?', options:[
@@ -1350,14 +1350,14 @@ const quizFlow={
     {label:'Non li riparo da più di un anno 🕰️', next:'repairState'},
   ]},
   repairState:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi: ideale in mezza giornata. Prenota una mezza giornata.'}},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia. Di solito una mezza giornata intera o poco più.'}},
-    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi. Prenota una giornata intera.'}},
+    {label:'Sono messi bene, semplice riparazione ✨', result:{emoji:'✨',title:'Riparazione periodica leggera', text:'Ritocchi veloci sulle basi: ideale per ricrescite sotto i 50 dread, lavoro breve. Mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
+    {label:'Sono messi più o meno bene, un po\' incollati 🧩', result:{emoji:'🧩',title:'Riparazione media', text:'Sblocco delle basi incollate + pulizia. Se fino a 50 dread: mezza giornata (09:00–15:00 o 16:00–20:00); oltre 53 dread: giornata intera (09:00–20:00).'}},
+    {label:'Sono un disastro, aiuto! 🆘', result:{emoji:'🆘',title:'Recupero completo', text:'Intervento straordinario con sblocco, pulizia e ricostruzione basi. Con più di 6 mesi o lavaggio incluso: giornata intera (09:00–20:00). Prenota una giornata intera.'}},
   ]},
   heavyType:{q:'Quale intervento ti serve?', options:[
-    {label:'Devo solo riprendere le basi, li curo bene 🏗️', result:{emoji:'🏗️',title:'Ripresa basi mirata', text:'Intervento mirato sulle radici e punte, lavoro accurato. Prenota una mezza giornata.'}},
-    {label:'Voglio riprenderli, sono incollati e ho qualche problema 🧶', result:{emoji:'🧶',title:'Sblocco + ripresa', text:'Sblocco delle incrostazioni e ripresa generale. Preferisci una mezza giornata o una giornata intera.'}},
-    {label:'Aiuto, sono un disastro totale, devo riprenderli e lavarli 🧼', result:{emoji:'🧼',title:'Recupero totale + lavaggio', text:'Recupero completo con pulizia profonda e ricostruzione. Prenota una giornata intera.'}},
+    {label:'Devo solo riprendere le basi, li curo bene 🏗️', result:{emoji:'🏗️',title:'Ripresa basi mirata', text:'Ripresa basi mirata. Se il lavoro è sotto i 50 dread richiede mezza giornata; in caso di recupero più esteso può richiedere una giornata intera.'}},
+    {label:'Voglio riprenderli, sono incollati e ho qualche problema 🧶', result:{emoji:'🧶',title:'Sblocco + ripresa', text:'Sblocco delle incrostazioni e ripresa generale. Per riparazione sotto i 50 dread: mezza giornata (09:00–15:00 o 16:00–20:00); da 50 in su: giornata intera.'}},
+    {label:'Aiuto, sono un disastro totale, devo riprenderli e lavarli 🧼', result:{emoji:'🧼',title:'Recupero totale + lavaggio', text:'Recupero totale + lavaggio: da più di 6 mesi richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
   ]},
 };
 function renderQuizNow(id){
