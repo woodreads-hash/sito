@@ -268,7 +268,7 @@ tr:hover{background:rgba(140,255,0,.02);}
   <div class="hlogo">WOO<em>DREADS</em> <span class="badge">Admin</span></div>
   <div class="hnav">
     <a href="#" class="active" onclick="showTab('dashboard',this)">Dashboard</a>
-    <a href="#" onclick="showTab('appointments',this)">Appuntamenti</a>
+    <a href="#" onclick="showTab('blog',this)">Blog</a>
     <a href="#" onclick="showTab('photos',this)">Foto</a>
     <a href="#" onclick="showTab('quiz',this)">Risultati Quiz</a>
     <a href="#" onclick="showTab('settings',this)">Credenziali</a>
@@ -378,24 +378,37 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
   </div>
 
-  <!-- ══════ APPOINTMENTS ══════ -->
-  <div id="tab-appointments" style="display:none;">
+  <!-- ══════ BLOG ══════ -->
+  <div id="tab-blog" style="display:none;">
     <div class="page-title">
-      <h1>Appuntamenti <span>│</span> <span id="appt-count">0</span></h1>
-      <p>Gestisci richieste di appuntamento</p>
+      <h1>Blog <span>│</span> <span id="blog-draft-count">0</span></h1>
+      <p>Crea contenuti editoriali con testo, immagini, mini-video e anteprima YouTube</p>
     </div>
-
-    <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-      <button class="btn-sm approve" onclick="filterAppts('all')" style="border-color:rgba(245,245,247,.15);padding:.4rem 1rem;font-size:.7rem;letter-spacing:2px;" id="af-all">Tutti</button>
-      <button class="btn-sm approve" onclick="filterAppts('pending')" style="padding:.4rem 1rem;font-size:.7rem;letter-spacing:2px;" id="af-pending">In attesa</button>
-      <button class="btn-sm approve" onclick="filterAppts('approved')" style="padding:.4rem 1rem;font-size:.7rem;letter-spacing:2px;" id="af-approved">Approvati</button>
-      <button class="btn-sm reject" onclick="filterAppts('rejected')" style="padding:.4rem 1rem;font-size:.7rem;letter-spacing:2px;" id="af-rejected">Rifiutati</button>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-body" style="overflow-x:auto;">
-        <table><thead><tr><th>Cliente</th><th>Email</th><th>Tel</th><th>Servizio</th><th>Data</th><th>Ora</th><th>Status</th><th></th></tr></thead>
-        <tbody id="appt-body"><tr class="loading-row"><td colspan="8">Caricamento…</td></tr></tbody></table>
+    <div class="appt-grid">
+      <div class="sec-card">
+        <div class="sec-hdr"><h3>✨ Componi articolo</h3></div>
+        <div class="sec-body" style="padding:1.5rem;">
+          <div class="fgrow">
+            <div class="fg"><label>Titolo</label><input type="text" id="bl-title" placeholder="Titolo articolo"></div>
+            <div class="fg"><label>Slug URL</label><input type="text" id="bl-slug" placeholder="es. dread-manutenzione"></div>
+          </div>
+          <div class="fg"><label>Testo principale (alta leggibilità)</label>
+            <textarea id="bl-text" style="min-height:220px;" placeholder="Inserisci il testo del blog..."></textarea>
+          </div>
+          <div class="fg"><label>Immagine di accompagnamento</label><input type="file" id="bl-image" accept="image/*"></div>
+          <div class="fg"><label>Mini-video (loop stile GIF)</label><input type="file" id="bl-video" accept="video/*"></div>
+          <div class="fg"><label>Link video YouTube</label><input type="text" id="bl-yt" placeholder="https://www.youtube.com/watch?v=..."></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn-sm approve" onclick="saveBlogDraft()">Salva bozza</button>
+            <button class="btn-sm reject" onclick="clearBlogDraft()">Pulisci</button>
+          </div>
+          <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;">Le bozze vengono salvate in locale. Per la pubblicazione online serve il flusso Strapi/Netlify esistente.</p>
+        </div>
+      </div>
+      <div class="sec-card">
+        <div class="sec-hdr"><h3>📄 Bozze locali</h3><span class="count" id="blog-draft-total">0</span></div>
+        <div class="sec-body" id="blog-drafts" style="overflow-x:auto;max-height:520px;overflow-y:auto;">
+        </div>
       </div>
     </div>
   </div>
@@ -602,7 +615,7 @@ function showTab(name, el){
   document.querySelectorAll('.hnav a').forEach(a => a.classList.remove('active'));
   if(el) el.classList.add('active');
   document.getElementById('tab-dashboard').style.display = name==='dashboard'?'':'none';
-  document.getElementById('tab-appointments').style.display = name==='appointments'?'':'none';
+  document.getElementById('tab-blog').style.display = name==='blog'?'':'none';
   document.getElementById('tab-photos').style.display = name==='photos'?'':'none';
   document.getElementById('tab-quiz').style.display = name==='quiz'?'':'none';
   document.getElementById('tab-settings').style.display = name==='settings'?'':'none';
@@ -677,15 +690,64 @@ function clearQuizResults(){
   toast('Storico quiz cancellato');
 }
 
+/* ── Blog drafts (local) ── */
+function getBlogDrafts(){ try { return JSON.parse(localStorage.getItem('wd_blog_drafts')||'[]'); } catch(e){ return []; } }
+function saveBlogDraft(){
+  const title=document.getElementById('bl-title').value.trim();
+  if(!title){ toast('Inserisci un titolo'); return; }
+  const draft={
+    id: Date.now(),
+    title,
+    slug: document.getElementById('bl-slug').value.trim(),
+    text: document.getElementById('bl-text').value.trim(),
+    youtube: document.getElementById('bl-yt').value.trim(),
+    createdAt: new Date().toISOString(),
+  };
+  // optional file names only (local browser), not persisted for binary files
+  const image=document.getElementById('bl-image').files[0];
+  const video=document.getElementById('bl-video').files[0];
+  draft.imageName = image ? image.name : '';
+  draft.videoName = video ? video.name : '';
+  const drafts=getBlogDrafts();
+  drafts.unshift(draft);
+  localStorage.setItem('wd_blog_drafts', JSON.stringify(drafts.slice(0,100)));
+  renderBlogDrafts();
+  toast('Bozza salvata in locale');
+}
+function clearBlogDraft(){
+  document.getElementById('bl-title').value='';
+  document.getElementById('bl-slug').value='';
+  document.getElementById('bl-text').value='';
+  document.getElementById('bl-image').value='';
+  document.getElementById('bl-video').value='';
+  document.getElementById('bl-yt').value='';
+}
+function deleteBlogDraft(id){
+  const drafts=getBlogDrafts().filter(d=>d.id!==id);
+  localStorage.setItem('wd_blog_drafts', JSON.stringify(drafts));
+  renderBlogDrafts();
+  toast('Bozza eliminata');
+}
+function renderBlogDrafts(){
+  const el=document.getElementById('blog-drafts');
+  const cnt=document.getElementById('blog-draft-count');
+  const total=document.getElementById('blog-draft-total');
+  const drafts=getBlogDrafts();
+  if(cnt) cnt.textContent=drafts.length;
+  if(total) total.textContent=drafts.length;
+  if(!el) return;
+  if(!drafts.length){ el.innerHTML='<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessuna bozza</div>'; return; }
+  el.innerHTML=drafts.map(d=>'<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;"><strong style="color:var(--text-d);">'+esc(d.title)+'</strong><button class="btn-sm reject" onclick="deleteBlogDraft('+d.id+')">X</button></div><div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">'+esc(d.slug||'senza-slug')+' · '+new Date(d.createdAt).toLocaleString('it-IT')+'</div></div>').join('');
+}
 /* ── Init ── */
 async function init(){
   document.getElementById('dash-date').textContent = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   await Promise.all([
-    loadAppointments(),
     loadPhotos(),
     loadCategories(),
     loadDayData(),
     loadQuizResults(),
+    renderBlogDrafts(),
   ]);
   renderCalendar();
 }
