@@ -44,12 +44,12 @@ nav a:hover{color:var(--green);}
 .btn:hover{transform:translateY(-3px);}
 .btn-g{background:var(--green);color:var(--dark);box-shadow:0 0 25px rgba(140,255,0,.25);}
 .btn-g:hover{box-shadow:0 0 45px rgba(140,255,0,.5);}
-.btn-gl{background:var(--leaf1);color:#fff;}
-.btn-gl:hover{background:var(--leaf2);}
+.btn-gl{background:var(--green);color:var(--dark);}
+.btn-gl:hover{background:var(--lime);color:var(--dark);}
 .btn-od{background:transparent;color:var(--text-d);border:1.5px solid rgba(245,245,247,.22);}
 .btn-od:hover{border-color:var(--purple);color:var(--purple);}
 .btn-ol{background:transparent;color:var(--text-l);border:1.5px solid rgba(26,26,30,.2);}
-.btn-ol:hover{border-color:var(--leaf1);color:var(--leaf1);}
+.btn-ol:hover{border-color:var(--purple);color:var(--text-l);}
 
 /* ═══════════════════ SECTION SHELLS ═══════════════════ */
 .sec-dark{background:var(--dark);color:var(--text-d);position:relative;overflow:hidden;padding:7rem 3rem;}
@@ -185,9 +185,9 @@ nav a:hover{color:var(--green);}
 .plat-name{font-family:var(--fd);font-size:.85rem;letter-spacing:2px;}
 .plat-handle{font-size:.7rem;color:var(--muted-d);}
 .plat-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.pstat .num{font-family:var(--fd);font-size:1.8rem;line-height:1;color:var(--green);}
-.pstat.pp .num{color:var(--purple);}
-.pstat.pl .num{color:var(--lime);}
+.pstat .num{font-family:var(--fd);font-size:1.8rem;line-height:1;color:var(--text-l);}
+.pstat.pp .num{color:var(--text-l);}
+.pstat.pl .num{color:var(--text-l);}
 .pstat .lbl{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-top:.2rem;}
 .api-note-wrap{text-align:center;margin-top:2.5rem;position:relative;z-index:2;}
 .api-note{display:inline-block;font-size:.78rem;color:var(--muted-d);background:rgba(140,255,0,.05);border:1px solid rgba(140,255,0,.12);border-radius:10px;padding:1rem 2rem;}
@@ -200,7 +200,7 @@ nav a:hover{color:var(--green);}
 .quiz-inner{max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:2;}
 .quiz-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(181,140,255,.15);color:#7c54cc;border-radius:999px;padding:.4rem 1.2rem;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:1.5rem;}
 .quiz-title{font-family:var(--fd);font-size:clamp(1.8rem,4vw,3rem);color:var(--text-d);margin-bottom:.8rem;}
-.quiz-title .g{color:var(--leaf1);}
+.quiz-title .g{color:var(--green);}
 .quiz-intro{font-size:.9rem;color:var(--muted-d);line-height:1.7;max-width:460px;margin:0 auto 2.5rem;}
 .qprog{display:flex;gap:.5rem;justify-content:center;margin-bottom:2rem;}
 .qpd{width:30px;height:4px;border-radius:2px;background:rgba(26,26,30,.15);transition:background .3s,width .3s;}
@@ -208,18 +208,18 @@ nav a:hover{color:var(--green);}
 .qstep{display:none;animation:fadeQ .4s ease;}
 .qstep.active{display:block;}
 @keyframes fadeQ{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.qq{font-size:1.05rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-l);line-height:1.5;}
+.qq{font-size:1.05rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-d);line-height:1.5;}
 .qopts{display:flex;flex-direction:column;gap:.75rem;}
 .qopt{background:#fff;border:1.5px solid rgba(26,26,30,.1);border-radius:12px;padding:.95rem 1.5rem;font-size:.9rem;cursor:none;transition:all .2s;text-align:left;color:var(--text-l);}
-.qopt:hover{border-color:var(--leaf1);background:rgba(44,90,39,.05);transform:translateX(6px);}
+.qopt:hover{border-color:var(--green);background:rgba(140,255,0,.08);transform:translateX(6px);}
 .qres{padding:2rem;background:#fff;border-radius:18px;border:2px solid var(--leaf1);}
 .qres-emoji{font-size:4rem;margin-bottom:1rem;animation:bouncein .6s cubic-bezier(.34,1.56,.64,1) forwards;}
 @keyframes bouncein{from{transform:scale(0);}to{transform:scale(1);}}
 .qres h3{font-family:var(--fd);font-size:1.4rem;color:var(--leaf1);margin-bottom:.8rem;letter-spacing:2px;}
 .qres p{font-size:.9rem;color:var(--muted-l);line-height:1.7;}
 .qres-btns{display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;}
-.btn-restart{background:transparent;border:1.5px solid var(--leaf1);color:var(--leaf1);border-radius:5px;padding:.6rem 1.4rem;font-family:var(--fb);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:none;transition:all .2s;}
-.btn-restart:hover{background:var(--leaf1);color:#fff;}
+.btn-restart{background:transparent;border:1.5px solid var(--purple);color:var(--text-l);border-radius:5px;padding:.6rem 1.4rem;font-family:var(--fb);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:none;transition:all .2s;}
+.btn-restart:hover{background:var(--purple);color:var(--dark);}
 
 /* ════════════════════════════════════════════════════
    CHI SIAMO – DARK
@@ -291,11 +291,11 @@ nav a:hover{color:var(--green);}
 .soc-row{display:flex;justify-content:center;gap:1rem;margin-top:2.5rem;flex-wrap:wrap;position:relative;z-index:2;}
 .soc-btn{display:flex;align-items:center;gap:.6rem;padding:.8rem 1.6rem;border-radius:7px;border:1.5px solid rgba(26,26,30,.15);text-decoration:none;color:var(--text-l);font-weight:700;font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;transition:all .25s;cursor:none;background:#fff;}
 .soc-btn:hover{transform:translateY(-4px);}
-.soc-btn.ig:hover{border-color:#E1306C;color:#E1306C;box-shadow:0 8px 30px rgba(225,48,108,.15);}
-.soc-btn.fb:hover{border-color:#1877F2;color:#1877F2;}
-.soc-btn.tt:hover{border-color:#010101;color:#010101;}
-.soc-btn.yt:hover{border-color:#FF0000;color:#FF0000;box-shadow:0 8px 30px rgba(255,0,0,.15);}
-.soc-btn.wa:hover{border-color:#25D366;color:#25D366;}
+.soc-btn.ig:hover{border-color:var(--green);color:var(--dark);background:var(--green);box-shadow:0 8px 30px rgba(140,255,0,.2);}
+.soc-btn.fb:hover{border-color:var(--purple);color:var(--dark);background:var(--purple);box-shadow:0 8px 30px rgba(181,140,255,.2);}
+.soc-btn.tt:hover{border-color:var(--green);color:var(--dark);background:var(--green);box-shadow:0 8px 30px rgba(140,255,0,.2);}
+.soc-btn.yt:hover{border-color:var(--purple);color:var(--dark);background:var(--purple);box-shadow:0 8px 30px rgba(181,140,255,.2);}
+.soc-btn.wa:hover{border-color:var(--green);color:var(--dark);background:var(--green);box-shadow:0 8px 30px rgba(140,255,0,.2);}
 .hash{font-family:var(--fd);font-size:clamp(2rem,5vw,4rem);color:rgba(44,90,39,.1);letter-spacing:6px;margin-top:2.5rem;position:relative;z-index:2;}
 
 /* FOOTER */
@@ -387,9 +387,9 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 ════════════════════════════════════════════════════ */
 .showroom-filters{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:2.5rem;position:relative;z-index:2;}
 .filter-pill{padding:.45rem 1.2rem;border-radius:999px;background:rgba(26,26,30,.06);border:1.5px solid transparent;font-family:var(--fb);font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-l);cursor:var(--cur-pointer,none);transition:all .25s;}
-.filter-pill:hover{border-color:var(--leaf1);color:var(--leaf1);background:rgba(44,90,39,.06);}
-.filter-pill.active{background:var(--leaf1);color:#fff;border-color:var(--leaf1);}
-.filter-pill.active:hover{background:var(--leaf2);border-color:var(--leaf2);}
+.filter-pill:hover{border-color:var(--green);color:var(--green);background:rgba(140,255,0,.06);}
+.filter-pill.active{background:var(--green);color:var(--dark);border-color:var(--green);}
+.filter-pill.active:hover{background:var(--lime);border-color:var(--lime);}
 .filter-count{opacity:.6;font-size:.65rem;margin-left:.3rem;}
 .showroom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.9rem;position:relative;z-index:2;}
 .showroom-grid .gi{border-radius:14px;overflow:hidden;position:relative;cursor:pointer;aspect-ratio:1/1;}
@@ -409,8 +409,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .showroom-grid .gi-inner.skeleton{background:linear-gradient(135deg,var(--warm) 25%,var(--cream) 50%,var(--warm) 75%);background-size:200% 200%;animation:shimmer-bg 1.5s ease-in-out infinite;}
 @keyframes shimmer-bg{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
 .load-more-wrap{text-align:center;margin-top:2rem;position:relative;z-index:2;}
-.btn-load-more{background:transparent;border:1.5px solid var(--leaf1);color:var(--leaf1);border-radius:6px;padding:.7rem 2rem;font-family:var(--fb);font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:var(--cur-pointer,none);transition:all .25s;}
-.btn-load-more:hover{background:var(--leaf1);color:#fff;}
+.btn-load-more{background:transparent;border:1.5px solid var(--green);color:var(--text-l);border-radius:6px;padding:.7rem 2rem;font-family:var(--fb);font-size:.78rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:var(--cur-pointer,none);transition:all .25s;}
+.btn-load-more:hover{background:var(--green);color:var(--dark);}
 .btn-load-more:disabled{opacity:.35;cursor:default;transform:none!important;}
 .showroom-empty{text-align:center;padding:4rem 2rem;color:var(--muted-l);font-size:.9rem;grid-column:1/-1;}
 .showroom-empty .icon{font-size:3rem;margin-bottom:1rem;display:block;}
@@ -825,9 +825,9 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 <section id="blog-preview" class="sec-light">
   <div id="particles-blog"></div>
   <div style="position:relative;z-index:2;">
-    <span class="lbl lbl-gd">— Blog</span>
-    <h2 class="ttl">Ultimi <span class="gd">articoli</span> dal blog</h2>
-    <p class="sub sub-d">Consigli, guide e trend sui dreadlocks naturali, cyberdreads e manutenzione.</p>
+    <span class="lbl lbl-g">— Blog</span>
+    <h2 class="ttl">Ultimi <span class="g">articoli</span> dal blog</h2>
+    <p class="sub sub-l">Consigli, guide e trend sui dreadlocks naturali, cyberdreads e manutenzione.</p>
   </div>
   <div id="blog-preview-grid" class="bp-grid" style="position:relative;z-index:2;"></div>
   <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
@@ -1051,7 +1051,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 
   <!-- Titolo animato con shimmer -->
-  <div class="marquee-title-wrap" style="color:var(--green);margin-bottom:1rem;">
+  <div class="marquee-title-wrap" style="color:var(--leaf1);margin-bottom:1rem;">
     <div class="marquee-title-track mtk2" style="animation:tick2 22s linear infinite reverse;">
       <span class="mt-outline">I NOSTRI CANALI</span><span style="margin:0 2rem;opacity:.2;">✦</span>
       <span class="mt-fill shimmer-text">SOCIAL STATS</span><span style="margin:0 2rem;opacity:.2;">✦</span>
@@ -1063,8 +1063,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   </div>
 
   <div style="text-align:center;margin-bottom:4rem;position:relative;z-index:2;">
-    <span class="lbl lbl-p rev">— Numeri reali</span>
-    <p class="rev" style="color:var(--muted-d);font-size:.9rem;max-width:480px;margin:.5rem auto 0;line-height:1.7;">
+    <span class="lbl lbl-g rev">— Numeri reali</span>
+    <p class="rev" style="color:var(--muted-l);font-size:.9rem;max-width:480px;margin:.5rem auto 0;line-height:1.7;">
       Segui il lavoro quotidiano su tutti i canali.
     </p>
   </div>
@@ -1109,8 +1109,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 
   <div class="rev" style="text-align:center;max-width:620px;margin:2.5rem auto 0;position:relative;z-index:2;">
-    <p style="color:var(--muted-d);font-size:.9rem;line-height:1.7;">
-      Se ti piace quello che vedi, un <strong style="color:var(--green);">like o un commento</strong> aiuta tanto l'algoritmo
+    <p style="color:var(--muted-l);font-size:.9rem;line-height:1.7;">
+      Se ti piace quello che vedi, un <strong style="color:var(--purple);">like o un commento</strong> aiuta tanto l'algoritmo
       a far conoscere il mio lavoro ad altre persone che cercano dreadlocks a Roma. Grazie di cuore! 💚
     </p>
   </div>
@@ -1149,8 +1149,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     <use href="#lf-mon"/>
   </svg>
 
-  <span class="lbl lbl-g rev" style="display:block;text-align:center;">— Seguici</span>
-  <div class="marquee-title-wrap" style="color:var(--leaf1);">
+  <span class="lbl lbl-gd rev" style="display:block;text-align:center;">— Seguici</span>
+  <div class="marquee-title-wrap" style="color:var(--green);">
     <div class="marquee-title-track mtk2" style="animation:tick2 20s linear infinite reverse;">
       <span class="mt-outline">SEGUICI</span><span style="margin:0 1.5rem;opacity:.2;">—</span>
       <span class="mt-fill">#WOODREADS</span><span style="margin:0 1.5rem;opacity:.2;">—</span>
@@ -1161,7 +1161,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     </div>
   </div>
   <p class="rev" style="color:var(--muted-d);font-size:.9rem;max-width:420px;margin:.8rem auto 0;line-height:1.7;text-align:center;">
-    Taggaci con <strong style="color:var(--leaf1);">#WooDreads</strong> e mostra il tuo look!
+    Taggaci con <strong style="color:var(--green);">#WooDreads</strong> e mostra il tuo look!
   </p>
   <div class="soc-row rev">
     <a href="https://www.instagram.com/woodreads/" target="_blank" class="soc-btn ig">📸 Instagram</a>
