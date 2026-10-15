@@ -2,7 +2,29 @@
   functions = "netlify/functions"
   publish = "."
 
+[build.environment]
+  NODE_VERSION = "20"
+
 [[redirects]]
-  from = "/.netlify/functions/showroom/*"
-  to = "/.netlify/functions/showroom/:splat"
+  from = "/admin"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/wd-panel-x7q9"
+  to = "/admin.html"
   status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Cache-Control = "no-store"
