@@ -177,22 +177,23 @@ nav a:hover{color:var(--green);}
 .platform-card{background:var(--mid);border-radius:20px;padding:2rem;border:1px solid rgba(245,245,247,.07);position:relative;overflow:hidden;transition:transform .3s,border-color .3s;}
 .platform-card:hover{transform:translateY(-5px);}
 .platform-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pc,#fff);}
-.platform-card.ig{--pc:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);background:linear-gradient(135deg,rgba(131,58,180,.3),rgba(253,29,29,.24),rgba(252,176,69,.14));border-color:rgba(253,29,29,.25);}
+.platform-card.ig{--pc:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);background:linear-gradient(135deg,rgba(252,176,69,.35),rgba(253,29,29,.22),rgba(131,58,180,.2));border-color:rgba(131,58,180,.28);}
 .platform-card.ig:hover{border-color:#fd1d1d;}
-.platform-card.tt{--pc:linear-gradient(90deg,#010101,#69C9D0);background:linear-gradient(135deg,rgba(1,1,1,.95),rgba(105,201,208,.18));border-color:rgba(105,201,208,.25);}
+.platform-card.tt{--pc:linear-gradient(90deg,#010101,#69C9D0);background:linear-gradient(135deg,rgba(105,201,208,.3),rgba(255,255,255,.78));border-color:rgba(105,201,208,.3);}
 .platform-card.tt:hover{border-color:#69C9D0;}
-.platform-card.yt{--pc:linear-gradient(90deg,#FF0000,#444);background:linear-gradient(135deg,rgba(255,0,0,.24),rgba(20,20,24,.92));border-color:rgba(255,0,0,.25);}
+.platform-card.yt{--pc:linear-gradient(90deg,#FF0000,#444);background:linear-gradient(135deg,rgba(255,180,190,.45),rgba(255,255,255,.82));border-color:rgba(255,0,0,.25);}
 .platform-card.yt:hover{border-color:#FF0000;}
+.platform-card.fb{--pc:linear-gradient(90deg,#1877F2,#42B72A);background:linear-gradient(135deg,rgba(24,119,242,.28),rgba(230,240,255,.9));border-color:rgba(24,119,242,.25);}
+.platform-card.fb:hover{border-color:#1877F2;}
 .plat-header{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;}
 .plat-icon{font-size:1.6rem;}
 .plat-name{font-family:var(--fd);font-size:.85rem;letter-spacing:2px;}
-.plat-handle{font-size:.7rem;color:var(--muted-d);}
+.plat-handle{font-size:.7rem;color:var(--muted-l);}
 .plat-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
 .pstat .num{font-family:var(--fd);font-size:1.8rem;line-height:1;color:var(--green);text-shadow:0 0 12px rgba(140,255,0,.45);}
 .pstat.pp .num{color:var(--purple);text-shadow:0 0 12px rgba(181,140,255,.45);}
-.pstat.pp .num{color:var(--text-l);}
-.pstat.pl .num{color:var(--text-l);}
-.pstat .lbl{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-top:.2rem;}
+.pstat.pl .num{color:var(--green);text-shadow:0 0 12px rgba(140,255,0,.45);}
+.pstat .lbl{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-l);margin-top:.2rem;}
 .api-note-wrap{text-align:center;margin-top:2.5rem;position:relative;z-index:2;}
 .api-note{display:inline-block;font-size:.78rem;color:var(--muted-d);background:rgba(140,255,0,.05);border:1px solid rgba(140,255,0,.12);border-radius:10px;padding:1rem 2rem;}
 .api-connect{display:inline-flex;align-items:center;gap:.5rem;margin-top:.8rem;background:var(--green);color:var(--dark);padding:.5rem 1.4rem;border-radius:5px;font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:none;transition:background .2s;}
@@ -1127,6 +1128,17 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <div class="pstat pp"><div class="num" id="yt-v">–</div><div class="lbl">Visualizzazioni</div></div>
         <div class="pstat pl"><div class="num" id="yt-vid">–</div><div class="lbl">Video</div></div>
         <div class="pstat"><div class="num" id="yt-w">–</div><div class="lbl">Ore viste</div></div>
+      </div>
+    </div>
+    <div class="platform-card fb">
+      <div class="plat-header">
+        <span class="plat-icon">📘</span>
+        <div><div class="plat-name">Facebook</div><div class="plat-handle">@woodreads</div></div>
+      </div>
+      <div class="plat-stats">
+        <div class="pstat"><div class="num" id="fb-followers">–</div><div class="lbl">Follower</div></div>
+        <div class="pstat pp"><div class="num" id="fb-likes">–</div><div class="lbl">Like</div></div>
+        <div class="pstat pl"><div class="num" id="fb-posts">–</div><div class="lbl">Post</div></div>
       </div>
     </div>
   </div>
