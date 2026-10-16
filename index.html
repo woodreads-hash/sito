@@ -360,8 +360,14 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 @keyframes textwave{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
 
 /* ── SHIMMER TEXT ── */
-.shimmer-text{color:var(--green);background:linear-gradient(90deg,var(--green) 0%,var(--lime) 28%,var(--purple) 50%,var(--lime) 72%,var(--green) 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone;animation:shimmer 4s linear infinite;}
-@supports not ((-webkit-background-clip:text) or (background-clip:text)){.shimmer-text{color:var(--green);-webkit-text-fill-color:var(--green);background:none;animation:none;}}
+.shimmer-text{color:var(--green);animation:shimmer-color 4s linear infinite;}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .shimmer-text{background:linear-gradient(90deg,var(--green) 0%,var(--lime) 28%,var(--purple) 50%,var(--lime) 72%,var(--green) 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone;animation:shimmer 4s linear infinite;}
+}
+@media (max-width:1024px){
+  .shimmer-text{background:none;-webkit-text-fill-color:currentColor;color:var(--green);animation:shimmer-color 4s linear infinite;}
+}
+@keyframes shimmer-color{0%,100%{color:var(--green);text-shadow:0 0 14px rgba(140,255,0,.30);}28%{color:var(--lime);text-shadow:0 0 16px rgba(230,255,77,.32);}50%{color:var(--purple);text-shadow:0 0 16px rgba(181,140,255,.34);}72%{color:var(--lime);text-shadow:0 0 16px rgba(230,255,77,.32);}}
 
 /* ── WAVE LETTERS ── */
 .wave-text .ch{display:inline-block;animation:textwave 1.5s ease-in-out infinite;}
