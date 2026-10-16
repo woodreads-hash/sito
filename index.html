@@ -173,7 +173,7 @@ nav a:hover{color:var(--green);}
 /* ════════════════════════════════════════════════════
    STATS – DARK
 ════════════════════════════════════════════════════ */
-.stats-platforms{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;position:relative;z-index:2;}
+.stats-platforms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.6rem;position:relative;z-index:2;max-width:920px;margin:0 auto;}
 .platform-card{background:var(--mid);border-radius:20px;padding:2rem;border:1px solid rgba(245,245,247,.07);position:relative;overflow:hidden;transition:transform .3s,border-color .3s;}
 .platform-card:hover{transform:translateY(-5px);}
 .platform-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pc,#fff);}
@@ -574,6 +574,14 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 @media(max-width:640px){#beta-notice{font-size:.74rem;}}
 
 @media(max-width:640px){#beta-notice{font-size:.75rem;}}
+
+.social-invite p{font-family:var(--fb);font-size:.92rem;line-height:1.75;color:var(--text-l);background:rgba(181,140,255,.08);border:1px solid rgba(181,140,255,.35);border-radius:14px;padding:.9rem 1.2rem;display:inline-block;position:relative;text-shadow:0 0 8px rgba(140,255,0,.35);box-shadow:0 0 24px rgba(181,140,255,.12),inset 0 0 20px rgba(140,255,0,.05);}
+.social-invite p::before,.social-invite p::after{content:attr(data-text);position:absolute;inset:0;padding:.9rem 1.2rem;border-radius:14px;pointer-events:none;opacity:.65;mix-blend-mode:screen;}
+.social-invite p::before{color:var(--green);transform:translate(-2px,0);clip-path:inset(0 0 62% 0);animation:invite-glitch 2.8s steps(14,end) infinite;}
+.social-invite p::after{color:var(--purple);transform:translate(2px,0);clip-path:inset(58% 0 0 0);animation:invite-glitch2 3.4s steps(12,end) infinite;}
+@keyframes invite-glitch{0%,100%{transform:translate(-2px,0);}25%{transform:translate(-4px,1px);}50%{transform:translate(2px,-1px);}75%{transform:translate(-1px,0);}}
+@keyframes invite-glitch2{0%,100%{transform:translate(2px,0);}30%{transform:translate(3px,-1px);}60%{transform:translate(-3px,1px);}80%{transform:translate(1px,0);}}
+@media(max-width:640px){.social-invite p{font-size:.82rem;}}
 </style>
 </head>
 <body>
@@ -1123,6 +1131,10 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     </div>
   </div>
 
+  <div class="social-invite rev" style="text-align:center;max-width:700px;margin:0 auto 2.4rem;position:relative;z-index:3;">
+    <p data-text="Se vuoi contribuire alla nostra missione, un like o un commento aiuta tantissimo l'algoritmo a far conoscere il nostro lavoro a chi cerca servizi per Dreads a Roma. Grazie di cuore 💚">Se vuoi contribuire alla nostra missione, un like o un commento aiuta tantissimo l'algoritmo a far conoscere il nostro lavoro a chi cerca servizi per Dreads a Roma. Grazie di cuore 💚</p>
+  </div>
+
   <div style="text-align:center;margin-bottom:4rem;position:relative;z-index:2;">
     <span class="lbl lbl-g rev">— Numeri reali</span>
     <p class="rev" style="color:var(--muted-l);font-size:.9rem;max-width:480px;margin:.5rem auto 0;line-height:1.7;">
@@ -1139,7 +1151,6 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
       <div class="plat-stats">
         <div class="pstat"><div class="num" id="ig-followers">6300</div><div class="lbl">Follower</div></div>
         <div class="pstat pp"><div class="num" id="ig-posts">310</div><div class="lbl">Post</div></div>
-        <div class="pstat pl"><div class="num" id="ig-following">365</div><div class="lbl">Seguiti</div></div>
       </div>
     </div>
     <div class="platform-card tt">
@@ -1169,18 +1180,11 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
       </div>
       <div class="plat-stats">
         <div class="pstat"><div class="num" id="fb-followers">2259</div><div class="lbl">Follower</div></div>
-        <div class="pstat pp"><div class="num" id="fb-likes">–</div><div class="lbl">Like</div></div>
-        <div class="pstat pl"><div class="num" id="fb-posts">–</div><div class="lbl">Post</div></div>
       </div>
     </div>
   </div>
 
 
-  <div class="rev" style="text-align:center;max-width:620px;margin:2.5rem auto 0;position:relative;z-index:2;">
-    <p style="color:var(--muted-l);font-size:.9rem;line-height:1.7;">
-      Se vuoi contribuire alla nostra missione un like o un commento aiuta tanto l'algoritmo a far conoscere il nostro lavoro ad altre persone che cercano servizi per Dreads a Roma, grazie di cuore 💚
-    </p>
-  </div>
 </section>
 
 <!-- ── TICKER 3: dark/verde ── -->
