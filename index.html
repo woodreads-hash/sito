@@ -575,12 +575,17 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 @media(max-width:640px){#beta-notice{font-size:.75rem;}}
 
-.social-invite p{font-family:var(--fb);font-weight:700;font-size:1.18rem;line-height:1.6;color:var(--text-l);background:transparent;border:none;border-radius:0;padding:.6rem .2rem;display:inline-block;position:relative;text-shadow:0 0 10px rgba(181,140,255,.45),0 0 22px rgba(140,255,0,.3);box-shadow:none;}
+.social-invite p{font-family:var(--fb);font-weight:700;font-size:1.18rem;line-height:1.6;color:var(--text-l);background:transparent;border:none;border-radius:0;padding:.6rem .2rem;display:inline-block;position:relative;text-shadow:0 0 10px rgba(181,140,255,.45),0 0 22px rgba(140,255,0,.3);box-shadow:none;transition:opacity .3s,filter .3s,transform .3s;}
 .social-invite p::before,.social-invite p::after{content:attr(data-text);position:absolute;inset:0;padding:.6rem .2rem;pointer-events:none;mix-blend-mode:multiply;opacity:.45;}
 .social-invite p::before{color:var(--green);transform:translate(-2px,0);animation:invite-glitch 3.4s steps(18,end) infinite;}
 .social-invite p::after{color:var(--purple);transform:translate(2px,0);animation:invite-glitch2 3.8s steps(16,end) infinite;}
 @keyframes invite-glitch{0%,100%{transform:translate(-2px,0);}30%{transform:translate(-5px,1px);}65%{transform:translate(1px,-1px);}}
 @keyframes invite-glitch2{0%,100%{transform:translate(2px,0);}35%{transform:translate(5px,-1px);}70%{transform:translate(-1px,1px);}}
+.social-invite p.social-glitch-out{animation:social-glitch-out 1s steps(20,end) forwards;}
+.social-invite p.social-glitch-out::before,.social-invite p.social-glitch-out::after{opacity:1;animation-duration:.18s;}
+.social-invite p.social-glitch-in{animation:social-glitch-in .7s ease-out forwards;}
+@keyframes social-glitch-out{0%{opacity:1;transform:translateX(0);filter:contrast(1) brightness(1);clip-path:inset(0 0 0 0);}20%{opacity:.9;transform:translateX(-8px) skewX(10deg);filter:hue-rotate(20deg) saturate(1.6) contrast(1.3);clip-path:inset(20% 0 35% 0);}40%{opacity:1;transform:translateX(9px) skewX(-14deg);filter:hue-rotate(-18deg) contrast(1.5);clip-path:inset(0 0 60% 0);}60%{opacity:.85;transform:translateX(-6px) skewX(8deg);filter:contrast(1.4) brightness(1.2);clip-path:inset(45% 0 0 0);}80%{opacity:1;transform:translateX(7px) skewX(-10deg);filter:saturate(2) contrast(1.4);clip-path:inset(0 0 20% 0);}100%{opacity:0;transform:translateX(0) scale(.98);filter:contrast(1.6) brightness(1.4);clip-path:inset(0 0 0 0);}}
+@keyframes social-glitch-in{0%{opacity:0;transform:translateX(-6px) skewX(8deg);filter:contrast(1.6) saturate(1.8);clip-path:inset(0 0 55% 0);}35%{opacity:1;transform:translateX(5px) skewX(-6deg);filter:contrast(1.3) hue-rotate(12deg);clip-path:inset(0 0 0 0);}70%{opacity:.95;transform:translateX(-3px) skewX(3deg);filter:contrast(1.1);clip-path:inset(0 0 0 0);}100%{opacity:1;transform:translateX(0) skewX(0);filter:none;clip-path:inset(0 0 0 0);}}
 @media(max-width:640px){.social-invite p{font-size:.98rem;}}
 </style>
 </head>
@@ -1132,7 +1137,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   </div>
 
   <div class="social-invite rev" style="text-align:center;max-width:700px;margin:0 auto 2.4rem;position:relative;z-index:3;">
-    <p data-text="Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚">Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚</p>
+    <p id="social-invite-text" data-text="Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚">Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚</p>
   </div>
 
   <div style="text-align:center;margin-bottom:4rem;position:relative;z-index:2;">
@@ -1367,6 +1372,46 @@ if (betaNotice) {
     }, 1000);
   };
   setTimeout(finalizeBeta, 10000);
+}
+
+
+
+const socialInviteText = document.getElementById('social-invite-text');
+if (socialInviteText) {
+  const inviteVariants = [
+    "Un like o un commento aiuta l'algoritmo a far conoscere il nostro lavoro a più persone. Grazie 💚",
+    "Lascia un segno: ogni interazione sostiene l'algoritmo e fa crescere la community WooDreads.",
+    "Se il contenuto ti è piaciuto, un like dà una spinta all'algoritmo. Ci aiuterà davvero.",
+    "Condividi con chi cerca dread a Roma: ogni supporto aiuta l'algoritmo a portarci a loro.",
+    "Metti like, commenta o condividi: sono gesti piccoli che aiutano l'algoritmo a farci conoscere.",
+    "Vuoi sostenere il progetto? Una semplice interazione migliora la visibilità con l'algoritmo.",
+    "Ogni commento è un segnale positivo per l'algoritmo e per chi scopre i nostri lavori.",
+    "Un like non costa nulla e dà una spinta concreta al nostro lavoro sui canali social.",
+    "Aiutaci a farsi trovare: le tue interazioni parlano direttamente con l'algoritmo.",
+    "Se ti piace quello che facciamo, un supporto reale passa anche attraverso l'algoritmo.",
+    "Commenta e condividi: ogni interazione aumenta le possibilità che altri trovino WooDreads.",
+    "L'algoritmo premia le conversazioni: un tuo segno di attenzione può fare la differenza.",
+    "Vuoi darci una mano? Interagisci con il contenuto: è il modo più diretto per aiutare l'algoritmo.",
+    "Ogni like, commento o condivisione rafforza la presenza di WooDreads online. Grazie 💚",
+    "Un piccolo gesto per te, un impatto reale per il nostro lavoro: interagisci e aiuta l'algoritmo."
+  ];
+  let inviteIndex = 0;
+  const setInviteText = (text) => {
+    socialInviteText.textContent = text;
+    socialInviteText.setAttribute('data-text', text);
+  };
+  setInviteText(inviteVariants[0]);
+  const cycleInvite = () => {
+    socialInviteText.classList.add('social-glitch-out');
+    setTimeout(() => {
+      inviteIndex = (inviteIndex + 1) % inviteVariants.length;
+      setInviteText(inviteVariants[inviteIndex]);
+      socialInviteText.classList.remove('social-glitch-out');
+      socialInviteText.classList.add('social-glitch-in');
+      setTimeout(() => socialInviteText.classList.remove('social-glitch-in'), 700);
+    }, 1000);
+  };
+  setInterval(cycleInvite, 8000);
 }
 
 
