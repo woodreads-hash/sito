@@ -575,13 +575,13 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 @media(max-width:640px){#beta-notice{font-size:.75rem;}}
 
-.social-invite p{font-family:var(--fb);font-size:.92rem;line-height:1.75;color:var(--text-l);background:rgba(181,140,255,.08);border:1px solid rgba(181,140,255,.35);border-radius:14px;padding:.9rem 1.2rem;display:inline-block;position:relative;text-shadow:0 0 8px rgba(140,255,0,.35);box-shadow:0 0 24px rgba(181,140,255,.12),inset 0 0 20px rgba(140,255,0,.05);}
-.social-invite p::before,.social-invite p::after{content:attr(data-text);position:absolute;inset:0;padding:.9rem 1.2rem;border-radius:14px;pointer-events:none;opacity:.65;mix-blend-mode:screen;}
-.social-invite p::before{color:var(--green);transform:translate(-2px,0);clip-path:inset(0 0 62% 0);animation:invite-glitch 2.8s steps(14,end) infinite;}
-.social-invite p::after{color:var(--purple);transform:translate(2px,0);clip-path:inset(58% 0 0 0);animation:invite-glitch2 3.4s steps(12,end) infinite;}
-@keyframes invite-glitch{0%,100%{transform:translate(-2px,0);}25%{transform:translate(-4px,1px);}50%{transform:translate(2px,-1px);}75%{transform:translate(-1px,0);}}
-@keyframes invite-glitch2{0%,100%{transform:translate(2px,0);}30%{transform:translate(3px,-1px);}60%{transform:translate(-3px,1px);}80%{transform:translate(1px,0);}}
-@media(max-width:640px){.social-invite p{font-size:.82rem;}}
+.social-invite p{font-family:var(--fb);font-weight:700;font-size:1.18rem;line-height:1.6;color:var(--text-l);background:transparent;border:none;border-radius:0;padding:.6rem .2rem;display:inline-block;position:relative;text-shadow:0 0 10px rgba(181,140,255,.45),0 0 22px rgba(140,255,0,.3);box-shadow:none;}
+.social-invite p::before,.social-invite p::after{content:attr(data-text);position:absolute;inset:0;padding:.6rem .2rem;pointer-events:none;mix-blend-mode:multiply;opacity:.45;}
+.social-invite p::before{color:var(--green);transform:translate(-2px,0);animation:invite-glitch 3.4s steps(18,end) infinite;}
+.social-invite p::after{color:var(--purple);transform:translate(2px,0);animation:invite-glitch2 3.8s steps(16,end) infinite;}
+@keyframes invite-glitch{0%,100%{transform:translate(-2px,0);}30%{transform:translate(-5px,1px);}65%{transform:translate(1px,-1px);}}
+@keyframes invite-glitch2{0%,100%{transform:translate(2px,0);}35%{transform:translate(5px,-1px);}70%{transform:translate(-1px,1px);}}
+@media(max-width:640px){.social-invite p{font-size:.98rem;}}
 </style>
 </head>
 <body>
@@ -1132,7 +1132,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   </div>
 
   <div class="social-invite rev" style="text-align:center;max-width:700px;margin:0 auto 2.4rem;position:relative;z-index:3;">
-    <p data-text="Se vuoi contribuire alla nostra missione, un like o un commento aiuta tantissimo l'algoritmo a far conoscere il nostro lavoro a chi cerca servizi per Dreads a Roma. Grazie di cuore 💚">Se vuoi contribuire alla nostra missione, un like o un commento aiuta tantissimo l'algoritmo a far conoscere il nostro lavoro a chi cerca servizi per Dreads a Roma. Grazie di cuore 💚</p>
+    <p data-text="Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚">Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚</p>
   </div>
 
   <div style="text-align:center;margin-bottom:4rem;position:relative;z-index:2;">
