@@ -1292,6 +1292,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   <div class="sl-counter" id="sl-counter"></div>
 </div>
 
+<script src="supabase-config.js"></script>
 <script>
 /* ── DUAL CURSOR con inerzia ── */
 const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
@@ -1675,28 +1676,81 @@ function renderCalendar(){
     const isTooFar = ds > dateStr(maxDay);
     const isToday = ds === todayStr;
 
-    // Show note dot if exists
-    if (APPT.dayNotes[ds]) {
-      btn.classList.add('has-note');
-      const dot = document.createElement('span');
-      dot.className = 'cal-note-dot';
-      btn.appendChild(dot);
-    }
-
-    if (isPast) {
-      btn.classList.add('past');
-    } else if (isTooFar) {
-      btn.classList.add('past');
-    } else {
-      btn.classList.add('available');
-      if (APPT.dayOverrides[ds]) {
-        btn.classList.add('overridden');
-      }
-      btn.addEventListener('click', () => selectDate(ds));
-    }
-
+    if (isPast || isTooFar) btn.classList.add('past');
     if (isToday) btn.classList.add('today');
+
+    applyDayVisual(btn, ds);
+
+    if (!isPast && !isTooFar) {
+      btn.addEventListener('click', () => { if (btn.classList.contains('available')) selectDate(ds); });
+    }
+
     grid.appendChild(btn);
+  }
+}
+
+function applyDayVisual(btn, ds){
+  if(!btn || !ds) return;
+  const isPastCell = btn.classList.contains('past');
+
+  // Clean dynamic children (band label, particles, note dot)
+  const oldBand = btn.querySelector('.cal-band');
+  if (oldBand) oldBand.remove();
+  btn.querySelectorAll('.day-particle').forEach(p => p.remove());
+  const oldDot = btn.querySelector('.cal-note-dot');
+  if (oldDot) oldDot.remove();
+  btn.classList.remove('has-note');
+
+  if (APPT.dayNotes[ds]) {
+    btn.classList.add('has-note');
+    const dot = document.createElement('span');
+    dot.className = 'cal-note-dot';
+    btn.appendChild(dot);
+  }
+
+  if (isPastCell) {
+    btn.classList.remove('available', 'fully-booked', 'overridden');
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    return;
+  }
+
+  const hasBand = !!APPT.dayBands[ds];
+  const isClosed = !!APPT.dayOverrides[ds];
+  const available = hasBand && !isClosed;
+
+  if (available) {
+    btn.classList.remove('fully-booked', 'overridden');
+    btn.classList.add('available');
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    const pCount = 4 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < pCount; i++) {
+      const p = document.createElement('span');
+      p.className = 'day-particle';
+      const size = 1.6 + Math.random() * 2.4;
+      const left = 6 + Math.random() * 88;
+      const delay = Math.random() * 2.0;
+      const dur = 1.6 + Math.random() * 1.4;
+      p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + left + '%;bottom:-4px;animation-delay:' + delay + 's;animation-duration:' + dur + 's;';
+      btn.appendChild(p);
+    }
+    const b = document.createElement('span');
+    b.className = 'cal-band';
+    b.textContent = APPT.dayBands[ds].replace('09:00', '9').replace('16:00', '16').replace(':00', '');
+    btn.appendChild(b);
+  } else {
+    btn.classList.remove('available', 'overridden');
+    btn.classList.add('fully-booked');
+    btn.style.background = 'rgba(255,71,87,.22)';
+    btn.style.borderColor = 'rgba(255,71,87,.45)';
+    btn.style.color = '#ff6b7a';
+    if (btn.classList.contains('selected')) {
+      btn.classList.remove('selected');
+      APPT.selDate = null;
+    }
   }
 }
 
@@ -1890,23 +1944,13 @@ async function loadSocialStats(){
 ══════════════════════════════════════════ */
 async function loadSiteData(){
   try{
-    const [tr, sr, dn, dor, db] = await Promise.all([
+    const [tr, sr] = await Promise.all([
       fetch('/.netlify/functions/data').catch(()=>null),
       fetch('/.netlify/functions/social-stats').catch(()=>null),
-      fetch('/.netlify/functions/day-notes').then(r=> r.ok ? r.json() : null).catch(()=>null),
-      fetch('/.netlify/functions/day-overrides').then(r=> r.ok ? r.json() : null).catch(()=>null),
-      fetch('/.netlify/functions/day-bands').then(r=> r.ok ? r.json() : null).catch(()=>null),
     ]);
 
     renderCalendar();
-    if (dn !== null || dor !== null || db !== null) {
-      applyDayConfig(dn || APPT.dayNotes, dor || APPT.dayOverrides, db || APPT.dayBands);
-    } else {
-      try {
-        const raw = localStorage.getItem('wd_calendar_data');
-        if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}, c.bands || {}); }
-      } catch(_) {}
-    }
+    refreshCalendarState();
 
     // Load tickers from old data endpoint (backward compat)
     if(tr && tr.ok){
@@ -2197,64 +2241,20 @@ function applyDayConfig(notes, overrides, bands){
   APPT.dayOverrides = overrides || {};
   APPT.dayBands = bands || {};
   try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: APPT.dayNotes, overrides: APPT.dayOverrides, bands: APPT.dayBands })); } catch(e){}
-  const changed = [];
   document.querySelectorAll('.cal-day[data-date]').forEach((btn)=>{
-    const ds = btn.dataset.date;
-    const isPast = btn.classList.contains('past');
-    // remove old band label
-    const oldBand = btn.querySelector('.cal-band');
-    if (oldBand) oldBand.remove();
-    const oldDot = btn.querySelector('.cal-note-dot');
-    if (oldDot) oldDot.remove();
-    btn.classList.remove('has-note');
-    if (APPT.dayNotes[ds]) {
-      btn.classList.add('has-note');
-      const dot = document.createElement('span');
-      dot.className = 'cal-note-dot';
-      btn.appendChild(dot);
-    }
-    // Rimuovi eventuali particelle precedenti (rerender pulito)
-    btn.querySelectorAll('.day-particle').forEach((p) => p.remove());
-
-    if (!isPast) {
-      const band = APPT.dayBands[ds];
-      if (band) {
-        btn.classList.remove('fully-booked');
-        btn.classList.add('available');
-        btn.style.background = 'var(--green)';
-        btn.style.borderColor = 'var(--green)';
-        btn.style.color = 'var(--dark)';
-        // Particelle viola neon casuali che salgono dal basso
-        const pCount = 4 + Math.floor(Math.random() * 3);
-        for (let i = 0; i < pCount; i++) {
-          const p = document.createElement('span');
-          p.className = 'day-particle';
-          const size = 1.6 + Math.random() * 2.4;
-          const left = 6 + Math.random() * 88;
-          const delay = Math.random() * 2.0;
-          const dur = 1.6 + Math.random() * 1.4;
-          p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + left + '%;bottom:-4px;animation-delay:' + delay + 's;animation-duration:' + dur + 's;';
-          btn.appendChild(p);
-        }
-        const b = document.createElement('span');
-        b.className = 'cal-band';
-        b.textContent = band.replace('09:00', '9').replace('16:00', '16').replace(':00', '');
-        btn.appendChild(b);
-        changed.push(ds + ':VERDE');
-      } else {
-        btn.classList.remove('available');
-        btn.classList.add('fully-booked');
-        btn.style.background = 'rgba(255, 71, 87, 0.22)';
-        btn.style.borderColor = 'rgba(255, 71, 87, 0.45)';
-        btn.style.color = '#ff6b7a';
-        changed.push(ds + ':ROSSO');
-      }
-    }
+    applyDayVisual(btn, btn.dataset.date);
   });
   console.debug('[calendar-sync] applyDayConfig', APPT.dayNotes, APPT.dayOverrides, APPT.dayBands);
 }
 
 async function refreshCalendarState(){
+  try {
+    if (window.supabaseGetDayConfigs) {
+      const cfg = await window.supabaseGetDayConfigs();
+      applyDayConfig(cfg.notes, cfg.overrides, cfg.bands);
+      return;
+    }
+  } catch(e){}
   try {
     const [nr, or, br] = await Promise.all([
       fetch('/.netlify/functions/day-notes').catch(()=>null),
@@ -2266,18 +2266,13 @@ async function refreshCalendarState(){
       const overrides = await or.json();
       const bands = br && br.ok ? await br.json() : APPT.dayBands;
       applyDayConfig(notes, overrides, bands);
-    } else {
-      try {
-        const raw = localStorage.getItem('wd_calendar_data');
-        if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); }
-      } catch(_) {}
+      return;
     }
-  } catch(e) {
-    try {
-      const raw = localStorage.getItem('wd_calendar_data');
-      if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); }
-    } catch(_) {}
-  }
+  } catch(e){}
+  try {
+    const raw = localStorage.getItem('wd_calendar_data');
+    if(raw){ const c=JSON.parse(raw); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); }
+  } catch(_) {}
 }
 
 /* Init */
@@ -2286,7 +2281,10 @@ loadSiteData();
 loadShowroom();
 loadBlogPreview();
 refreshCalendarState();
-setInterval(refreshCalendarState, 8000);
+setInterval(refreshCalendarState, 5000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') refreshCalendarState();
+});
 try {
   const bc = new BroadcastChannel('woodreads-calendar');
   bc.onmessage = (ev) => {
@@ -2307,10 +2305,7 @@ try {
     }
   });
   window.addEventListener('focus', () => {
-    try {
-      const raw = localStorage.getItem('wd_calendar_data');
-      if (raw) { const c = JSON.parse(raw); applyDayConfig(c.notes || {}, c.overrides || {}, c.bands || {}); }
-    } catch (_) {}
+    refreshCalendarState();
   });
 } catch(e) {}
 </script>

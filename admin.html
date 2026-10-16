@@ -130,7 +130,7 @@ tr:hover{background:rgba(140,255,0,.02);}
 @keyframes red-glow-pulse{0%,100%{opacity:.2}50%{opacity:.45}}
 .cal-day.past{opacity:.3;text-decoration:none;cursor:default;}
 .cal-day.past::after,.cal-day.past::before{display:none;}
-.cal-day.overridden{box-shadow:inset 0 0 0 2px var(--green),0 0 12px rgba(140,255,0,.3);}
+.cal-day.overridden{box-shadow:inset 0 0 0 2px var(--red),0 0 12px rgba(255,71,87,.35);}
 .cal-day.has-note .note-dot{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--lime);box-shadow:0 0 6px var(--lime);}
 .cal-legend{display:flex;justify-content:center;gap:1.5rem;margin-top:1rem;font-size:.7rem;color:var(--muted-d);}
 .cal-legend span{display:flex;align-items:center;gap:.4rem;}
@@ -902,6 +902,32 @@ async function init(){
     renderBlogDrafts(),
   ]);
   renderCalendar();
+  initCalendarSync();
+}
+
+function initCalendarSync(){
+  if(window.__calSyncInit) return;
+  window.__calSyncInit = true;
+  setInterval(refreshCalendarStateAdmin, 15000);
+  try {
+    const bc = new BroadcastChannel('woodreads-calendar');
+    bc.onmessage = (ev) => {
+      if (ev && ev.data && ev.data.notes) {
+        dayNotes = ev.data.notes || {};
+        dayOverrides = ev.data.overrides || {};
+        dayBands = ev.data.bands || {};
+        cacheCalendar();
+        renderCalendar();
+        if(noteTargetDate) updateDayStatusPreview(noteTargetDate);
+      } else {
+        refreshCalendarStateAdmin();
+      }
+    };
+  } catch(e){}
+  window.addEventListener('focus', refreshCalendarStateAdmin);
+  window.addEventListener('storage', (ev) => {
+    if(ev.key === 'wd_calendar_data') refreshCalendarStateAdmin();
+  });
 }
 
 /* ── Appointments ── */
@@ -991,23 +1017,75 @@ function filterAppts(f){
 }
 
 /* ── Day Data (notes + overrides) ── */
+function cacheCalendar(){
+  try { localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands })); } catch(e){}
+}
+
+async function persistDay(date, patch){
+  if(!date) return false;
+  try {
+    if (window.supabaseSaveDayConfig) {
+      await window.supabaseSaveDayConfig(date, patch);
+      return true;
+    }
+  } catch(e){}
+  try {
+    if('note' in patch){
+      if(patch.note){
+        await fetch(`${API}/day-notes`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ date, note: patch.note }) }).catch(()=>null);
+      } else {
+        await fetch(`${API}/day-notes/${date}`, { method:'DELETE' }).catch(()=>null);
+      }
+    }
+    if('time_band' in patch){
+      await fetch(`${API}/day-bands`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ date, band: patch.time_band || '' }) }).catch(()=>null);
+    }
+    if('closed' in patch){
+      await fetch(`${API}/day-overrides`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ date, closed: !!patch.closed }) }).catch(()=>null);
+    }
+  } catch(e){}
+  return false;
+}
+
 async function loadDayData(){
+  try {
+    const cfg = await window.supabaseGetDayConfigs();
+    dayNotes = cfg.notes || {};
+    dayOverrides = cfg.overrides || {};
+    dayBands = cfg.bands || {};
+    cacheCalendar();
+    return;
+  } catch(e){}
   try{
     const [n, o, b] = await Promise.all([
       fetch(`${API}/day-notes`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${API}/day-overrides`).then(r => r.ok ? r.json() : null).catch(() => null),
       fetch(`${API}/day-bands`).then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
-    if (n) dayNotes = n || dayNotes;
-    if (o) dayOverrides = o || dayOverrides;
-    if (b) dayBands = b || dayBands;
-    localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
-  }catch(e){
-    try {
-      const raw = localStorage.getItem('wd_calendar_data');
-      if(raw){ const c=JSON.parse(raw); dayNotes=c.notes||{}; dayOverrides=c.overrides||{}; dayBands=c.bands||{}; }
-    } catch(_) {}
-  }
+    if (n || o || b) {
+      dayNotes = n || dayNotes;
+      dayOverrides = o || dayOverrides;
+      dayBands = b || dayBands;
+      cacheCalendar();
+      return;
+    }
+  }catch(e){}
+  try {
+    const raw = localStorage.getItem('wd_calendar_data');
+    if(raw){ const c=JSON.parse(raw); dayNotes=c.notes||{}; dayOverrides=c.overrides||{}; dayBands=c.bands||{}; }
+  } catch(_) {}
+}
+
+async function refreshCalendarStateAdmin(){
+  try {
+    const cfg = await window.supabaseGetDayConfigs();
+    dayNotes = cfg.notes || {};
+    dayOverrides = cfg.overrides || {};
+    dayBands = cfg.bands || {};
+    cacheCalendar();
+    renderCalendar();
+    if(noteTargetDate) updateDayStatusPreview(noteTargetDate);
+  } catch(e){}
 }
 
 function updateNotePreview(){
@@ -1029,37 +1107,22 @@ async function saveNote(){
   // Aggiorna stato locale subito
   if(note) dayNotes[noteTargetDate] = note; else delete dayNotes[noteTargetDate];
   renderCalendar();
-  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
+  cacheCalendar();
   toast(note ? 'Nota salvata ✅ — visibile sul sito' : 'Nota rimossa');
   broadcastCalendar();
-  // Sincronizza col backend (best-effort, non blocca il salvataggio locale)
-  try {
-    const r = await fetch(`${API}/day-notes`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ date: noteTargetDate, note }),
-    });
-    if (r.ok) {
-      const d = await r.json().catch(()=>({}));
-      if (d && d.note) dayNotes[noteTargetDate] = d.note;
-    }
-    localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
-    broadcastCalendar();
-  } catch(e) { /* offline / live server: già salvato in localStorage */ }
+  await persistDay(noteTargetDate, { note: note || null });
 }
 
 async function deleteNote(){
   if(!noteTargetDate) return;
-  delete dayNotes[noteTargetDate];
+  const date = noteTargetDate;
+  delete dayNotes[date];
   document.getElementById('np-text').value = '';
   renderCalendar();
-  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
+  cacheCalendar();
   toast('Nota eliminata');
   broadcastCalendar();
-  // Backend best-effort
-  try {
-    await fetch(`${API}/day-notes/${noteTargetDate}`, { method: 'DELETE' }).catch(()=>null);
-  } catch(e) {}
+  await persistDay(date, { note: null });
 }
 
 async function toggleOverride(dateStr){
@@ -1068,9 +1131,18 @@ async function toggleOverride(dateStr){
     return;
   }
   // 1. Toggle local state FIRST (ottimistico — funziona sempre)
-  const wasOverridden = !!dayOverrides[dateStr];
-  if(wasOverridden) delete dayOverrides[dateStr];
-  else dayOverrides[dateStr] = true;
+  const wasAvailable = !!dayBands[dateStr] && !dayOverrides[dateStr];
+  if(wasAvailable){
+    delete dayBands[dateStr];
+    dayOverrides[dateStr] = true;
+  } else {
+    const bandSel = document.getElementById('np-band');
+    const selBand = (noteTargetDate === dateStr && bandSel && bandSel.value) ? bandSel.value : null;
+    const band = selBand || dayBands[dateStr] || '09:00-20:00';
+    dayBands[dateStr] = band;
+    delete dayOverrides[dateStr];
+    if(noteTargetDate === dateStr && bandSel) bandSel.value = band;
+  }
 
   // 2. Update cell visiva immediata
   updateDayCell(dateStr);
@@ -1084,19 +1156,12 @@ async function toggleOverride(dateStr){
     statusEl.classList.add('override-flash');
   }
 
-  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
-  toast(dayOverrides[dateStr] ? '⛔ Giorno non disponibile (rosso)' : '✅ Giorno disponibile (verde)');
-
+  cacheCalendar();
+  const isAvailable = !!dayBands[dateStr] && !dayOverrides[dateStr];
+  toast(isAvailable ? '✅ Giorno disponibile (verde)' : '⛔ Giorno non disponibile (rosso)');
   broadcastCalendar();
 
-  // 4. Sincronizza col backend (fire & forget — se fallisce il locale rimane)
-  try {
-    await fetch(`${API}/day-overrides`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ date: dateStr }),
-    });
-  } catch(e) { /* backend offline — change già applicato localmente */ }
+  await persistDay(dateStr, { closed: !isAvailable, time_band: isAvailable ? dayBands[dateStr] : null });
 }
 
 async function saveBand(){
@@ -1109,23 +1174,20 @@ async function saveBand(){
       ? 'Giornata intera (09:00–20:00): ottimo per prenotare sedute lunghe come una testa da zero, estensioni, lavaggio + riparazione.'
       : 'Mezza giornata (' + band + '): ottimo per ritocchi (riparazioni sotto 50 dread) o applicazione di Cyber Dread.';
     document.getElementById('np-text').value = autoNote;
+    dayNotes[noteTargetDate] = autoNote;
   } else {
     delete dayBands[noteTargetDate];
     dayOverrides[noteTargetDate] = true;
   }
   updateNotePreview();
   renderCalendar();
-  localStorage.setItem('wd_calendar_data', JSON.stringify({ notes: dayNotes, overrides: dayOverrides, bands: dayBands }));
+  if(noteTargetDate) updateDayStatusPreview(noteTargetDate);
+  cacheCalendar();
   toast(band ? 'Fascia salvata: ' + band : 'Giorno impostato non disponibile (rosso)');
   broadcastCalendar();
-  // Backend best-effort
-  try {
-    await fetch(`${API}/day-bands`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ date: noteTargetDate, band }),
-    });
-  } catch(e) { /* offline: già salvato in localStorage */ }
+  const patch = { closed: !band, time_band: band || null };
+  if(band) patch.note = dayNotes[noteTargetDate] || null;
+  await persistDay(noteTargetDate, patch);
 }
 
 function updateDayCell(dateStr){
@@ -1136,15 +1198,17 @@ function updateDayCell(dateStr){
   const isPast = dateStr < toDateStr(now);
   const isToday = dt.toDateString() === now.toDateString();
   const band = dayBands[dateStr];
+  const closed = !!dayOverrides[dateStr];
+  const available = !!band && !closed;
 
   cell.className = 'cal-day';
   if(isPast){ cell.classList.add('past'); return; }
   if(isToday) cell.classList.add('today');
 
-  if(band){
+  if(available){
     cell.classList.add('available', 'banded');
-  } else if(dayOverrides[dateStr]){
-    cell.classList.add('available', 'overridden');
+  } else if(closed){
+    cell.classList.add('unavailable', 'overridden');
   } else {
     cell.classList.add('unavailable');
   }
@@ -1211,12 +1275,14 @@ function renderCalendar(){
 
     // Disponibilità basata SOLO sulla fascia scelta dall'admin
     const band = dayBands[dateStr];
+    const closed = !!dayOverrides[dateStr];
+    const available = !!band && !closed;
 
     if(!isPast){
-      if(band){
+      if(available){
         cls += ' available banded';
-      } else if(dayOverrides[dateStr]){
-        cls += ' available overridden';
+      } else if(closed){
+        cls += ' unavailable overridden';
       } else {
         cls += ' unavailable';
       }
@@ -1225,7 +1291,7 @@ function renderCalendar(){
     if(dayNotes[dateStr]) cls += ' has-note';
 
     const noteDot = dayNotes[dateStr] ? '<span class="note-dot"></span>' : '';
-    const dayBand = dayBands[dateStr];
+    const dayBand = available ? dayBands[dateStr] : null;
     const bandLabel = dayBand ? `<span class="band-label">${dayBand.replace('09:00','9').replace('16:00','16').replace(':00','')}</span>` : '';
 
     html += `<div class="${cls}" data-date="${dateStr}">${d}${noteDot}${bandLabel}</div>`;
@@ -1277,7 +1343,6 @@ function showNotePanel(dateStr){
 function updateDayStatusPreview(dateStr){
   const dot = document.getElementById('np-s-dot');
   const label = document.getElementById('np-s-label');
-  const status = document.getElementById('np-status');
   const now = new Date();
   const isPast = dateStr < toDateStr(now);
 
@@ -1287,40 +1352,23 @@ function updateDayStatusPreview(dateStr){
     return;
   }
 
-  const isOverridden = dayOverrides[dateStr];
-
-  // Check enabled days from DOM
-  let enabledDays = [];
-  try{
-    document.querySelectorAll('.hour-day').forEach(el => {
-      const dayEl = el.querySelector('.day');
-      const timeEl = el.querySelector('.time');
-      if(dayEl && timeEl && timeEl.textContent !== 'Chiuso')
-        enabledDays.push(dayEl.textContent.trim().toLowerCase());
-    });
-  }catch(e){}
-
-  const dayMap = {lunedì:'monday',martedì:'tuesday',mercoledì:'wednesday',giovedì:'thursday',venerdì:'friday',sabato:'saturday',domenica:'sunday'};
-  const date = new Date(dateStr + 'T12:00:00');
-  const dayNameIt = ['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'][date.getDay()];
-  const englishDay = dayMap[dayNameIt];
-  const isEnabled = enabledDays.includes(englishDay) || enabledDays.includes(dayNameIt);
+  const band = dayBands[dateStr];
+  const closed = !!dayOverrides[dateStr];
 
   // Count approved appointments
   const booked = appts.filter(a => a.date === dateStr && a.status === 'approved').length;
   const fullyBooked = booked >= 8;
 
-  const isAvail = isOverridden || (isEnabled && !fullyBooked);
+  const isAvail = !!band && !closed && !fullyBooked;
 
   if(isAvail){
     dot.className = 'np-s-dot green';
-    label.innerHTML = '<strong>Disponibile</strong> — Giorno libero';
+    label.innerHTML = '<strong>Disponibile</strong> — ' + band;
   } else {
     dot.className = 'np-s-dot red';
-    label.innerHTML = '<strong>Non disponibile</strong> — ' + (fullyBooked ? 'Completo' : 'Chiuso');
+    const reason = fullyBooked ? 'Completo' : (closed ? 'Disattivato' : 'Non impostato');
+    label.innerHTML = '<strong>Non disponibile</strong> — ' + reason;
   }
-
-  if(isOverridden) label.innerHTML = '<strong>Disponibile (override)</strong> — Forzato dal admin';
 }
 
 function toDateStr(d){

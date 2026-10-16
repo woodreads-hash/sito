@@ -35,3 +35,27 @@ create policy "Admin can write blog posts"
   on public.blog_posts for all
   using (true)
   with check (true);
+
+create table if not exists public.day_configs (
+  date text primary key,
+  closed boolean not null default false,
+  note text,
+  time_band text,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists day_configs_updated_at_idx on public.day_configs (updated_at desc);
+
+alter table public.day_configs enable row level security;
+
+-- Demo/dev permissive policies. For hardened production, replace with Supabase Auth role checks.
+drop policy if exists "Public can read day configs" on public.day_configs;
+create policy "Public can read day configs"
+  on public.day_configs for select
+  using (true);
+
+drop policy if exists "Admin can write day configs" on public.day_configs;
+create policy "Admin can write day configs"
+  on public.day_configs for all
+  using (true)
+  with check (true);

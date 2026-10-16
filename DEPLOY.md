@@ -11,5 +11,9 @@
 - Replace hardcoded admin credentials with hashed server-side credentials before production.
 
 ## Data persistence
-- Production blog data should be stored in Strapi/Supabase.
-- LocalStorage is only a fallback/demo layer and should not be relied on for published content.
+- Production data is stored in Supabase (blog posts + calendar day configuration).
+- Run `supabase/schema.sql` in the Supabase SQL editor once to create/refresh the
+  `blog_posts` and `day_configs` tables (and their RLS policies) before going live.
+- Calendar availability (days, time bands, notes) is written by the admin panel to
+  Supabase and read by the public calendar in near real time (polling + BroadcastChannel).
+- LocalStorage is only a fallback/cache layer and should not be relied on for published content.
