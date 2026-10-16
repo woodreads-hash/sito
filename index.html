@@ -138,6 +138,12 @@ nav a:hover{color:var(--green);}
 .ticker-track .dot{margin:0 .3rem;opacity:.6;}
 .tk1{animation:tick 28s linear infinite;}
 .tk2{animation:tick2 20s linear infinite;}
+.social-marquee{padding:1.05rem 0;margin:1.2rem auto 2.6rem;max-width:1100px;border-top:1px solid rgba(140,255,0,.1);border-bottom:1px solid rgba(140,255,0,.1);box-shadow:0 0 28px rgba(140,255,0,.08),inset 0 0 30px rgba(181,140,255,.06);background:var(--mid);}
+.social-marquee .social-marquee-track{animation:tick2 60s linear infinite;gap:1.6rem;}
+.social-marquee .ticker-track span{color:var(--green);font-size:.72rem;letter-spacing:1.5px;text-shadow:0 0 8px rgba(140,255,0,.3);}
+.social-marquee .ticker-track span:nth-child(even){color:var(--purple);text-shadow:0 0 8px rgba(181,140,255,.35);}
+@media(max-width:640px){.social-marquee .ticker-track span{font-size:.65rem;}}
+
 .tk3{animation:tick 35s linear infinite reverse;}
 .tk4{animation:tick2 22s linear infinite reverse;}
 
@@ -1136,15 +1142,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     </div>
   </div>
 
-  <div class="social-invite rev" style="text-align:center;max-width:700px;margin:0 auto 2.4rem;position:relative;z-index:3;">
-    <p id="social-invite-text" data-text="Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚">Metti un like, molla un commento o condividi: stai gambizzando l'algoritmo per fargli capire che i veri dread arrivano a Roma qui 🤘 Grazie di cuore 💚</p>
-  </div>
-
-  <div style="text-align:center;margin-bottom:4rem;position:relative;z-index:2;">
-    <span class="lbl lbl-g rev">— Numeri reali</span>
-    <p class="rev" style="color:var(--muted-l);font-size:.9rem;max-width:480px;margin:.5rem auto 0;line-height:1.7;">
-      Segui il lavoro quotidiano su tutti i canali.
-    </p>
+  <div class="ticker-wrap t-dark social-marquee rev" aria-label="Inviti a sostenere WooDreads sui social">
+    <div class="ticker-track social-marquee-track"><span>Un like o un commento aiuta l'algoritmo a far conoscere il nostro lavoro a più persone<span class="dot"> ✦ </span></span><span>Lascia un segno: ogni interazione sostiene l'algoritmo e fa crescere la community WooDreads<span class="dot"> ✦ </span></span><span>Se il contenuto ti è piaciuto, un like dà una spinta all'algoritmo<span class="dot"> ✦ </span></span><span>Condividi con chi cerca dread a Roma: ogni supporto aiuta l'algoritmo a portarci a loro<span class="dot"> ✦ </span></span><span>Metti like, commenta o condividi: piccoli gesti che aiutano l'algoritmo a farci conoscere<span class="dot"> ✦ </span></span><span>Vuoi sostenere il progetto? Una semplice interazione migliora la visibilità con l'algoritmo<span class="dot"> ✦ </span></span><span>Ogni commento è un segnale positivo per l'algoritmo e per chi scopre i nostri lavori<span class="dot"> ✦ </span></span><span>Un like non costa nulla e dà una spinta concreta al nostro lavoro sui canali social<span class="dot"> ✦ </span></span><span>Aiutaci a farsi trovare: le tue interazioni parlano direttamente con l'algoritmo<span class="dot"> ✦ </span></span><span>Se ti piace quello che facciamo, un supporto reale passa anche attraverso l'algoritmo<span class="dot"> ✦ </span></span><span>Commenta e condividi: ogni interazione aumenta le possibilità che altri trovino WooDreads<span class="dot"> ✦ </span></span><span>L'algoritmo premia le conversazioni: un tuo segno di attenzione può fare la differenza<span class="dot"> ✦ </span></span><span>Vuoi darci una mano? Interagisci con il contenuto: è il modo più diretto per aiutare l'algoritmo<span class="dot"> ✦ </span></span><span>Ogni like, commento o condivisione rafforza la presenza di WooDreads online<span class="dot"> ✦ </span></span><span>Un piccolo gesto per te, un impatto reale per il nostro lavoro: interagisci e aiuta l'algoritmo<span class="dot"> ✦ </span></span><span>Un like o un commento aiuta l'algoritmo a far conoscere il nostro lavoro a più persone<span class="dot"> ✦ </span></span><span>Lascia un segno: ogni interazione sostiene l'algoritmo e fa crescere la community WooDreads<span class="dot"> ✦ </span></span><span>Se il contenuto ti è piaciuto, un like dà una spinta all'algoritmo<span class="dot"> ✦ </span></span><span>Condividi con chi cerca dread a Roma: ogni supporto aiuta l'algoritmo a portarci a loro<span class="dot"> ✦ </span></span><span>Metti like, commenta o condividi: piccoli gesti che aiutano l'algoritmo a farci conoscere<span class="dot"> ✦ </span></span><span>Vuoi sostenere il progetto? Una semplice interazione migliora la visibilità con l'algoritmo<span class="dot"> ✦ </span></span><span>Ogni commento è un segnale positivo per l'algoritmo e per chi scopre i nostri lavori<span class="dot"> ✦ </span></span><span>Un like non costa nulla e dà una spinta concreta al nostro lavoro sui canali social<span class="dot"> ✦ </span></span><span>Aiutaci a farsi trovare: le tue interazioni parlano direttamente con l'algoritmo<span class="dot"> ✦ </span></span><span>Se ti piace quello che facciamo, un supporto reale passa anche attraverso l'algoritmo<span class="dot"> ✦ </span></span><span>Commenta e condividi: ogni interazione aumenta le possibilità che altri trovino WooDreads<span class="dot"> ✦ </span></span><span>L'algoritmo premia le conversazioni: un tuo segno di attenzione può fare la differenza<span class="dot"> ✦ </span></span><span>Vuoi darci una mano? Interagisci con il contenuto: è il modo più diretto per aiutare l'algoritmo<span class="dot"> ✦ </span></span><span>Ogni like, commento o condivisione rafforza la presenza di WooDreads online<span class="dot"> ✦ </span></span><span>Un piccolo gesto per te, un impatto reale per il nostro lavoro: interagisci e aiuta l'algoritmo<span class="dot"> ✦ </span></span></div>
   </div>
 
   <div class="stats-platforms rev-s">
@@ -1374,45 +1373,6 @@ if (betaNotice) {
   setTimeout(finalizeBeta, 10000);
 }
 
-
-
-const socialInviteText = document.getElementById('social-invite-text');
-if (socialInviteText) {
-  const inviteVariants = [
-    "Un like o un commento aiuta l'algoritmo a far conoscere il nostro lavoro a più persone. Grazie 💚",
-    "Lascia un segno: ogni interazione sostiene l'algoritmo e fa crescere la community WooDreads.",
-    "Se il contenuto ti è piaciuto, un like dà una spinta all'algoritmo. Ci aiuterà davvero.",
-    "Condividi con chi cerca dread a Roma: ogni supporto aiuta l'algoritmo a portarci a loro.",
-    "Metti like, commenta o condividi: sono gesti piccoli che aiutano l'algoritmo a farci conoscere.",
-    "Vuoi sostenere il progetto? Una semplice interazione migliora la visibilità con l'algoritmo.",
-    "Ogni commento è un segnale positivo per l'algoritmo e per chi scopre i nostri lavori.",
-    "Un like non costa nulla e dà una spinta concreta al nostro lavoro sui canali social.",
-    "Aiutaci a farsi trovare: le tue interazioni parlano direttamente con l'algoritmo.",
-    "Se ti piace quello che facciamo, un supporto reale passa anche attraverso l'algoritmo.",
-    "Commenta e condividi: ogni interazione aumenta le possibilità che altri trovino WooDreads.",
-    "L'algoritmo premia le conversazioni: un tuo segno di attenzione può fare la differenza.",
-    "Vuoi darci una mano? Interagisci con il contenuto: è il modo più diretto per aiutare l'algoritmo.",
-    "Ogni like, commento o condivisione rafforza la presenza di WooDreads online. Grazie 💚",
-    "Un piccolo gesto per te, un impatto reale per il nostro lavoro: interagisci e aiuta l'algoritmo."
-  ];
-  let inviteIndex = 0;
-  const setInviteText = (text) => {
-    socialInviteText.textContent = text;
-    socialInviteText.setAttribute('data-text', text);
-  };
-  setInviteText(inviteVariants[0]);
-  const cycleInvite = () => {
-    socialInviteText.classList.add('social-glitch-out');
-    setTimeout(() => {
-      inviteIndex = (inviteIndex + 1) % inviteVariants.length;
-      setInviteText(inviteVariants[inviteIndex]);
-      socialInviteText.classList.remove('social-glitch-out');
-      socialInviteText.classList.add('social-glitch-in');
-      setTimeout(() => socialInviteText.classList.remove('social-glitch-in'), 700);
-    }, 1000);
-  };
-  setInterval(cycleInvite, 8000);
-}
 
 
 /* ── BACK TO TOP button ── */
