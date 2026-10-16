@@ -3,11 +3,15 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="color-scheme" content="only light"/>
 <title>WooDreads – Dreadmaker Roma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
 /* ═══════════════════ TOKENS ═══════════════════ */
 :root{
+  color-scheme:only light;
   --green:#8CFF00; --purple:#B58CFF; --lime:#E6FF4D;
   --dark:#0D0D0F; --dark2:#111116; --mid:#1E1E24;
   --cream:#F7F4EE; --warm:#EDE8DA;
@@ -129,8 +133,8 @@ nav a:hover{color:var(--green);}
 .ticker-wrap.t-dark{background:var(--mid);padding:.5rem 0;border-top:1px solid rgba(140,255,0,.1);border-bottom:1px solid rgba(140,255,0,.1);}
 .ticker-wrap.t-purple{background:var(--purple);padding:.5rem 0;}
 .ticker-wrap.t-leaf{background:var(--leaf1);padding:.5rem 0;}
-.ticker-track{display:flex;gap:2.5rem;width:max-content;white-space:nowrap;}
-.ticker-track span{font-family:var(--fd);font-size:.76rem;letter-spacing:3px;font-weight:700;white-space:nowrap;}
+.ticker-track{display:flex;gap:2.5rem;width:max-content;white-space:nowrap;will-change:transform;}
+.ticker-track span{font-family:var(--fd);font-size:.76rem;letter-spacing:3px;font-weight:700;white-space:nowrap;text-transform:uppercase;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 .t-green .ticker-track span{color:var(--dark);}
 .t-dark .ticker-track span{color:var(--green);}
 .t-purple .ticker-track span{color:var(--dark);}
@@ -356,7 +360,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 @keyframes textwave{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
 
 /* ── SHIMMER TEXT ── */
-.shimmer-text{background:linear-gradient(90deg,var(--green) 0%,var(--lime) 30%,var(--purple) 50%,var(--lime) 70%,var(--green) 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite;}
+.shimmer-text{color:var(--green);background:linear-gradient(90deg,var(--green) 0%,var(--lime) 28%,var(--purple) 50%,var(--lime) 72%,var(--green) 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone;animation:shimmer 4s linear infinite;}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){.shimmer-text{color:var(--green);-webkit-text-fill-color:var(--green);background:none;animation:none;}}
 
 /* ── WAVE LETTERS ── */
 .wave-text .ch{display:inline-block;animation:textwave 1.5s ease-in-out infinite;}
