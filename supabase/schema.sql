@@ -59,3 +59,34 @@ create policy "Admin can write day configs"
   on public.day_configs for all
   using (true)
   with check (true);
+
+create table if not exists public.faqs (
+  id text primary key,
+  question text not null,
+  answer text not null default '',
+  category text default '',
+  sort_order integer not null default 0,
+  published boolean not null default true,
+  clicks bigint not null default 0,
+  read_ms bigint not null default 0,
+  read_count bigint not null default 0,
+  shares bigint not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists faqs_sort_idx on public.faqs (sort_order asc, created_at asc);
+
+alter table public.faqs enable row level security;
+
+-- Demo/dev permissive policies. For hardened production, replace with Supabase Auth role checks.
+drop policy if exists "Public can read faqs" on public.faqs;
+create policy "Public can read faqs"
+  on public.faqs for select
+  using (true);
+
+drop policy if exists "Public can write faqs" on public.faqs;
+create policy "Public can write faqs"
+  on public.faqs for all
+  using (true)
+  with check (true);

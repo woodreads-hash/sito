@@ -235,8 +235,9 @@ tr:hover{background:rgba(140,255,0,.02);}
 /* RESPONSIVE */
 @media(max-width:768px){
   .wrap{padding:0 1rem;}
-  .header{padding:1rem;}
-  .hnav{gap:.7rem;font-size:.6rem;}
+  .header{padding:1rem;flex-wrap:wrap;gap:.55rem;}
+  .hnav{width:100%;flex-wrap:wrap;gap:.45rem .9rem;font-size:.6rem;}
+  .hnav .logout{margin-left:auto;}
   .stats-row{grid-template-columns:1fr 1fr;}
   table{font-size:.78rem;}
   th,td{padding:.5rem .6rem;}
@@ -254,6 +255,39 @@ tr:hover{background:rgba(140,255,0,.02);}
 #bl-editor p{margin:0 0 1rem;}
 #bl-editor ul,#bl-editor ol{margin:.6rem 0 1rem 1.25rem;}
 #bl-editor img,#bl-editor video{max-width:100%;height:auto;border-radius:12px;margin:1rem 0;display:block;}
+/* ── FAQ ADMIN ── */
+.faq-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:700px){.faq-form-grid{grid-template-columns:1fr;}}
+#tab-faq .fg{margin-bottom:1rem;}
+#tab-faq .fg>label{display:block;font-size:.64rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.4rem;}
+#tab-faq .fg input[type=text],#tab-faq .fg input[type=number],#tab-faq .fg textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.7rem .85rem;color:var(--text-d);font-family:var(--fb);font-size:.88rem;outline:none;transition:border-color .2s;}
+#tab-faq .fg input:focus,#tab-faq .fg textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(140,255,0,.06);}
+#tab-faq .fg textarea{resize:vertical;min-height:120px;line-height:1.65;}
+.faq-check{display:flex!important;align-items:center;gap:.55rem;font-size:.82rem!important;letter-spacing:0!important;text-transform:none!important;color:var(--text-d)!important;margin-top:.55rem;cursor:pointer;}
+.faq-check input{width:16px!important;height:16px!important;accent-color:var(--green);}
+.faq-form-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.4rem;}
+.faq-cloud-note{font-size:.72rem;color:var(--muted-d);margin-top:.9rem;line-height:1.6;}
+.faq-admin-row{display:grid;grid-template-columns:2.2rem minmax(0,1fr) auto auto;gap:1rem;align-items:center;padding:.85rem 1.3rem;border-bottom:1px solid rgba(245,245,247,.05);}
+.faq-admin-row:last-child{border-bottom:none;}
+.faq-admin-row:hover{background:rgba(140,255,0,.02);}
+.faq-admin-row .fq-idx{font-family:var(--fd);font-size:.62rem;color:var(--green);}
+.faq-admin-row .fq-q{font-size:.83rem;font-weight:600;color:var(--text-d);line-height:1.45;min-width:0;}
+.faq-admin-row .fq-q small{display:block;font-weight:400;color:var(--muted-d);font-size:.62rem;letter-spacing:1.4px;text-transform:uppercase;margin-top:.22rem;}
+.faq-admin-row .fq-q .fq-unpub{color:var(--purple);font-size:.58rem;letter-spacing:1px;text-transform:uppercase;margin-left:.4rem;}
+.faq-metrics{display:flex;gap:1.1rem;}
+.fq-metric{display:flex;flex-direction:column;align-items:center;min-width:44px;}
+.fq-metric b{font-family:var(--fd);font-size:.8rem;color:var(--text-d);line-height:1;}
+.fq-metric span{font-size:.48rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted-d);margin-top:.22rem;}
+.fq-actions{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end;}
+.faq-empty{padding:2rem;text-align:center;color:var(--muted-d);font-size:.85rem;}
+@media(max-width:860px){
+  .faq-admin-row{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;}
+  .faq-admin-row .fq-idx{width:1.7rem;order:1;}
+  .faq-admin-row .fq-q{flex:1 1 auto;order:2;min-width:60%;}
+  .faq-admin-row .fq-actions{order:3;margin-left:auto;}
+  .faq-admin-row .fq-metrics{order:4;flex:1 1 100%;gap:1.4rem;padding-left:2.25rem;}
+  .fq-metric{align-items:flex-start;}
+}
 </style>
 </head>
 <body>
@@ -277,6 +311,7 @@ tr:hover{background:rgba(140,255,0,.02);}
   <div class="hnav">
     <a href="#" class="active" onclick="showTab('dashboard',this)">Dashboard</a>
     <a href="#" onclick="showTab('blog',this)">Blog</a>
+    <a href="#" onclick="showTab('faq',this)">FAQ</a>
     <a href="#" onclick="showTab('photos',this)">Foto</a>
     <a href="#" onclick="showTab('quiz',this)">Risultati Quiz</a>
     <a href="#" onclick="showTab('settings',this)">Credenziali</a>
@@ -463,6 +498,53 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
   </div>
 
+  <!-- ══════ FAQ ══════ -->
+  <div id="tab-faq" style="display:none;">
+    <div class="page-title">
+      <h1>FAQ <span>│</span> <span id="faq-admin-count">0</span></h1>
+      <p>Gestisci le domande frequenti del sito, le risposte e le statistiche di apertura, lettura e condivisione</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="faq-admin-opens">0</div><div class="lbl">Aperture totali</div><div class="sub">Click sulle domande</div></div>
+      <div class="stat-card"><div class="num p" id="faq-admin-avg">0s</div><div class="lbl">Tempo medio di lettura</div><div class="sub">Per domanda aperta</div></div>
+      <div class="stat-card"><div class="num l" id="faq-admin-shares">0</div><div class="lbl">Condivisioni totali</div><div class="sub">WhatsApp, social e link</div></div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-hdr">
+        <h3>✏️ Nuova / modifica domanda</h3>
+        <span class="count" id="faq-cloud-state">locale</span>
+      </div>
+      <div class="sec-body" style="padding:1.5rem;">
+        <div class="faq-form-grid">
+          <div class="fg"><label>Domanda</label><input type="text" id="faq-q" placeholder="Scrivi la domanda…"></div>
+          <div class="fg"><label>Categoria</label><input type="text" id="faq-cat" placeholder="Prima, Cura, Manutenzione…"></div>
+        </div>
+        <div class="fg"><label>Risposta</label><textarea id="faq-a" rows="5" placeholder="Scrivi la risposta…"></textarea></div>
+        <div class="faq-form-grid">
+          <div class="fg"><label>Ordine</label><input type="number" id="faq-order" value="0" min="0"></div>
+          <div class="fg">
+            <label>Visibilità</label>
+            <label class="faq-check"><input type="checkbox" id="faq-pub" checked> Pubblicata sul sito</label>
+          </div>
+        </div>
+        <div class="faq-form-actions">
+          <button class="btn-sm approve" onclick="saveFaqAdmin()" style="padding:.55rem 1.1rem;">💾 Salva domanda</button>
+          <button class="btn-sm" onclick="newFaqAdmin()">＋ Nuova</button>
+          <button class="btn-sm" onclick="syncFaqsAdmin()" style="border-color:rgba(181,140,255,.35);color:var(--purple);">☁️ Sincronizza al cloud</button>
+          <button class="btn-sm reject" onclick="deleteAllFaqsAdmin()">🗑 Elimina tutte</button>
+        </div>
+        <p class="faq-cloud-note" id="faq-cloud-note"></p>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-hdr"><h3>📋 Domande e statistiche</h3><span class="count" id="faq-admin-total">0</span></div>
+      <div class="sec-body" id="faq-admin-list" style="padding:0;overflow-x:auto;"></div>
+    </div>
+  </div>
+
   <!-- ══════ PHOTOS ══════ -->
   <div id="tab-photos" style="display:none;">
     <div class="page-title">
@@ -585,6 +667,7 @@ tr:hover{background:rgba(140,255,0,.02);}
   </div>
 </div>
 
+<script src="faq-data.js"></script>
 <script src="supabase-config.js"></script>
 <script>
 /* ── Config ── */
@@ -667,10 +750,12 @@ function showTab(name, el){
   if(el) el.classList.add('active');
   document.getElementById('tab-dashboard').style.display = name==='dashboard'?'':'none';
   document.getElementById('tab-blog').style.display = name==='blog'?'':'none';
+  document.getElementById('tab-faq').style.display = name==='faq'?'':'none';
   document.getElementById('tab-photos').style.display = name==='photos'?'':'none';
   document.getElementById('tab-quiz').style.display = name==='quiz'?'':'none';
   document.getElementById('tab-settings').style.display = name==='settings'?'':'none';
   if(name==='quiz') loadQuizResults();
+  if(name==='faq') loadFaqsAdmin();
 }
 
 function toast(msg, isErr){
@@ -891,6 +976,305 @@ function insertBlogMedia(input, type){
   };
   reader.readAsDataURL(file);
 }
+/* ── FAQ ── */
+let faqAdmin = [];
+let faqEditId = null;
+let faqCloudOk = false;
+
+function faqNormalize(f){
+  return {
+    id: String(f.id || ('faq_' + Math.random().toString(36).slice(2, 10))),
+    question: String(f.question != null ? f.question : (f.q || '')),
+    answer: String(f.answer != null ? f.answer : (f.a || '')),
+    category: String(f.category != null ? f.category : (f.cat || '')),
+    sort_order: Number(f.sort_order || 0),
+    published: f.published !== false,
+    clicks: Number(f.clicks || 0),
+    read_ms: Number(f.read_ms || 0),
+    read_count: Number(f.read_count || 0),
+    shares: Number(f.shares || 0)
+  };
+}
+function faqDefaultList(){
+  return (window.WD_DEFAULT_FAQS || []).map(function(f, i){
+    return faqNormalize({ id:f.id, question:f.q, answer:f.a, category:f.cat, sort_order:i + 1, published:true });
+  });
+}
+function faqSortList(){
+  faqAdmin.sort(function(a, b){
+    const d = (a.sort_order || 0) - (b.sort_order || 0);
+    if (d) return d;
+    return String(a.id).localeCompare(String(b.id));
+  });
+}
+function getFaqLocal(){
+  try { const v = JSON.parse(localStorage.getItem('wd_faqs') || 'null'); return Array.isArray(v) ? v.map(faqNormalize) : null; }
+  catch(e){ return null; }
+}
+function setFaqLocal(v){
+  try { localStorage.setItem('wd_faqs', JSON.stringify(v.map(faqNormalize))); } catch(e){}
+}
+function broadcastFaqs(){
+  try { new BroadcastChannel('woodreads-faqs').postMessage({ type:'faqs-updated' }); } catch(e){}
+}
+function faqGlobalShares(){
+  try { return Number(localStorage.getItem('wd_faq_global_shares') || 0) || 0; } catch(e){ return 0; }
+}
+function faqNum(n){ return Number(n || 0).toLocaleString('it-IT'); }
+function faqAvg(f){
+  const reads = Number(f.read_count || 0);
+  if (!reads) return '—';
+  const sec = Math.round(Number(f.read_ms || 0) / reads / 1000);
+  return sec + 's';
+}
+
+async function loadFaqsAdmin(){
+  let cloud = null;
+  faqCloudOk = false;
+  if (window.supabaseGetFaqs){
+    try {
+      const rows = await window.supabaseGetFaqs();
+      if (Array.isArray(rows)){ cloud = rows.map(faqNormalize); faqCloudOk = true; }
+    } catch(e){ faqCloudOk = false; }
+  }
+  if (cloud && cloud.length){
+    faqAdmin = cloud;
+    setFaqLocal(faqAdmin);
+  } else {
+    const local = getFaqLocal();
+    faqAdmin = (local && local.length) ? local : faqDefaultList();
+    setFaqLocal(faqAdmin);
+    if (faqCloudOk && window.supabaseSaveFaq && !window.__faqSeedTried){
+      window.__faqSeedTried = true;
+      const snapshot = faqAdmin.slice();
+      (async function(){
+        for (const f of snapshot){
+          try { await window.supabaseSaveFaq(f, true); } catch(e){ return; }
+        }
+      })();
+    }
+  }
+  faqSortList();
+  renderFaqAdmin();
+}
+
+function renderFaqAdmin(){
+  const list = document.getElementById('faq-admin-list');
+  if (!list) return;
+  const opens = faqAdmin.reduce(function(s, f){ return s + Number(f.clicks || 0); }, 0);
+  const shares = faqAdmin.reduce(function(s, f){ return s + Number(f.shares || 0); }, 0) + faqGlobalShares();
+  const totalRead = faqAdmin.reduce(function(s, f){ return s + Number(f.read_ms || 0); }, 0);
+  const reads = faqAdmin.reduce(function(s, f){ return s + Number(f.read_count || 0); }, 0);
+  const avg = reads ? Math.round(totalRead / reads / 1000) : 0;
+
+  const set = function(id, value){ const el = document.getElementById(id); if (el) el.textContent = value; };
+  set('faq-admin-count', faqAdmin.length);
+  set('faq-admin-total', faqAdmin.length);
+  set('faq-admin-opens', faqNum(opens));
+  set('faq-admin-shares', faqNum(shares));
+  set('faq-admin-avg', avg + 's');
+  set('faq-cloud-state', faqCloudOk ? '☁️ cloud' : '💾 locale');
+
+  const note = document.getElementById('faq-cloud-note');
+  if (note){
+    note.textContent = faqCloudOk
+      ? 'Cloud collegato: le modifiche vengono salvate su Supabase e sono visibili subito sul sito.'
+      : 'Cloud non raggiungibile (chiave Supabase o tabella “faqs” mancante): le modifiche restano salvate in locale su questo browser. Usa “Sincronizza al cloud” quando il backend torna disponibile.';
+  }
+
+  if (!faqAdmin.length){
+    list.innerHTML = '<div class="faq-empty">Nessuna domanda. Creane una qui sopra con “Nuova”.</div>';
+    return;
+  }
+  list.innerHTML = faqAdmin.map(function(f, i){
+    const id = esc(f.id);
+    const cat = f.category ? '<small>' + esc(f.category) + '</small>' : '';
+    const unpub = f.published === false ? '<span class="fq-unpub">bozza</span>' : '';
+    return '<div class="faq-admin-row" data-id="' + id + '">' +
+      '<span class="fq-idx">' + String(i + 1).padStart(2, '0') + '</span>' +
+      '<div class="fq-q">' + esc(f.question) + unpub + cat + '</div>' +
+      '<div class="fq-metrics">' +
+        '<span class="fq-metric"><b>' + faqNum(f.clicks) + '</b><span>Aperture</span></span>' +
+        '<span class="fq-metric"><b>' + faqAvg(f) + '</b><span>Lettura</span></span>' +
+        '<span class="fq-metric"><b>' + faqNum(f.shares) + '</b><span>Share</span></span>' +
+      '</div>' +
+      '<div class="fq-actions">' +
+        '<button class="btn-sm view" data-act="up" data-id="' + id + '" title="Sposta su">↑</button>' +
+        '<button class="btn-sm view" data-act="down" data-id="' + id + '" title="Sposta giù">↓</button>' +
+        '<button class="btn-sm approve" data-act="edit" data-id="' + id + '">Modifica</button>' +
+        '<button class="btn-sm reject" data-act="del" data-id="' + id + '">Elimina</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function initFaqAdminEvents(){
+  if (window.__faqAdminEvents) return;
+  window.__faqAdminEvents = true;
+  const list = document.getElementById('faq-admin-list');
+  if (list){
+    list.addEventListener('click', function(ev){
+      const btn = ev.target.closest ? ev.target.closest('[data-act]') : null;
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+      if (act === 'edit') editFaqAdmin(id);
+      else if (act === 'del') deleteFaqAdmin(id);
+      else if (act === 'up') moveFaqAdmin(id, -1);
+      else if (act === 'down') moveFaqAdmin(id, 1);
+    });
+  }
+  window.addEventListener('storage', function(ev){
+    if (ev.key !== 'wd_faqs') return;
+    const local = getFaqLocal();
+    if (local){ faqAdmin = local; faqSortList(); renderFaqAdmin(); }
+  });
+  try {
+    const bc = new BroadcastChannel('woodreads-faqs');
+    bc.onmessage = function(ev){
+      if (ev.data && ev.data.type === 'faqs-updated'){
+        const local = getFaqLocal();
+        if (local){ faqAdmin = local; faqSortList(); renderFaqAdmin(); }
+      }
+    };
+  } catch(e){}
+}
+
+function newFaqAdmin(){
+  faqEditId = null;
+  const q = document.getElementById('faq-q');
+  const a = document.getElementById('faq-a');
+  const c = document.getElementById('faq-cat');
+  const o = document.getElementById('faq-order');
+  const p = document.getElementById('faq-pub');
+  if (q) q.value = '';
+  if (a) a.value = '';
+  if (c) c.value = '';
+  if (o) o.value = String(faqAdmin.reduce(function(m, f){ return Math.max(m, Number(f.sort_order || 0)); }, 0) + 1);
+  if (p) p.checked = true;
+  if (q) q.focus();
+}
+
+function editFaqAdmin(id){
+  const f = faqAdmin.find(function(x){ return x.id === id; });
+  if (!f) return;
+  faqEditId = id;
+  document.getElementById('faq-q').value = f.question;
+  document.getElementById('faq-a').value = f.answer;
+  document.getElementById('faq-cat').value = f.category || '';
+  document.getElementById('faq-order').value = f.sort_order || 0;
+  document.getElementById('faq-pub').checked = f.published !== false;
+  const card = document.getElementById('faq-q');
+  if (card) card.focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function saveFaqAdmin(){
+  const q = (document.getElementById('faq-q').value || '').trim();
+  const a = (document.getElementById('faq-a').value || '').trim();
+  if (!q){ toast('Inserisci la domanda', true); return; }
+  if (!a){ toast('Inserisci la risposta', true); return; }
+  const cat = (document.getElementById('faq-cat').value || '').trim();
+  const order = Number(document.getElementById('faq-order').value || 0) || 0;
+  const pub = document.getElementById('faq-pub').checked;
+
+  let f;
+  let isNew = false;
+  if (faqEditId){
+    f = faqAdmin.find(function(x){ return x.id === faqEditId; });
+    if (!f){ toast('Domanda non trovata', true); return; }
+    f.question = q; f.answer = a; f.category = cat;
+    f.sort_order = order; f.published = pub;
+  } else {
+    isNew = true;
+    const maxOrder = faqAdmin.reduce(function(m, x){ return Math.max(m, Number(x.sort_order || 0)); }, 0);
+    f = {
+      id: 'faq_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      question: q, answer: a, category: cat,
+      sort_order: order || (maxOrder + 1), published: pub,
+      clicks: 0, read_ms: 0, read_count: 0, shares: 0
+    };
+    faqAdmin.push(f);
+  }
+  faqSortList();
+  setFaqLocal(faqAdmin);
+  broadcastFaqs();
+  renderFaqAdmin();
+  newFaqAdmin();
+  toast(isNew ? 'Domanda aggiunta' : 'Domanda aggiornata');
+
+  if (faqCloudOk && window.supabaseSaveFaq){
+    try { await window.supabaseSaveFaq(f, isNew); }
+    catch(e){ toast('Salvata in locale (cloud non disponibile)', true); }
+  }
+}
+
+async function deleteFaqAdmin(id){
+  const f = faqAdmin.find(function(x){ return x.id === id; });
+  if (!f) return;
+  if (!confirm('Eliminare questa domanda?\n\n' + f.question)) return;
+  faqAdmin = faqAdmin.filter(function(x){ return x.id !== id; });
+  setFaqLocal(faqAdmin);
+  broadcastFaqs();
+  renderFaqAdmin();
+  if (faqEditId === id) newFaqAdmin();
+  toast('Domanda eliminata');
+  if (faqCloudOk && window.supabaseDeleteFaq){
+    try { await window.supabaseDeleteFaq(id); } catch(e){}
+  }
+}
+
+async function moveFaqAdmin(id, dir){
+  const i = faqAdmin.findIndex(function(x){ return x.id === id; });
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= faqAdmin.length) return;
+  const tmp = faqAdmin[i];
+  faqAdmin[i] = faqAdmin[j];
+  faqAdmin[j] = tmp;
+  faqAdmin.forEach(function(f, k){ f.sort_order = k + 1; });
+  setFaqLocal(faqAdmin);
+  broadcastFaqs();
+  renderFaqAdmin();
+  if (faqCloudOk && window.supabaseSaveFaq){
+    try {
+      await window.supabaseSaveFaq(faqAdmin[i]);
+      await window.supabaseSaveFaq(faqAdmin[j]);
+    } catch(e){}
+  }
+}
+
+async function syncFaqsAdmin(){
+  if (!window.supabaseSaveFaq){ toast('Supabase non disponibile', true); return; }
+  if (!faqAdmin.length){ toast('Nessuna domanda da sincronizzare', true); return; }
+  toast('Sincronizzazione in corso…');
+  let ok = 0, fail = 0;
+  for (const f of faqAdmin){
+    try { await window.supabaseSaveFaq(f, true); ok++; }
+    catch(e){ fail++; }
+  }
+  if (ok && !fail){ faqCloudOk = true; toast(ok + ' domande sincronizzate al cloud'); }
+  else if (ok && fail){ toast(ok + ' sincronizzate, ' + fail + ' fallite', true); }
+  else { toast('Cloud non raggiungibile: controlla chiave e tabella faqs', true); }
+  renderFaqAdmin();
+}
+
+async function deleteAllFaqsAdmin(){
+  if (!faqAdmin.length) return;
+  if (!confirm('Eliminare TUTTE le ' + faqAdmin.length + ' domande?\n\nL’operazione non si può annullare.')) return;
+  const ids = faqAdmin.map(function(f){ return f.id; });
+  faqAdmin = [];
+  setFaqLocal(faqAdmin);
+  broadcastFaqs();
+  renderFaqAdmin();
+  newFaqAdmin();
+  if (faqCloudOk && window.supabaseDeleteFaq){
+    for (const id of ids){
+      try { await window.supabaseDeleteFaq(id); } catch(e){}
+    }
+  }
+  toast('Tutte le domande eliminate');
+}
+
 /* ── Init ── */
 async function init(){
   document.getElementById('dash-date').textContent = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -899,10 +1283,12 @@ async function init(){
     loadCategories(),
     loadDayData(),
     loadQuizResults(),
-    renderBlogDrafts(),
+    renderBlogLists(),
+    loadFaqsAdmin(),
   ]);
   renderCalendar();
   initCalendarSync();
+  initFaqAdminEvents();
 }
 
 function initCalendarSync(){
@@ -1659,6 +2045,8 @@ document.addEventListener('keydown', (e) => {
     if(document.getElementById('editor-overlay').classList.contains('open')) closeEditor();
   }
 });
+
+initFaqAdminEvents();
 </script>
 </body>
 </html>
