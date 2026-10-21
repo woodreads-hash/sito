@@ -1,5 +1,5 @@
 const adapt = require('./_lib/vercel-adapter');
-const { handler } = require('../netlify/functions/day-notes');
+const { handler } = require('./_lib/handlers/day-notes');
 
 module.exports = adapt(handler, (req) => {
   const raw = req.query && req.query.date;

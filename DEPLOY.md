@@ -3,27 +3,30 @@
 ## Target: Vercel (primary)
 
 The site is a static frontend plus serverless functions, deployed as a single Vercel
-**Services** project.
+project with the **"Other"** framework preset (classic model: static output from the
+project root + Vercel Functions built from the `api/` directory).
 
-### Services model
-- **One service: `site`** — `root: "."`. It serves the static site (HTML/CSS/JS/images) and
-  the API functions declared in `api/`.
-- **No bindings.** Every backend call goes to an external service (Strapi, Supabase,
-  YouTube Data API), never to another service of this project, so there is nothing to bind.
-- **Public routing (top level of `vercel.json`)**
-  - `/.netlify/functions/*` → `/api/*` (the frontend keeps calling the old Netlify paths,
-    so no frontend code changes are needed)
-  - `/wd-panel-x7q9` → `/admin.html` (secret admin URL)
-  - `/(.*)` → the `site` service
-- **Internal routing (inside the `site` service)**: the same rules, so the API and the
-  admin URL keep working regardless of which layer resolves the request first.
+### Why not the "Services" model
+With the *Services* preset Vercel refuses to build the project-level `api/` directory
+("The `api/` directory will not be built because services are configured") and the
+per-service configuration cannot select the `@vercel/node` builder that turns `api/*.js`
+into functions — a service rooted at `api/` is detected as a plain static service.
+The classic model builds `api/**/*.js` as Vercel Functions out of the box, which is
+exactly the Netlify layout this site already had.
+
+### Routing (top level of `vercel.json`)
+- `/.netlify/functions/*` → `/api/*` (the frontend keeps calling the old Netlify paths,
+  so no frontend code changes are needed)
+- `/wd-panel-x7q9` → `/admin.html` (secret admin URL)
 - `/admin` is **not** a file, so it answers `404` with the styled `404.html`.
-- `/netlify/*` is redirected to `404` so the Netlify function sources are never public.
+- `/netlify/*` is redirected to `404` and the `netlify/` folder is not uploaded at all
+  (see `.vercelignore`), so the server-side sources are never public.
 
 ### Deploy steps
 1. Import the repo `github.com/woodreads-hash/sito` in Vercel (branch `main`).
-2. Set the **Framework Preset to "Services"** (required: the repo contains more than one
-   deployable folder, so Vercel asks for a `vercel.json` describing the services).
+2. Set the **Framework Preset to "Other"** (Root Directory = repository root,
+   Build Command = empty, Output Directory = `.`).
+   With the *Services* preset the project has no buildable API — see above.
 3. Add the environment variables (Project → Settings → Environment Variables):
    - `NEXT_PUBLIC_SUPABASE_URL` — **Supabase project URL** (default: `https://yqksdpgkktgppxzdbbgc.supabase.co`).
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase **publishable** (anon) key.
@@ -38,7 +41,8 @@ The site is a static frontend plus serverless functions, deployed as a single Ve
      Supabase + LocalStorage (see “Backend attuale”).
    - `YOUTUBE_API_KEY` — YouTube Data API key (channel stats). Optional.
    - `YOUTUBE_CHANNEL_ID` and/or `YOUTUBE_HANDLE` — which channel to read.
-4. Deploy. No build command, no build step: the service is plain static output + functions.
+4. Deploy. No build command, no build step: the output is the project root (static files)
+   plus the functions in `api/`.
 5. Attach the domain `woodreads.com` (Settings → Domains) so the site keeps its address.
 
 ### Backend attuale
@@ -48,7 +52,7 @@ The site is a static frontend plus serverless functions, deployed as a single Ve
   nella SQL editor di Supabase per crearla (FAQ in cloud + contatori).
 - **Strapi non è più disponibile**: galleria, slot di prenotazione e contatori social
   hanno fallback (payload vuoti, valori statici, CTA WhatsApp). Le funzioni in
-  `netlify/functions/` rispondono 200 con dati vuoti invece di 500.
+  `api/_lib/handlers/` rispondono 200 con dati vuoti invece di 500.
 - La configurazione Supabase (URL + chiave publishable) arriva al browser da
   `/.netlify/functions/supabase-config`, che legge `NEXT_PUBLIC_SUPABASE_URL` e
   `NEXT_PUBLIC_SUPABASE_ANON_KEY` dall'ambiente. `supabase-config.js` applica i valori
@@ -65,14 +69,18 @@ node api/_lib/dev-server.js
 Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 
 ### Folder map
-- `api/` — Vercel functions (one file per endpoint). They are thin wrappers around the
-  Netlify handlers in `netlify/functions/`.
+- `api/` — Vercel functions (one file per endpoint). Each one is a thin wrapper that
+  adapts the shared handler to the Vercel `(req, res)` signature.
+- `api/_lib/handlers/*.js` — business logic (one handler per endpoint), the single
+  source of truth shared by Vercel and Netlify.
 - `api/_lib/vercel-adapter.js` — converts a Vercel `(req, res)` call into the Netlify
-  `event` shape, so `netlify/functions/*.js` stays the single source of truth.
+  `event` shape, so the handlers stay unchanged.
 - `api/_lib/dev-server.js` — local dev server (static + API).
-- `netlify/functions/*.js` — business logic, unchanged, still used by the Netlify deploy.
+- `api/_lib/strapi.js` — optional-backend helper (`hasBackend`, `apiUrl`, `isBackendError`).
+- `netlify/functions/*.js` — thin Netlify wrappers around the same handlers
+  (used by the Netlify fallback deploy).
 - `.vercelignore` — keeps `api-gateway/`, `progetto-locale/`, `strapi/`, `hermes/`,
-  `nginx/`, `systemd/`, `scripts/`, `prompts/`, `supabase/` out of the upload.
+  `nginx/`, `systemd/`, `scripts/`, `prompts/`, `supabase/`, `netlify/` out of the upload.
 
 ## Cloud configuration
 - Local env: `.env` (gitignored, mai committato) — contiene `NEXT_PUBLIC_SUPABASE_URL` e
@@ -106,5 +114,5 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 
 ## Fallback: Netlify
 Netlify is no longer the target (credits exhausted), but the project still deploys there:
-`netlify/functions/*.js` are the untouched Netlify functions and `netlify.toml` keeps the
-same redirects and headers.
+`netlify/functions/*.js` are thin wrappers around the same handlers in `api/_lib/handlers/`
+and `netlify.toml` keeps the same redirects and headers.

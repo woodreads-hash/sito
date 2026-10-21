@@ -61,6 +61,7 @@ function resolveFunction(pathname) {
   if (rest === null) return null;
   rest = rest.replace(/^\/+/, '').replace(/\/+$/, '');
   if (!rest || rest.includes('..')) return null;
+  if (rest.split('/').some((part) => part.startsWith('_'))) return null;
   const legacyDate = rest.match(/^day-notes\/([^/]+)$/);
   if (legacyDate) {
     const legacy = path.join(ROOT, 'api', 'day-notes.js');
@@ -186,6 +187,11 @@ const server = http.createServer((req, res) => {
       // I file nascosti (.env, .git, ...) non sono mai pubblici
       const relPath = path.relative(ROOT, file);
       if (relPath.split(path.sep).some((part) => part.startsWith('.') && part !== '..')) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
+        return;
+      }
+      // La cartella api/ è riservata alle funzioni: mai servita come file statico
+      if (relPath.split(path.sep)[0] === 'api') {
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
         return;
       }
