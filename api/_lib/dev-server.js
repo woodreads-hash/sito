@@ -70,7 +70,7 @@ function resolveFunction(pathname) {
     }
   }
   const candidates = [
-    path.join(ROOT, 'api', rest + '.js'),
+    path.join(ROOT, 'api', rest.split('/')[0] + '.js'),
     path.join(ROOT, 'api', rest, 'index.js'),
   ];
   for (const candidate of candidates) {

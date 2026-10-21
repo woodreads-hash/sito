@@ -17,6 +17,10 @@ exactly the Netlify layout this site already had.
 ### Routing (top level of `vercel.json`)
 - `/.netlify/functions/*` → `/api/*` (the frontend keeps calling the old Netlify paths,
   so no frontend code changes are needed)
+- `/.netlify/functions/<domain>/<sub-rotta>` → `/api/<domain>` for the grouped
+  endpoints (`blog/categories`, `blog/post`, `showroom/categories`, `showroom/photos`,
+  `appointments/slots`): one function per domain, to stay under the Hobby limit of
+  12 Serverless Functions per deployment
 - `/wd-panel-x7q9` → `/admin.html` (secret admin URL)
 - `/admin` is **not** a file, so it answers `404` with the styled `404.html`.
 - `/netlify/*` is redirected to `404` and the `netlify/` folder is not uploaded at all
@@ -69,12 +73,22 @@ node api/_lib/dev-server.js
 Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 
 ### Folder map
-- `api/` — Vercel functions (one file per endpoint). Each one is a thin wrapper that
-  adapts the shared handler to the Vercel `(req, res)` signature.
+- `api/` — Vercel functions: **10 file** (il limite Hobby è 12 Serverless Functions per
+  deployment). Ogni file è un wrapper sottile che adatta l'handler condiviso alla
+  firma Vercel `(req, res)`.
+  - `api/blog.js` → `blog`, `blog/categories`, `blog/post`
+  - `api/showroom.js` → `showroom/categories`, `showroom/photos`
+  - `api/appointments.js` → `appointments`, `appointments/slots`
+  - `api/day-notes.js`, `api/day-bands.js`, `api/day-overrides.js`,
+    `api/social-stats.js`, `api/youtube-stats.js`, `api/supabase-config.js`, `api/data.js`
+  - la sotto-rotta viene ricavata dall'URL originale della richiesta
+    (`api/_lib/route.js`), quindi il frontend continua a chiamare
+    `/.netlify/functions/<dominio>/<sotto-rotta>` senza modifiche
 - `api/_lib/handlers/*.js` — business logic (one handler per endpoint), the single
   source of truth shared by Vercel and Netlify.
 - `api/_lib/vercel-adapter.js` — converts a Vercel `(req, res)` call into the Netlify
   `event` shape, so the handlers stay unchanged.
+- `api/_lib/route.js` — mapping tra rotta pubblica e sotto-rotta del dominio.
 - `api/_lib/dev-server.js` — local dev server (static + API).
 - `api/_lib/strapi.js` — optional-backend helper (`hasBackend`, `apiUrl`, `isBackendError`).
 - `netlify/functions/*.js` — thin Netlify wrappers around the same handlers

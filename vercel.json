@@ -7,12 +7,52 @@
   },
   "rewrites": [
     {
+      "source": "/.netlify/functions/appointments/slots",
+      "destination": "/api/appointments"
+    },
+    {
+      "source": "/.netlify/functions/blog/categories",
+      "destination": "/api/blog"
+    },
+    {
+      "source": "/.netlify/functions/blog/post",
+      "destination": "/api/blog"
+    },
+    {
+      "source": "/.netlify/functions/showroom/categories",
+      "destination": "/api/showroom"
+    },
+    {
+      "source": "/.netlify/functions/showroom/photos",
+      "destination": "/api/showroom"
+    },
+    {
       "source": "/.netlify/functions/day-notes/:date",
       "destination": "/api/day-notes?date=:date"
     },
     {
       "source": "/.netlify/functions/:path*",
       "destination": "/api/:path*"
+    },
+    {
+      "source": "/api/appointments/slots",
+      "destination": "/api/appointments"
+    },
+    {
+      "source": "/api/blog/categories",
+      "destination": "/api/blog"
+    },
+    {
+      "source": "/api/blog/post",
+      "destination": "/api/blog"
+    },
+    {
+      "source": "/api/showroom/categories",
+      "destination": "/api/showroom"
+    },
+    {
+      "source": "/api/showroom/photos",
+      "destination": "/api/showroom"
     },
     {
       "source": "/wd-panel-x7q9",
