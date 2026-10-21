@@ -1327,8 +1327,6 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <h2 class="faq-title rev" id="faq-title">Tutto sui <em>dreads</em></h2>
         <p class="sub sub-l rev" style="max-width:430px;margin-bottom:1.6rem;">Le 30 domande che ci fate più spesso, con risposte vere e senza giri di parole. Apri una domanda, leggi con calma e condividila con chi ne ha bisogno.</p>
         <div class="faq-live rev" aria-hidden="true">
-          <div class="faq-stat"><strong id="faq-stat-opens">0</strong><span>Aperture</span></div>
-          <div class="faq-stat"><strong id="faq-stat-shares">0</strong><span>Condivisioni</span></div>
           <div class="faq-stat"><strong id="faq-stat-count">30</strong><span>Risposte</span></div>
         </div>
         <div class="faq-global rev" aria-label="Condividi le FAQ">
@@ -2495,26 +2493,13 @@ try {
     });
   }
 
-  function faqFmt(n){
-    n = Number(n) || 0;
-    if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.', ',') + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(1).replace('.', ',') + 'k';
-    return String(n);
-  }
   function globalShares(){ return Number(localStorage.getItem(LS_GLOBAL) || 0) || 0; }
   function bumpGlobalShares(){
     try { localStorage.setItem(LS_GLOBAL, String(globalShares() + 1)); } catch (e) {}
-    updateTotals();
   }
 
   function updateTotals(){
-    const opens = state.all.reduce(function(s, f){ return s + Number(f.clicks || 0); }, 0);
-    const shares = state.all.reduce(function(s, f){ return s + Number(f.shares || 0); }, 0) + globalShares();
-    const o = document.getElementById('faq-stat-opens');
-    const s = document.getElementById('faq-stat-shares');
     const c = document.getElementById('faq-stat-count');
-    if (o) o.textContent = faqFmt(opens);
-    if (s) s.textContent = faqFmt(shares);
     if (c) c.textContent = String(state.faqs.length);
   }
 
