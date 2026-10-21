@@ -90,3 +90,62 @@ create policy "Public can write faqs"
   on public.faqs for all
   using (true)
   with check (true);
+
+-- ── Gallery (foto gestite dall'admin) ───────────────────────────────────────
+create table if not exists public.gallery_photos (
+  id uuid primary key default gen_random_uuid(),
+  url text not null,
+  storage_path text,
+  bucket text not null default 'gallery',
+  title text not null default '',
+  description text not null default '',
+  category text not null default 'generale',
+  tags text[] not null default '{}',
+  featured boolean not null default false,
+  sort_order integer not null default 0,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists gallery_photos_order_idx on public.gallery_photos (sort_order asc, created_at asc);
+
+alter table public.gallery_photos enable row level security;
+
+-- Demo/dev permissive policies. For hardened production, replace with Supabase Auth role checks.
+drop policy if exists "Public can read gallery photos" on public.gallery_photos;
+create policy "Public can read gallery photos"
+  on public.gallery_photos for select
+  using (true);
+
+drop policy if exists "Public can write gallery photos" on public.gallery_photos;
+create policy "Public can write gallery photos"
+  on public.gallery_photos for all
+  using (true)
+  with check (true);
+
+-- Bucket pubblico per le immagini caricate dall'admin
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('gallery', 'gallery', true, 52428800)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Public can read gallery objects" on storage.objects;
+create policy "Public can read gallery objects"
+  on storage.objects for select
+  using (bucket_id = 'gallery');
+
+drop policy if exists "Public can upload gallery objects" on storage.objects;
+create policy "Public can upload gallery objects"
+  on storage.objects for insert
+  with check (bucket_id = 'gallery');
+
+drop policy if exists "Public can update gallery objects" on storage.objects;
+create policy "Public can update gallery objects"
+  on storage.objects for update
+  using (bucket_id = 'gallery')
+  with check (bucket_id = 'gallery');
+
+drop policy if exists "Public can delete gallery objects" on storage.objects;
+create policy "Public can delete gallery objects"
+  on storage.objects for delete
+  using (bucket_id = 'gallery');

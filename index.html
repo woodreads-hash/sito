@@ -446,6 +446,13 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .showroom-grid .gi-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;}
 .showroom-grid .gi-tag{font-size:.55rem;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);background:rgba(0,0,0,.35);padding:.15rem .6rem;border-radius:3px;}
 .showroom-grid img{width:100%;height:100%;object-fit:cover;display:block;}
+.showroom-grid .gi-inner canvas.px-canvas{width:100%;height:100%;display:block;object-fit:cover;image-rendering:pixelated;filter:saturate(1.12) contrast(1.05) brightness(1.02);}
+.showroom-grid .gi-inner .px-scan{position:absolute;inset:0;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,rgba(140,255,0,.14) 0 1px,transparent 1px 3px);mix-blend-mode:screen;transition:opacity .25s;}
+.showroom-grid .gi:hover .px-scan{opacity:1;animation:px-scan 3s linear infinite;}
+.showroom-grid .gi{transition:box-shadow .35s ease,transform .35s ease;}
+.showroom-grid .gi:hover{box-shadow:0 0 0 1px rgba(181,140,255,.5),0 16px 46px rgba(140,255,0,.13);}
+.showroom-grid canvas.px-broken{background:linear-gradient(135deg,var(--warm) 25%,var(--cream) 50%,var(--warm) 75%);background-size:200% 200%;animation:shimmer-bg 1.5s ease-in-out infinite;}
+@keyframes px-scan{from{transform:translateY(0)}to{transform:translateY(3px)}}
 .showroom-grid .gi-inner.skeleton{background:linear-gradient(135deg,var(--warm) 25%,var(--cream) 50%,var(--warm) 75%);background-size:200% 200%;animation:shimmer-bg 1.5s ease-in-out infinite;}
 @keyframes shimmer-bg{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
 .load-more-wrap{text-align:center;margin-top:2rem;position:relative;z-index:2;}
@@ -2163,6 +2170,8 @@ const SR={
   cat: null,
   all: [], cats: [],
   lbIdx: -1, loading: false,
+  hasMore: false,
+  source: 'cloud',
 };
 
 function imgUrl(img, size){
@@ -2186,20 +2195,193 @@ function flatPhoto(p){
   };
 }
 
-async function loadShowroom(){
-  try{
-    const [cr, pr] = await Promise.all([
-      fetch(SR.api+'/categories').then(r=>r.json()),
-      fetch(SR.api+'/photos?p=1&n='+SR.perPage).then(r=>r.json())
-    ]);
-    SR.cats = (cr.data||cr||[]).map(flatPhoto);
-    SR.all = (pr.data||pr||[]).map(flatPhoto);
-    SR.hasMore = (pr.meta?.pagination?.pageCount||1) > 1;
-    renderShowroom();
-  }catch(e){
-    const g = document.getElementById('showroom-grid');
-    if(g) g.innerHTML = '<div class="showroom-empty"><span class="icon">📸</span>Gallery in aggiornamento…</div>';
+/* ── Effetto pixel: canvas a bassa risoluzione, upscalato in pixelated ── */
+const PX = (function(){
+  let io = null;
+  function observer(){
+    if(io) return io;
+    io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        const state = en.target._px;
+        if(!state || state.revealed) return;
+        state.revealed = true;
+        animate(state, 48, 6, 950, false);
+      });
+    }, { threshold: 0.12 });
+    return io;
   }
+
+  function size(state){
+    const rect = state.canvas.getBoundingClientRect();
+    const parent = state.canvas.parentElement;
+    const pw = parent ? parent.clientWidth : rect.width;
+    const ph = parent ? parent.clientHeight : rect.height;
+    const w = Math.max(40, Math.round(pw || rect.width || 260));
+    const h = Math.max(40, Math.round(ph || rect.height || 260));
+    const cols = Math.max(2, Math.round(w / Math.max(2, state.block)));
+    const rows = Math.max(2, Math.round(h / Math.max(2, state.block)));
+    if(state.canvas.width !== cols) state.canvas.width = cols;
+    if(state.canvas.height !== rows) state.canvas.height = rows;
+  }
+
+  function draw(state){
+    if(!state.img) return;
+    if(state.img.naturalWidth === 0 && state.img.complete) {
+      try { state.img.src = state.img.src; } catch(e){}
+      return;
+    }
+    if(!state.img.naturalWidth) return;
+    size(state);
+    const ctx = state.ctx;
+    const cw = state.canvas.width, ch = state.canvas.height;
+    ctx.clearRect(0,0,cw,ch);
+    ctx.imageSmoothingEnabled = false;
+    if(state.glitch){
+      const iw = state.img.naturalWidth, ih = state.img.naturalHeight;
+      const bands = 7;
+      for(let i=0;i<bands;i++){
+        const sy = ih / bands * i;
+        const sh = ih / bands;
+        const shift = (Math.random()-0.5) * iw * 0.07;
+        const dx = (shift / iw) * cw;
+        try { ctx.drawImage(state.img, 0, sy, iw, sh, dx, (sy/ih)*ch, cw, ch/bands); } catch(e){}
+        ctx.fillStyle = (i % 2) ? 'rgba(181,140,255,.28)' : 'rgba(140,255,0,.20)';
+        ctx.fillRect(0, (sy/ih)*ch, cw, ch/bands);
+      }
+    } else {
+      try { ctx.drawImage(state.img, 0, 0, cw, ch); } catch(e){}
+    }
+  }
+
+  function animate(state, from, to, duration, glitch){
+    const t0 = performance.now();
+    state.glitch = !!glitch;
+    function step(now){
+      const p = Math.min(1, (now - t0) / duration);
+      const e = 1 - Math.pow(1 - p, 3);
+      state.block = Math.max(2, from + (to - from) * e);
+      draw(state);
+      if(p < 1) requestAnimationFrame(step);
+      else if(state.glitch){ state.glitch = false; draw(state); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function create(canvas, src){
+    const state = { canvas: canvas, ctx: canvas.getContext('2d'), img: null, block: 48, revealed: false, glitch: false };
+    canvas._px = state;
+    const img = new Image();
+    try { img.crossOrigin = 'anonymous'; } catch(e){}
+    img.decoding = 'async';
+    img.onload = function(){
+      state.img = img;
+      if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
+      draw(state);
+      try { observer().observe(canvas); } catch(e){}
+      setTimeout(function(){
+        if(!state.revealed){ state.revealed = true; animate(state, state.block, 6, 700, false); }
+      }, 600);
+      setTimeout(function(){ draw(state); }, 1200);
+    };
+    img.onerror = function(){
+      if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
+      canvas.classList.add('px-broken');
+    };
+    img.src = src;
+    return state;
+  }
+
+  function hover(state, host){
+    host.addEventListener('mouseenter', function(){
+      if(!state.img) return;
+      animate(state, state.block, 17, 240, true);
+    });
+    host.addEventListener('mouseleave', function(){
+      if(!state.img) return;
+      animate(state, state.block, 6, 420, false);
+    });
+  }
+
+  return { create: create, hover: hover, draw: draw };
+})();
+
+/* ── Dati galleria: Supabase (tabella gallery_photos) con fallback API ── */
+async function loadGalleryCloud(){
+  if(!window.supabaseGetGalleryPhotos) throw new Error('Supabase non disponibile');
+  const rows = await window.supabaseGetGalleryPhotos({ publishedOnly: true, limit: 400 });
+  return (rows || []).map(function(row){
+    const cat = (row.category || 'generale').trim() || 'generale';
+    return {
+      id: row.id,
+      title: row.title || '',
+      description: row.description || '',
+      image: { url: row.url || '' },
+      category: { slug: cat, name: cat },
+      tags: (Array.isArray(row.tags) ? row.tags : []).map(t => ({ name: t })),
+      featured: !!row.featured,
+      order: Number(row.sort_order || 0),
+      updated_at: row.updated_at || '',
+    };
+  });
+}
+
+async function loadShowroom(){
+  let list = null;
+  try{
+    list = await loadGalleryCloud();
+    SR.source = 'cloud';
+  }catch(e){
+    list = null;
+  }
+  if(list === null){
+    try{
+      const [cr, pr] = await Promise.all([
+        fetch(SR.api+'/categories').then(r=>r.json()),
+        fetch(SR.api+'/photos?p=1&n=200').then(r=>r.json())
+      ]);
+      SR.cats = (cr.data||cr||[]).map(c => ({
+        slug: c.slug || (c.attributes && c.attributes.slug) || String(c.id||''),
+        name: c.name || (c.attributes && c.attributes.name) || c.slug || 'Foto',
+      }));
+      list = (pr.data||pr||[]).map(flatPhoto);
+      SR.source = 'api';
+    }catch(e){
+      list = [];
+      SR.source = 'none';
+    }
+  }
+  SR.all = list;
+  if(SR.source === 'cloud'){
+    const seen = [];
+    SR.all.forEach(p => {
+      const c = p.category && p.category.slug;
+      if(c && !seen.includes(c)) seen.push(c);
+    });
+    SR.cats = seen.map(c => ({ slug: c, name: c }));
+  }
+  const sig = (list||[]).map(p => (p.id||'') + ':' + (p.updated_at||'')).join('|');
+  if(SR.sig && SR.sig === sig) return;
+  SR.sig = sig;
+  SR.page = 1;
+  renderShowroom();
+}
+
+/* ── Sincronizzazione galleria: l'admin aggiorna, il sito si aggiorna ── */
+function initGallerySync(){
+  if(window.__gallerySyncInit) return;
+  window.__gallerySyncInit = true;
+  try{
+    const bc = new BroadcastChannel('woodreads-gallery');
+    bc.onmessage = () => loadShowroom();
+  }catch(e){}
+  window.addEventListener('storage', function(ev){
+    if(ev.key === 'wd_gallery_ts') loadShowroom();
+  });
+  setInterval(function(){
+    if(typeof document !== 'undefined' && document.hidden) return;
+    loadShowroom();
+  }, 30000);
 }
 
 function renderShowroom(){
@@ -2230,9 +2412,11 @@ function filterSR(slug){
 function applyFilter(){
   let pool = SR.cat ? SR.all.filter(p => p.category && p.category.slug===SR.cat) : SR.all;
   pool.sort((a,b) => (b.featured?1:0) - (a.featured?1:0) || (a.order||0) - (b.order||0));
-  renderPhotos(pool, false);
+  const shown = pool.slice(0, SR.page * SR.perPage);
+  SR.hasMore = shown.length < pool.length;
+  renderPhotos(shown, false);
   const more = document.getElementById('showroom-more');
-  if(more) more.style.display = SR.hasMore && pool.length >= SR.perPage ? 'block' : 'none';
+  if(more) more.style.display = SR.hasMore ? 'block' : 'none';
 }
 
 function renderPhotos(list, append){
@@ -2244,15 +2428,14 @@ function renderPhotos(list, append){
     return;
   }
   list.forEach(ph=>{
-    const thumb = imgUrl(ph.image, 'thumbnail') || imgUrl(ph.image);
-    const full = imgUrl(ph.image, 'large') || imgUrl(ph.image, 'medium') || imgUrl(ph.image);
-    const srcset = ['thumbnail:240w','small:480w','medium:960w','large:1920w'].map(pair=>{const [f,w]=pair.split(':');const u=imgUrl(ph.image,f);return u?u+' '+w:'';}).filter(Boolean).join(', ');
+    const thumb = imgUrl(ph.image, 'thumbnail') || imgUrl(ph.image) || ph.url || '';
+    const full = imgUrl(ph.image, 'large') || imgUrl(ph.image, 'medium') || thumb;
     const tags = (ph.tags||[]).slice(0,3).map(t => t.name||t);
     const div = document.createElement('div');
     div.className = 'gi'+(ph.featured?' featured':'');
     div.innerHTML = '<div class="gi-inner skeleton">' +
-      '<img src="'+thumb+'" '+(srcset?'srcset="'+srcset+'" sizes="(max-width:640px) 100vw, 33vw" ':'')+'alt="'+escHtml(ph.title)+'" loading="lazy" decoding="async"' +
-      ' onload="this.parentElement.classList.remove(\'skeleton\')" onerror="this.parentElement.classList.remove(\'skeleton\')">' +
+      '<canvas class="px-canvas"></canvas>' +
+      '<span class="px-scan"></span>' +
       '</div><div class="gi-overlay"></div>' +
       '<div class="gi-info">' +
       (ph.title?'<div class="gi-title">'+escHtml(ph.title)+'</div>':'') +
@@ -2265,27 +2448,27 @@ function renderPhotos(list, append){
       openLightbox(this._photo, this._full);
     });
     el.appendChild(div);
+    const canvas = div.querySelector('canvas.px-canvas');
+    const inner = div.querySelector('.gi-inner');
+    if(thumb && canvas){
+      const state = PX.create(canvas, thumb);
+      PX.hover(state, div);
+    } else if(inner){
+      inner.classList.remove('skeleton');
+      inner.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted-d);">📸</div>';
+    }
   });
 }
 
 async function loadMorePhotos(){
   if(SR.loading) return;
   SR.loading = true;
-  SR.page++;
   const btn = document.querySelector('.btn-load-more');
   if(btn) btn.disabled = true;
-  try{
-    const r = await fetch(SR.api+'/photos?p='+SR.page+'&n='+SR.perPage+(SR.cat?'&cat='+SR.cat:''));
-    const d = await r.json();
-    const more = (d.data||d||[]).map(flatPhoto);
-    SR.all = SR.all.concat(more);
-    SR.hasMore = (d.meta?.pagination?.page||0) < (d.meta?.pagination?.pageCount||0);
-    applyFilter();
-  }catch(e){}
+  SR.page++;
+  applyFilter();
   if(btn) btn.disabled = false;
   SR.loading = false;
-  const moreEl = document.getElementById('showroom-more');
-  if(moreEl) moreEl.style.display = SR.hasMore ? 'block' : 'none';
 }
 
 /* ── Lightbox ── */
@@ -2456,6 +2639,7 @@ async function refreshCalendarState(){
 try { const raw=localStorage.getItem('wd_calendar_data'); if(raw){ const c=JSON.parse(raw); renderCalendar(); applyDayConfig(c.notes||{}, c.overrides||{}, c.bands||{}); } else { renderCalendar(); } } catch(_) { renderCalendar(); }
 loadSiteData();
 loadShowroom();
+initGallerySync();
 loadBlogPreview();
 refreshCalendarState();
 setInterval(refreshCalendarState, 5000);

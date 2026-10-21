@@ -184,6 +184,9 @@ tr:hover{background:rgba(140,255,0,.02);}
 .photo-card .info .ptags{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.3rem;}
 .photo-card .info .ptag{font-size:.55rem;padding:.15rem .45rem;border-radius:999px;background:rgba(140,255,0,.08);color:var(--green);letter-spacing:1px;}
 .photo-card .feat-badge{position:absolute;top:.5rem;right:.5rem;background:var(--green);color:var(--dark);border-radius:999px;padding:.15rem .5rem;font-size:.5rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.photo-card .photo-del{position:absolute;top:.5rem;left:.5rem;width:26px;height:26px;border-radius:50%;border:1px solid rgba(245,245,247,.15);background:rgba(13,13,15,.75);color:var(--muted-d);font-size:.7rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .2s;z-index:3;}
+.photo-card:hover .photo-del{opacity:1;}
+.photo-card .photo-del:hover{background:var(--purple);border-color:var(--purple);color:var(--dark);transform:scale(1.1);}
 
 /* ── UPLOAD AREA ── */
 .upload-area{background:rgba(140,255,0,.03);border:2px dashed rgba(140,255,0,.15);border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;cursor:pointer;transition:all .2s;}
@@ -549,14 +552,40 @@ tr:hover{background:rgba(140,255,0,.02);}
   <div id="tab-photos" style="display:none;">
     <div class="page-title">
       <h1>Gestione Foto <span>│</span> <span id="photo-count">0</span></h1>
-      <p>Clicca una foto per modificare · Carica nuove foto dal computer / telefono</p>
+      <p>Aggiungi foto da link oppure caricale nel bucket Supabase · Clicca su una foto per modificarla</p>
+    </div>
+
+    <!-- NUOVA FOTO DA LINK -->
+    <div class="sec-card">
+      <div class="sec-hdr">
+        <h3>🔗 Aggiungi foto da link</h3>
+        <span class="count" id="gal-cloud-state">…</span>
+      </div>
+      <div class="sec-body">
+        <div class="faq-form-grid">
+          <div class="fg"><label>Link immagine (URL)</label><input type="url" id="gal-url" placeholder="https://…"/></div>
+          <div class="fg"><label>Titolo</label><input type="text" id="gal-title" placeholder="Titolo foto"/></div>
+        </div>
+        <div class="faq-form-grid">
+          <div class="fg">
+            <label>Categoria</label>
+            <input type="text" id="gal-cat" list="gal-cat-list" placeholder="Colore, Manicure…"/>
+            <datalist id="gal-cat-list"></datalist>
+          </div>
+          <div class="fg"><label>Descrizione</label><input type="text" id="gal-desc" placeholder="Descrizione breve"/></div>
+        </div>
+        <div class="faq-form-actions">
+          <button class="btn-sm approve" onclick="addPhotoByUrl()" style="padding:.55rem 1.1rem;">➕ Aggiungi da link</button>
+          <label class="faq-check"><input type="checkbox" id="gal-featured"/> In evidenza</label>
+        </div>
+      </div>
     </div>
 
     <!-- UPLOAD AREA -->
     <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
       <span class="up-icon">📸</span>
       <div class="up-text"><strong>Clicca per caricare</strong> foto dal computer o telefono</div>
-      <div class="up-hint">oppure trascina le immagini qui · JPG, PNG, WebP · max 50MB</div>
+      <div class="up-hint">oppure trascina le immagini qui · JPG, PNG, WebP · max 50MB · caricate nel bucket Supabase</div>
       <input type="file" id="file-input" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)"/>
       <div class="upload-progress" id="upload-progress">
         <div class="up-bar"><div class="up-bar-fill" id="up-bar-fill"></div></div>
@@ -586,7 +615,10 @@ tr:hover{background:rgba(140,255,0,.02);}
     <label>Descrizione</label>
     <textarea id="edit-desc" placeholder="Descrizione…"></textarea>
     <label>Categoria</label>
-    <select id="edit-cat"></select>
+    <input type="text" id="edit-cat" list="edit-cat-list" placeholder="es. Colore"/>
+    <datalist id="edit-cat-list"></datalist>
+    <label>Link immagine</label>
+    <input type="url" id="edit-url" placeholder="https://…"/>
     <label>Tags</label>
     <div class="tag-edit" id="tag-edit"></div>
     <div class="tag-add-row">
@@ -1763,44 +1795,74 @@ function toDateStr(d){
     String(d.getDate()).padStart(2, '0');
 }
 
-/* ── Photos ── */
+/* ── Photos (Supabase: tabella gallery_photos + bucket Storage) ── */
+let galleryCloudOk = false;
+
+function galleryCategories(){
+  const list = [];
+  photos.forEach(p => {
+    const c = (p.category || '').trim();
+    if(c && !list.includes(c)) list.push(c);
+  });
+  return list;
+}
+
+function renderGalleryCategoryHints(){
+  const list = galleryCategories();
+  ['gal-cat-list','edit-cat-list'].forEach(id => {
+    const dl = document.getElementById(id);
+    if(dl) dl.innerHTML = list.map(c => `<option value="${esc(c)}"></option>`).join('');
+  });
+}
+
+function setGalleryState(text, ok){
+  const el = document.getElementById('gal-cloud-state');
+  if(!el) return;
+  el.textContent = text;
+  el.style.color = ok ? 'var(--green)' : 'var(--muted-d)';
+}
+
 async function loadPhotos(){
-  try{
-    const r = await fetch(`${API}/showroom/photos?p=1&n=100`);
-    if(r.ok){
-      const d = await r.json();
-      const all = d.data || [];
-      photos = all.map(p => ({
-        id: p.id,
-        title: p.title||'',
-        description: p.description||'',
-        category: p.category||null,
-        tags: p.tags||[],
-        featured: p.featured||false,
-        image: p.image||null,
-        order: p.order||0,
+  photos = [];
+  if(window.supabaseGetGalleryPhotos){
+    try{
+      const rows = await window.supabaseGetGalleryPhotos({ publishedOnly: false, limit: 300 });
+      photos = (rows || []).map(r => ({
+        id: r.id,
+        url: r.url || '',
+        storage_path: r.storage_path || '',
+        bucket: r.bucket || 'gallery',
+        title: r.title || '',
+        description: r.description || '',
+        category: r.category || 'generale',
+        tags: Array.isArray(r.tags) ? r.tags : [],
+        featured: !!r.featured,
+        order: Number(r.sort_order || 0),
+        published: r.published !== false,
       }));
-      document.getElementById('s-photos').textContent = photos.length;
-      document.getElementById('photo-count').textContent = photos.length;
-      renderPhotoGrid();
+      galleryCloudOk = true;
+      setGalleryState('● Supabase attivo', true);
+    }catch(e){
+      galleryCloudOk = false;
+      setGalleryState('⚠ Tabella non raggiungibile', false);
     }
-  }catch(e){}
-  try{
-    const r2 = await fetch(`${API}/showroom/categories`);
-    if(r2.ok){
-      const d2 = await r2.json();
-      categories = (d2.data||d2||[]);
-      document.getElementById('s-categories').textContent = categories.length;
-      renderCategoryFilters();
-    }
-  }catch(e){}
+  } else {
+    setGalleryState('⚠ Helper Supabase non caricato', false);
+  }
+  const count = document.getElementById('photo-count');
+  if(count) count.textContent = photos.length;
+  const stat = document.getElementById('s-categories');
+  if(stat) stat.textContent = galleryCategories().length;
+  renderGalleryCategoryHints();
+  renderCategoryFilters();
+  renderPhotoGrid();
 }
 
 function renderCategoryFilters(){
   const container = document.getElementById('photo-filters');
+  if(!container) return;
   container.innerHTML = '<button class="pf-btn active" onclick="pfFilter(\'all\',this)">Tutte</button>';
-  categories.forEach(c => {
-    const name = c.name || c;
+  galleryCategories().forEach(name => {
     const btn = document.createElement('button');
     btn.className = 'pf-btn';
     btn.textContent = name;
@@ -1830,10 +1892,11 @@ function renderPhotoGrid(){
 
   grid.innerHTML = filtered.map(p => {
     const tags = (p.tags||[]).map(t => `<span class="ptag">${esc(t.name||t)}</span>`).join('');
-    const img = p.image?.url
-      ? `<img src="${p.image.url}" alt="${esc(p.title)}" loading="lazy"/>`
+    const img = p.url
+      ? `<img src="${esc(p.url)}" alt="${esc(p.title)}" loading="lazy"/>`
       : `<span>📸</span>`;
-    return `<div class="photo-card" onclick="openEditor(${p.id})">
+    return `<div class="photo-card" onclick="openEditor('${p.id}')">
+      <button class="photo-del" title="Rimuovi foto" onclick="event.stopPropagation(); deletePhoto('${p.id}')">✕</button>
       ${p.featured ? '<div class="feat-badge">✨ In Evidenza</div>' : ''}
       <div class="thumb">${img}</div>
       <div class="info">
@@ -1844,51 +1907,117 @@ function renderPhotoGrid(){
   }).join('');
 }
 
-/* ── Photo Upload ── */
+/* ── Photo Upload (bucket Supabase) ── */
 function handleFiles(files){
-  if(!files.length) return;
-  const area = document.getElementById('upload-area');
+  if(!files || !files.length) return;
   const progress = document.getElementById('upload-progress');
   const bar = document.getElementById('up-bar-fill');
   const status = document.getElementById('up-status');
 
+  if(!window.supabaseUploadGalleryImage){
+    toast('Supabase non disponibile', true);
+    return;
+  }
+
   progress.classList.add('active');
 
-  Array.from(files).forEach((file, i) => {
-    const formData = new FormData();
-    formData.append('files', file);
-
-    status.textContent = `Caricamento ${i+1}/${files.length}: ${file.name}…`;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${API}/upload`);
-
-    xhr.upload.onprogress = (e) => {
-      if(e.lengthComputable){
-        bar.style.width = Math.round((e.loaded / e.total) * 100) + '%';
-      }
-    };
-
-    xhr.onload = () => {
-      if(xhr.status === 200){
-        const resp = JSON.parse(xhr.responseText);
-        bar.style.width = '100%';
-        status.textContent = `✅ ${file.name} caricata!`;
-        setTimeout(() => { progress.classList.remove('active'); bar.style.width = '0'; }, 2000);
-        loadPhotos(); // refresh grid
-      } else {
-        status.textContent = `❌ Errore: ${file.name}`;
+  (async () => {
+    let done = 0;
+    for(const file of Array.from(files)){
+      const pct = Math.round((done / files.length) * 100);
+      bar.style.width = pct + '%';
+      status.textContent = `Caricamento ${done+1}/${files.length}: ${file.name}…`;
+      try{
+        const up = await window.supabaseUploadGalleryImage(file, 'photos');
+        const cat = (document.getElementById('gal-cat').value || '').trim();
+        await window.supabaseSaveGalleryPhoto({
+          url: up.url,
+          storage_path: up.path,
+          bucket: window.GALLERY_BUCKET,
+          title: file.name.replace(/\.[a-z0-9]+$/i,'').replace(/[-_]+/g,' ').trim(),
+          description: '',
+          category: cat || 'generale',
+          tags: [],
+          featured: document.getElementById('gal-featured').checked,
+        });
+        done++;
+        bar.style.width = Math.round((done / files.length) * 100) + '%';
+        status.textContent = `✅ ${done}/${files.length} — ${file.name}`;
+      }catch(err){
         toast('Errore caricamento ' + file.name, true);
+        status.textContent = `❌ Errore: ${file.name}`;
       }
-    };
+    }
+    setTimeout(() => { progress.classList.remove('active'); bar.style.width = '0'; }, 2200);
+    await loadPhotos();
+    broadcastGallery();
+  })();
+}
 
-    xhr.onerror = () => {
-      status.textContent = `❌ Errore rete: ${file.name}`;
-      toast('Errore rete caricamento', true);
-    };
+/* ── Nuova foto da link ── */
+async function addPhotoByUrl(){
+  const urlEl = document.getElementById('gal-url');
+  const url = (urlEl.value || '').trim();
+  if(!url){
+    toast('Inserisci il link della foto', true);
+    urlEl.focus();
+    return;
+  }
+  if(!/^https?:\/\//i.test(url)){
+    toast('Il link deve iniziare con http(s)://', true);
+    return;
+  }
+  if(!window.supabaseSaveGalleryPhoto){
+    toast('Supabase non disponibile', true);
+    return;
+  }
+  const btn = document.querySelector('#tab-photos .approve');
+  if(btn) btn.disabled = true;
+  try{
+    await window.supabaseSaveGalleryPhoto({
+      url: url,
+      storage_path: null,
+      bucket: window.GALLERY_BUCKET,
+      title: (document.getElementById('gal-title').value || '').trim(),
+      description: (document.getElementById('gal-desc').value || '').trim(),
+      category: (document.getElementById('gal-cat').value || '').trim() || 'generale',
+      tags: [],
+      featured: document.getElementById('gal-featured').checked,
+    });
+    ['gal-url','gal-title','gal-desc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    toast('Foto aggiunta ✅');
+    await loadPhotos();
+    broadcastGallery();
+  }catch(e){
+    toast('Errore: ' + e.message, true);
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
 
-    xhr.send(formData);
-  });
+/* ── Rimozione foto (riga + oggetto nel bucket) ── */
+async function deletePhoto(id){
+  const photo = photos.find(p => p.id === id);
+  if(!photo) return;
+  if(!confirm('Rimuovere "' + (photo.title || 'questa foto') + '" dalla galleria?')) return;
+  try{
+    if(window.supabaseDeleteGalleryObject && photo.storage_path){
+      try{ await window.supabaseDeleteGalleryObject(photo.storage_path); }
+      catch(e){ toast('Foto rimossa, ma l\'immagine nel bucket resta', true); }
+    }
+    if(window.supabaseDeleteGalleryPhoto) await window.supabaseDeleteGalleryPhoto(id);
+    photos = photos.filter(p => p.id !== id);
+    toast('Foto rimossa ✅');
+    await loadPhotos();
+    broadcastGallery();
+  }catch(e){
+    toast('Errore: ' + e.message, true);
+  }
+}
+
+function broadcastGallery(){
+  try { new BroadcastChannel('woodreads-gallery').postMessage({ type: 'gallery-updated' }); } catch(e){}
+  try { localStorage.setItem('wd_gallery_ts', String(Date.now())); } catch(e){}
 }
 
 // Drag & drop
@@ -1916,16 +2045,10 @@ function openEditor(id){
   document.getElementById('edit-desc').value = editingPhoto.description || '';
   document.getElementById('edit-featured').checked = editingPhoto.featured || false;
 
-  const sel = document.getElementById('edit-cat');
-  sel.innerHTML = '<option value="">— Nessuna —</option>';
-  categories.forEach(c => {
-    const name = c.name || c;
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
-    if(editingPhoto.category === name) opt.selected = true;
-    sel.appendChild(opt);
-  });
+  const catInput = document.getElementById('edit-cat');
+  catInput.value = editingPhoto.category || '';
+  const urlInput = document.getElementById('edit-url');
+  if(urlInput) urlInput.value = editingPhoto.url || '';
 
   renderTags();
   document.getElementById('editor-overlay').classList.add('open');
@@ -1954,7 +2077,7 @@ function addTag(){
   const val = input.value.trim();
   if(!val) return;
   if(!editingPhoto.tags) editingPhoto.tags = [];
-  editingPhoto.tags.push({ name: val });
+  editingPhoto.tags.push(val);
   input.value = '';
   renderTags();
 }
@@ -1966,28 +2089,29 @@ function removeTag(i){
 
 async function savePhoto(){
   if(!editingPhoto) return;
+  const urlInput = document.getElementById('edit-url');
+  const url = (urlInput ? urlInput.value : editingPhoto.url) || '';
+  if(!/^https?:\/\//i.test(url)){
+    toast('Link immagine non valido', true);
+    return;
+  }
   const data = {
+    url: url,
     title: document.getElementById('edit-title').value.trim(),
     description: document.getElementById('edit-desc').value.trim(),
-    category: document.getElementById('edit-cat').value || null,
+    category: document.getElementById('edit-cat').value.trim() || 'generale',
     tags: editingPhoto.tags,
     featured: document.getElementById('edit-featured').checked,
   };
 
   try{
-    const r = await fetch(`/api/photos/${editingPhoto.id}`, {
-      method: 'PUT',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ data }),
-    });
-    if(r.ok){
-      Object.assign(editingPhoto, data);
-      renderPhotoGrid();
-      closeEditor();
-      toast('Foto aggiornata ✅');
-    } else {
-      toast('Errore salvataggio', true);
-    }
+    if(window.supabaseSaveGalleryPhoto) await window.supabaseSaveGalleryPhoto(Object.assign({}, editingPhoto, data));
+    else throw new Error('Supabase non disponibile');
+    Object.assign(editingPhoto, data);
+    renderPhotoGrid();
+    closeEditor();
+    toast('Foto aggiornata ✅');
+    broadcastGallery();
   }catch(e){
     toast('Errore: ' + e.message, true);
   }
@@ -2020,14 +2144,8 @@ async function loadHours(){
 
 /* ── Categories ── */
 async function loadCategories(){
-  try{
-    const r = await fetch(`${API}/showroom/categories`);
-    if(r.ok){
-      const d2 = await r.json();
-      categories = (d2.data||d2||[]);
-      renderCategoryFilters();
-    }
-  }catch(e){}
+  renderGalleryCategoryHints();
+  renderCategoryFilters();
 }
 
 /* ── Helper ── */

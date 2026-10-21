@@ -6,6 +6,8 @@ window.SUPABASE_ANON_KEY = 'sb_publishable_2wVMVjaEp492prSm71Uz4Q_LwrBv4CC';
 window.SUPABASE_TABLE = 'blog_posts';
 window.CALENDAR_TABLE = 'day_configs';
 window.FAQ_TABLE = 'faqs';
+window.GALLERY_TABLE = 'gallery_photos';
+window.GALLERY_BUCKET = 'gallery';
 
 // ── Configurazione dall'ambiente ───────────────────────────────────────────
 // Le variabili NEXT_PUBLIC_* non vengono iniettate da sole in un sito statico:
@@ -161,4 +163,120 @@ window.supabaseTrackFaq = async function (id, deltas) {
       body: JSON.stringify(patch),
     }
   );
+};
+
+/* ── Gallery: foto gestite dall'admin (tabella + bucket Storage) ───────────── */
+
+window.supabaseGalleryPublicUrl = function (path) {
+  if (!path) return '';
+  if (/^https?:\/\//i.test(path)) return path;
+  const bucket = encodeURIComponent(window.GALLERY_BUCKET);
+  const enc = String(path).split('/').map(encodeURIComponent).join('/');
+  return window.supabaseUrl('/storage/v1/object/public/' + bucket + '/' + enc);
+};
+
+window.supabaseGetGalleryPhotos = async function (opts) {
+  opts = opts || {};
+  let query = '/rest/v1/' + window.GALLERY_TABLE +
+    '?select=id,url,storage_path,bucket,title,description,category,tags,featured,sort_order,published,created_at,updated_at' +
+    '&order=sort_order.asc,created_at.asc';
+  if (opts.publishedOnly !== false) query += '&published=eq.true';
+  if (opts.limit) query += '&limit=' + Number(opts.limit);
+  const rows = await window.supabaseFetch(query);
+  return rows || [];
+};
+
+window.supabaseSaveGalleryPhoto = async function (photo) {
+  if (!photo || !photo.url) throw new Error('url richiesta');
+  const row = {
+    url: photo.url,
+    storage_path: photo.storage_path || null,
+    bucket: photo.bucket || window.GALLERY_BUCKET,
+    title: photo.title || '',
+    description: photo.description || '',
+    category: photo.category || 'generale',
+    tags: Array.isArray(photo.tags) ? photo.tags : [],
+    featured: !!photo.featured,
+    sort_order: Number(photo.sort_order || 0),
+    published: photo.published !== false,
+    updated_at: new Date().toISOString(),
+  };
+  const path = '/rest/v1/' + window.GALLERY_TABLE;
+  if (photo.id) {
+    await window.supabaseFetch(path + '?id=eq.' + encodeURIComponent(photo.id), {
+      method: 'PATCH',
+      headers: window.supabaseHeaders({ 'Prefer': 'return=minimal' }),
+      body: JSON.stringify(row),
+    });
+    return photo.id;
+  }
+  row.created_at = new Date().toISOString();
+  const created = await window.supabaseFetch(path, {
+    method: 'POST',
+    headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
+    body: JSON.stringify(row),
+  });
+  return (created && created[0] && created[0].id) || null;
+};
+
+window.supabaseDeleteGalleryPhoto = async function (id) {
+  if (!id) throw new Error('id richiesto');
+  return window.supabaseFetch(
+    '/rest/v1/' + window.GALLERY_TABLE + '?id=eq.' + encodeURIComponent(id),
+    {
+      method: 'DELETE',
+      headers: window.supabaseHeaders({ 'Prefer': 'return=minimal' }),
+    }
+  );
+};
+
+window.supabaseUploadGalleryImage = async function (file, prefix) {
+  if (!file) throw new Error('file richiesto');
+  if (window.supabaseConfigReady) {
+    try { await window.supabaseConfigReady; } catch (e) {}
+  }
+  const safe = String(file.name || 'foto.jpg')
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(-60) || 'foto.jpg';
+  const path = (prefix || 'photos') + '/' + Date.now() + '-' + safe;
+  const bucket = encodeURIComponent(window.GALLERY_BUCKET);
+  const enc = path.split('/').map(encodeURIComponent).join('/');
+  const response = await fetch(window.supabaseUrl('/storage/v1/object/' + bucket + '/' + enc), {
+    method: 'POST',
+    headers: {
+      'apikey': window.SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + window.SUPABASE_ANON_KEY,
+      'Content-Type': file.type || 'application/octet-stream',
+      'x-upsert': 'false',
+    },
+    body: file,
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error('Upload ' + response.status + ': ' + text);
+  }
+  return { path: path, url: window.supabaseGalleryPublicUrl(path) };
+};
+
+window.supabaseDeleteGalleryObject = async function (path) {
+  if (!path) return false;
+  if (window.supabaseConfigReady) {
+    try { await window.supabaseConfigReady; } catch (e) {}
+  }
+  const bucket = encodeURIComponent(window.GALLERY_BUCKET);
+  const enc = String(path).split('/').map(encodeURIComponent).join('/');
+  const response = await fetch(window.supabaseUrl('/storage/v1/object/' + bucket + '/' + enc), {
+    method: 'DELETE',
+    headers: {
+      'apikey': window.SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + window.SUPABASE_ANON_KEY,
+    },
+  });
+  if (!response.ok && response.status !== 404) {
+    const text = await response.text();
+    throw new Error('Delete ' + response.status + ': ' + text);
+  }
+  return true;
 };

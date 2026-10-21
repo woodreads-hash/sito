@@ -68,6 +68,16 @@
       "source": "/netlify/(.*)",
       "destination": "/404.html",
       "statusCode": 404
+    },
+    {
+      "source": "/admin",
+      "destination": "/wd-panel-x7q9",
+      "statusCode": 301
+    },
+    {
+      "source": "/admin/",
+      "destination": "/wd-panel-x7q9",
+      "statusCode": 301
     }
   ],
   "headers": [
