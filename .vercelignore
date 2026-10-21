@@ -14,4 +14,6 @@ DEPLOY.md
 README.md
 deploy.sh
 netlify.toml
+.env
+.env.local
 .env.example

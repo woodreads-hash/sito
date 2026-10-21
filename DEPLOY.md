@@ -25,7 +25,14 @@ The site is a static frontend plus serverless functions, deployed as a single Ve
 2. Set the **Framework Preset to "Services"** (required: the repo contains more than one
    deployable folder, so Vercel asks for a `vercel.json` describing the services).
 3. Add the environment variables (Project → Settings → Environment Variables):
-   - `STRAPI_URL` — **optional**. Public URL of a Strapi instance. Only needed for the
+   - `NEXT_PUBLIC_SUPABASE_URL` — **Supabase project URL** (default: `https://yqksdpgkktgppxzdbbgc.supabase.co`).
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase **publishable** (anon) key.
+     Both are read server-side by the function `/.netlify/functions/supabase-config` and
+     handed to the browser, because in a static site the `NEXT_PUBLIC_` prefix alone does
+     not inject anything into the client. The same values live in the local `.env` file
+     (never committed) and in `supabase-config.js` as fallback, so the site works even
+     if the dashboard variables are missing.
+   - `STRAPI_URL` — **optional, leave empty**. Public URL of a Strapi instance. Only needed for the
      gallery, the appointment slots and the live social counters. When it is not set (or
      unreachable) the API answers with empty payloads and the site keeps working with
      Supabase + LocalStorage (see “Backend attuale”).
@@ -42,8 +49,10 @@ The site is a static frontend plus serverless functions, deployed as a single Ve
 - **Strapi non è più disponibile**: galleria, slot di prenotazione e contatori social
   hanno fallback (payload vuoti, valori statici, CTA WhatsApp). Le funzioni in
   `netlify/functions/` rispondono 200 con dati vuoti invece di 500.
-- Supabase va chiamato **dal browser**: le chiamate server-side con la publishable key
-  vengono rifiutate (401) dai gateway Supabase.
+- La configurazione Supabase (URL + chiave publishable) arriva al browser da
+  `/.netlify/functions/supabase-config`, che legge `NEXT_PUBLIC_SUPABASE_URL` e
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` dall'ambiente. `supabase-config.js` applica i valori
+  prima di ogni chiamata Supabase (con timeout di 4 s e fallback statici).
 
 ### Local development
 ```bash
@@ -66,7 +75,13 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
   `nginx/`, `systemd/`, `scripts/`, `prompts/`, `supabase/` out of the upload.
 
 ## Cloud configuration
-- Set environment variables from `.env.example` in the Vercel dashboard.
+- Local env: `.env` (gitignored, mai committato) — contiene `NEXT_PUBLIC_SUPABASE_URL` e
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY`; `vercel dev` e `api/_lib/dev-server.js` lo caricano da soli.
+- Production env: le stesse due variabili vanno impostate nella dashboard Vercel
+  (Project → Settings → Environment Variables). Vanno applicate a **Production, Preview
+  e Development**.
+- `.env` e `.env.local` sono in `.gitignore` **e** in `.vercelignore`: il file non viene
+  committato né pubblicato come file statico.
 - HTTPS and secure headers are configured in `vercel.json` (and mirrored in `netlify.toml`).
 - Backend blog endpoints are proxied through the serverless functions to Strapi.
 

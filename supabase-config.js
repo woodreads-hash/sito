@@ -1,9 +1,33 @@
 // Supabase cloud backend (publishable anon key is safe for read/public + RLS-protected operations)
+// Fallback statici: in produzione i valori arrivano dall'ambiente (Vercel)
+// tramite /.netlify/functions/supabase-config e sostituiscono questi.
 window.SUPABASE_URL = 'https://yqksdpgkktgppxzdbbgc.supabase.co';
 window.SUPABASE_ANON_KEY = 'sb_publishable_2wVMVjaEp492prSm71Uz4Q_LwrBv4CC';
 window.SUPABASE_TABLE = 'blog_posts';
 window.CALENDAR_TABLE = 'day_configs';
 window.FAQ_TABLE = 'faqs';
+
+// ── Configurazione dall'ambiente ───────────────────────────────────────────
+// Le variabili NEXT_PUBLIC_* non vengono iniettate da sole in un sito statico:
+// vengono lette server-side dalla funzione supabase-config e applicate qui
+// prima di qualsiasi chiamata a Supabase.
+window.SUPABASE_CONFIG_SOURCE = 'static';
+window.supabaseConfigReady = (function () {
+  var timeout = new Promise(function (resolve) { setTimeout(resolve, 4000); });
+  var request = fetch('/.netlify/functions/supabase-config', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (cfg) {
+      if (!cfg || !cfg.url || !cfg.anonKey) return null;
+      if (cfg.url !== window.SUPABASE_URL || cfg.anonKey !== window.SUPABASE_ANON_KEY) {
+        window.SUPABASE_URL = cfg.url;
+        window.SUPABASE_ANON_KEY = cfg.anonKey;
+        window.SUPABASE_CONFIG_SOURCE = 'env';
+      }
+      return { url: window.SUPABASE_URL, anonKey: window.SUPABASE_ANON_KEY };
+    })
+    .catch(function () { return null; });
+  return Promise.race([request, timeout]);
+})();
 
 window.supabaseHeaders = function (extra) {
   return Object.assign({
@@ -18,6 +42,9 @@ window.supabaseUrl = function (path) {
 };
 
 window.supabaseFetch = async function (path, options) {
+  if (window.supabaseConfigReady) {
+    try { await window.supabaseConfigReady; } catch (e) {}
+  }
   const response = await fetch(window.supabaseUrl(path), Object.assign({
     headers: window.supabaseHeaders(),
   }, options || {}));

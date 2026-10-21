@@ -5,6 +5,15 @@ const path = require('path');
 const ROOT = process.cwd();
 const PORT = Number(process.env.PORT || 3000);
 
+// Carica .env (stesso comportamento di "vercel dev") per le variabili d'ambiente
+try {
+  if (typeof process.loadEnvFile === 'function') {
+    process.loadEnvFile(path.join(ROOT, '.env'));
+  }
+} catch (err) {
+  // .env assente: si usano i valori di fallback
+}
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
@@ -172,6 +181,12 @@ const server = http.createServer((req, res) => {
       let file = path.join(ROOT, pathname);
       if (!file.startsWith(ROOT)) {
         res.writeHead(403).end('Forbidden');
+        return;
+      }
+      // I file nascosti (.env, .git, ...) non sono mai pubblici
+      const relPath = path.relative(ROOT, file);
+      if (relPath.split(path.sep).some((part) => part.startsWith('.') && part !== '..')) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found');
         return;
       }
       if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
