@@ -84,7 +84,8 @@ exports.handler = async (event) => {
     }
 
     if (method === 'DELETE') {
-      const date = decodeURIComponent(path);
+      const raw = path || event.queryStringParameters?.date || '';
+      const date = decodeURIComponent(raw);
       if (!date) return { statusCode: 400, headers: cors({}), body: JSON.stringify({ error: 'date required' }) };
       await upsert(date, { note: null });
       return { statusCode: 200, headers: cors({}), body: JSON.stringify({ ok: true }) };

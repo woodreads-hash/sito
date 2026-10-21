@@ -1,0 +1,17 @@
+.git
+node_modules
+api-gateway
+progetto-locale
+hermes
+strapi
+nginx
+systemd
+scripts
+prompts
+supabase
+CLAUDE.md
+DEPLOY.md
+README.md
+deploy.sh
+netlify.toml
+.env.example

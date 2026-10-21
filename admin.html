@@ -667,8 +667,8 @@ tr:hover{background:rgba(140,255,0,.02);}
   </div>
 </div>
 
-<script src="faq-data.js"></script>
-<script src="supabase-config.js"></script>
+<script src="/faq-data.js"></script>
+<script src="/supabase-config.js"></script>
 <script>
 /* ── Config ── */
 const API = '/.netlify/functions';
@@ -1420,7 +1420,7 @@ async function persistDay(date, patch){
       if(patch.note){
         await fetch(`${API}/day-notes`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ date, note: patch.note }) }).catch(()=>null);
       } else {
-        await fetch(`${API}/day-notes/${date}`, { method:'DELETE' }).catch(()=>null);
+        await fetch(`${API}/day-notes?date=${encodeURIComponent(date)}`, { method:'DELETE' }).catch(()=>null);
       }
     }
     if('time_band' in patch){

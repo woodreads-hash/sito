@@ -1,0 +1,111 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "site": {
+      "root": ".",
+      "devCommand": "node api/_lib/dev-server.js",
+      "functions": {
+        "api/**/*.js": {
+          "maxDuration": 30
+        }
+      },
+      "rewrites": [
+        {
+          "source": "/.netlify/functions/day-notes/:date",
+          "destination": "/api/day-notes?date=:date"
+        },
+        {
+          "source": "/.netlify/functions/:path*",
+          "destination": "/api/:path*"
+        },
+        {
+          "source": "/wd-panel-x7q9",
+          "destination": "/admin.html"
+        },
+        {
+          "source": "/wd-panel-x7q9/",
+          "destination": "/admin.html"
+        }
+      ],
+      "redirects": [
+        {
+          "source": "/netlify/(.*)",
+          "destination": "/404.html",
+          "statusCode": 404
+        }
+      ]
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/.netlify/functions/day-notes/:date",
+      "destination": "/api/day-notes?date=:date"
+    },
+    {
+      "source": "/.netlify/functions/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/wd-panel-x7q9",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/wd-panel-x7q9/",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "site"
+      }
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/netlify/(.*)",
+      "destination": "/404.html",
+      "statusCode": 404
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/.netlify/functions/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ]
+}
