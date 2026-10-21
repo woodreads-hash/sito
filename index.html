@@ -2587,6 +2587,7 @@ try {
   function openItem(item){
     state.openId = item.dataset.id;
     state.openAt = Date.now();
+    item.classList.remove('faq-closing');
     item.classList.add('open');
     item.classList.add('faq-glitch');
     const q = item.querySelector('.faq-q');
