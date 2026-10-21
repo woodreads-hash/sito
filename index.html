@@ -682,6 +682,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 }
 @media(max-width:640px){
   #faq{padding-bottom:4.5rem;}
+  #faq .plant{opacity:.16!important;}
   #faq .faq-top{gap:2rem;}
   .faq-title{font-size:clamp(2rem,10vw,2.9rem);}
   .faq-stat{min-width:0;flex:1 1 0;padding:.55rem .6rem;}
@@ -1313,11 +1314,23 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 ═══════════════════════════════════ -->
 
 <section id="faq" class="sec-warm" aria-labelledby="faq-title">
-  <svg class="plant" width="150" height="230" style="top:-20px;right:-30px;opacity:.35;animation:sway 10s ease-in-out infinite;transform-origin:bottom center;">
+  <svg class="plant" width="180" height="280" style="top:-30px;left:-45px;opacity:.42;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;">
     <use href="#lf-mon"/>
   </svg>
-  <svg class="plant" width="120" height="190" style="bottom:-20px;left:-25px;opacity:.3;animation:swayr 12s ease-in-out infinite;transform-origin:bottom center;">
+  <svg class="plant" width="170" height="260" style="top:-25px;right:-45px;opacity:.36;animation:swayr 11s ease-in-out infinite;transform-origin:bottom center;">
     <use href="#lf-trop"/>
+  </svg>
+  <svg class="plant" width="120" height="200" style="top:32%;left:-22px;opacity:.3;animation:leafbob 10s ease-in-out infinite;">
+    <use href="#lf-fern"/>
+  </svg>
+  <svg class="plant" width="130" height="215" style="bottom:24%;right:-28px;opacity:.28;animation:sway 13s ease-in-out infinite reverse;transform-origin:bottom center;">
+    <use href="#lf-mon"/>
+  </svg>
+  <svg class="plant" width="145" height="225" style="bottom:-25px;left:-30px;opacity:.34;animation:swayr 12s ease-in-out infinite;transform-origin:bottom center;">
+    <use href="#lf-trop"/>
+  </svg>
+  <svg class="plant" width="155" height="245" style="bottom:-30px;right:-35px;opacity:.3;animation:leafbob 14s ease-in-out infinite;">
+    <use href="#lf-fern"/>
   </svg>
 
   <div class="faq-wrap">
@@ -1502,6 +1515,7 @@ makeParticles('p-srv', 45, false, '#servizi');
 makeParticles('p-qz',  40, false, '#quiz');
 makeParticles('p-gal', 44, false, '#gallery');
 makeParticles('p-soc', 38, false, '#social');
+makeParticles('p-faq', 44, false, '#faq');
 
 
 const betaNotice = document.getElementById('beta-notice');
