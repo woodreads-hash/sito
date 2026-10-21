@@ -1,5 +1,6 @@
 // Netlify Function — Social Media Stats proxy
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+// Backend opzionale: senza STRAPI_URL il frontend tiene la cache locale.
+const { hasBackend, apiUrl, isBackendError } = require('../lib/strapi');
 
 exports.handler = async (event) => {
   const headers = {
@@ -10,14 +11,30 @@ exports.handler = async (event) => {
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers };
 
+  if (!hasBackend()) {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ error: 'backend social non configurato' }),
+    };
+  }
+
   try {
-    const resp = await fetch(`${STRAPI_URL}/api/social-stat`);
+    const resp = await fetch(apiUrl('social-stat'));
     if (!resp.ok) {
       return { statusCode: resp.status, headers, body: JSON.stringify({ error: 'Strapi error' }) };
     }
     const data = await resp.json();
     return { statusCode: 200, headers, body: JSON.stringify(data) };
   } catch (err) {
+    if (isBackendError(err)) {
+      console.warn('[social-stats] backend non raggiungibile:', err.message);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ error: 'backend social non raggiungibile' }),
+      };
+    }
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };

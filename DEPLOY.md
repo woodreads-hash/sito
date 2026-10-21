@@ -25,11 +25,25 @@ The site is a static frontend plus serverless functions, deployed as a single Ve
 2. Set the **Framework Preset to "Services"** (required: the repo contains more than one
    deployable folder, so Vercel asks for a `vercel.json` describing the services).
 3. Add the environment variables (Project → Settings → Environment Variables):
-   - `STRAPI_URL` — public URL of the Strapi instance (blog, appointments, showroom,
-     social stats, calendar day notes/bands). Without it those endpoints fail.
-   - `YOUTUBE_API_KEY` — YouTube Data API key (channel stats).
+   - `STRAPI_URL` — **optional**. Public URL of a Strapi instance. Only needed for the
+     gallery, the appointment slots and the live social counters. When it is not set (or
+     unreachable) the API answers with empty payloads and the site keeps working with
+     Supabase + LocalStorage (see “Backend attuale”).
+   - `YOUTUBE_API_KEY` — YouTube Data API key (channel stats). Optional.
    - `YOUTUBE_CHANNEL_ID` and/or `YOUTUBE_HANDLE` — which channel to read.
 4. Deploy. No build command, no build step: the service is plain static output + functions.
+5. Attach the domain `woodreads.com` (Settings → Domains) so the site keeps its address.
+
+### Backend attuale
+- **Supabase è il backend principale** (il browser interroga direttamente l'API REST):
+  `day_configs` (fasce orarie, chiusure, note del giorno) e `blog_posts` (articoli).
+  La tabella `faqs` non esiste ancora nel progetto: eseguire `supabase/schema.sql`
+  nella SQL editor di Supabase per crearla (FAQ in cloud + contatori).
+- **Strapi non è più disponibile**: galleria, slot di prenotazione e contatori social
+  hanno fallback (payload vuoti, valori statici, CTA WhatsApp). Le funzioni in
+  `netlify/functions/` rispondono 200 con dati vuoti invece di 500.
+- Supabase va chiamato **dal browser**: le chiamate server-side con la publishable key
+  vengono rifiutate (401) dai gateway Supabase.
 
 ### Local development
 ```bash

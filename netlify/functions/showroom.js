@@ -1,7 +1,6 @@
 // Netlify Function — proxy per Strapi Photo Showroom
-// Imposta STRAPI_URL nelle variabili d'ambiente Netlify
-
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+// Backend opzionale: senza STRAPI_URL risponde con collezioni vuote.
+const { hasBackend, apiUrl, isBackendError } = require('../lib/strapi');
 
 exports.handler = async (event) => {
   const headers = {
@@ -18,20 +17,28 @@ exports.handler = async (event) => {
   const params = event.queryStringParameters || {};
   const search = new URLSearchParams();
 
+  const page = Math.max(1, parseInt(params.p || '1', 10) || 1);
+  const pageSize = Math.min(100, Math.max(1, parseInt(params.n || '20', 10) || 20));
+
+  const emptyCategories = () => ({ data: [] });
+  const emptyPhotos = () => ({
+    data: [],
+    meta: { pagination: { page, pageSize, pageCount: 1, total: 0 } },
+  });
+
   try {
     let url;
+    let isPhotos = false;
 
     if (path === 'categories') {
       // GET /api/photo-categories?sort=order
       search.set('sort', 'order');
-      url = `${STRAPI_URL}/api/photo-categories?${search}`;
+      url = apiUrl(`photo-categories?${search}`);
     } else if (path === 'photos') {
       // GET /api/photos?populate=*&sort=order
+      isPhotos = true;
       search.set('populate', '*');
       search.set('sort', 'featured:desc,order');
-
-      const page = params.p || 1;
-      const pageSize = params.n || 20;
       search.set('pagination[page]', page);
       search.set('pagination[pageSize]', pageSize);
 
@@ -39,7 +46,7 @@ exports.handler = async (event) => {
         search.set('filters[category][slug][$eq]', params.cat);
       }
 
-      url = `${STRAPI_URL}/api/photos?${search}`;
+      url = apiUrl(`photos?${search}`);
     } else {
       return {
         statusCode: 404,
@@ -48,15 +55,24 @@ exports.handler = async (event) => {
       };
     }
 
+    if (!url) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(isPhotos ? emptyPhotos() : emptyCategories()),
+      };
+    }
+
     const resp = await fetch(url, {
       headers: { 'Content-Type': 'application/json' },
     });
 
     if (!resp.ok) {
+      console.warn('[showroom] backend non valido, risposta vuota');
       return {
-        statusCode: resp.status,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({ error: 'Strapi error' }),
+        body: JSON.stringify(isPhotos ? emptyPhotos() : emptyCategories()),
       };
     }
 
@@ -68,6 +84,15 @@ exports.handler = async (event) => {
       body: JSON.stringify(data),
     };
   } catch (err) {
+    if (isBackendError(err)) {
+      console.warn('[showroom] backend non raggiungibile:', err.message);
+      const isPhotos = path === 'photos';
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify(isPhotos ? emptyPhotos() : emptyCategories()),
+      };
+    }
     return {
       statusCode: 500,
       headers,

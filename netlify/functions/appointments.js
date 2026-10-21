@@ -1,5 +1,7 @@
 // Netlify Function — Appointment booking proxy
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+// Backend opzionale: senza STRAPI_URL gli slot sono vuoti e la richiesta di
+// prenotazione risponde 503 (il sito rimanda l'utente su WhatsApp).
+const { hasBackend, apiUrl, isBackendError } = require('../lib/strapi');
 
 function cors(headers) {
   return { ...headers,
@@ -24,8 +26,16 @@ exports.handler = async (event) => {
 
       const dayName = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(date).getDay()];
 
+      if (!hasBackend()) {
+        return { statusCode: 200, headers: cors({}), body: JSON.stringify({ date, dayName, slots: [] }) };
+      }
+
       // Fetch working hours
-      const whRes = await fetch(`${STRAPI_URL}/api/working-hour?populate=*`);
+      const whRes = await fetch(apiUrl('working-hour?populate=*'));
+      if (!whRes.ok) {
+        console.warn('[appointments] orari non disponibili, nessuno slot');
+        return { statusCode: 200, headers: cors({}), body: JSON.stringify({ date, dayName, slots: [] }) };
+      }
       const wh = await whRes.json();
       const whData = wh.data?.attributes || {};
       const schedules = whData.schedules || [];
@@ -37,9 +47,9 @@ exports.handler = async (event) => {
 
       // Fetch existing appointments for this date
       const apptRes = await fetch(
-        `${STRAPI_URL}/api/appointments?filters[date][$eq]=${date}&filters[status][$ne]=rejected&pagination[pageSize]=100`
+        apiUrl(`appointments?filters[date][$eq]=${date}&filters[status][$ne]=rejected&pagination[pageSize]=100`)
       );
-      const appts = await apptRes.json();
+      const appts = apptRes.ok ? await apptRes.json() : { data: [] };
       const bookedTimes = new Set(
         (appts.data || []).map(a => a.attributes?.time)
       );
@@ -75,7 +85,14 @@ exports.handler = async (event) => {
 
     if (path === '' && method === 'POST') {
       // POST / — create appointment
-      const resp = await fetch(`${STRAPI_URL}/api/appointments`, {
+      if (!hasBackend()) {
+        return {
+          statusCode: 503,
+          headers: cors({}),
+          body: JSON.stringify({ error: 'prenotazioni non disponibili, usa WhatsApp' }),
+        };
+      }
+      const resp = await fetch(apiUrl('appointments'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: body }),
@@ -86,6 +103,21 @@ exports.handler = async (event) => {
 
     return { statusCode: 404, headers: cors({}), body: JSON.stringify({ error: 'Not found' }) };
   } catch (err) {
+    if (isBackendError(err)) {
+      console.warn('[appointments] backend non raggiungibile:', err.message);
+      const date = event.queryStringParameters?.date;
+      const dayName = date
+        ? ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][new Date(date).getDay()]
+        : null;
+      if (path === 'slots') {
+        return { statusCode: 200, headers: cors({}), body: JSON.stringify({ date, dayName, slots: [] }) };
+      }
+      return {
+        statusCode: 503,
+        headers: cors({}),
+        body: JSON.stringify({ error: 'prenotazioni non disponibili, usa WhatsApp' }),
+      };
+    }
     return { statusCode: 500, headers: cors({}), body: JSON.stringify({ error: err.message }) };
   }
 };

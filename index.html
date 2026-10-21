@@ -1964,14 +1964,18 @@ async function selectDate(ds){
     }
   }
 
+  const slotsGrid = document.getElementById('slots-grid');
+  const slotsPanel = document.getElementById('appt-slots');
+  if (!slotsGrid || !slotsPanel) return;
+
   if (APPT.slotsCache[ds]) {
     renderSlots(ds, APPT.slotsCache[ds]);
     return;
   }
 
   // Show loading
-  document.getElementById('slots-grid').innerHTML = '<span style="color:var(--muted-d);font-size:.8rem;">Caricamento…</span>';
-  document.getElementById('appt-slots').style.display = 'block';
+  slotsGrid.innerHTML = '<span style="color:var(--muted-d);font-size:.8rem;">Caricamento…</span>';
+  slotsPanel.style.display = 'block';
   document.getElementById('slot-date-label').textContent = formatDate(ds);
 
   try {
@@ -1980,7 +1984,7 @@ async function selectDate(ds){
     APPT.slotsCache[ds] = d.slots || [];
     renderSlots(ds, APPT.slotsCache[ds]);
   } catch(e) {
-    document.getElementById('slots-grid').innerHTML = '<span style="color:var(--muted-d);font-size:.8rem;">Errore nel caricamento</span>';
+    slotsGrid.innerHTML = '<span style="color:var(--muted-d);font-size:.8rem;">Errore nel caricamento</span>';
   }
 }
 
@@ -2095,6 +2099,7 @@ async function loadSocialStats(){
     const r = await fetch('/.netlify/functions/social-stats');
     if (!r.ok) throw new Error('http '+r.status);
     const d = await r.json();
+    if (d && d.error) return;
     const s = d && (d.data?.attributes || d);
     localStorage.setItem('wd_social_stats', JSON.stringify(s));
     applySocialStatsData(d);
@@ -2433,8 +2438,12 @@ async function refreshCalendarState(){
       const notes = await nr.json();
       const overrides = await or.json();
       const bands = br && br.ok ? await br.json() : APPT.dayBands;
-      applyDayConfig(notes, overrides, bands);
-      return;
+      const hasNotes = notes && Object.keys(notes).length > 0;
+      const hasOverrides = overrides && Object.keys(overrides).length > 0;
+      if (hasNotes || hasOverrides) {
+        applyDayConfig(notes, overrides, bands);
+        return;
+      }
     }
   } catch(e){}
   try {

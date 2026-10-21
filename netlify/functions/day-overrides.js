@@ -1,5 +1,6 @@
 // Netlify Function — Day Overrides / Availability (persisted in Strapi DayConfig)
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+// Backend opzionale: senza STRAPI_URL la GET risponde vuota e le scritture 503.
+const { hasBackend, apiUrl, isBackendError } = require('../lib/strapi');
 
 function cors(headers) {
   return {
@@ -11,7 +12,7 @@ function cors(headers) {
 }
 
 async function strapiFetch(path, opts = {}) {
-  return fetch(`${STRAPI_URL}/api/${path}`, {
+  return fetch(apiUrl(path), {
     ...opts,
     headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
   });
@@ -60,6 +61,7 @@ exports.handler = async (event) => {
 
   try {
     if (method === 'GET') {
+      if (!hasBackend()) return { statusCode: 200, headers: cors({}), body: JSON.stringify({}) };
       const configs = await allConfigs();
       const overrides = {};
       configs.forEach((c) => {
@@ -72,6 +74,9 @@ exports.handler = async (event) => {
       const body = event.body ? JSON.parse(event.body) : {};
       const { date } = body;
       if (!date) return { statusCode: 400, headers: cors({}), body: JSON.stringify({ error: 'date required' }) };
+      if (!hasBackend()) {
+        return { statusCode: 503, headers: cors({}), body: JSON.stringify({ error: 'backend non configurato' }) };
+      }
       const cfg = await findByDate(date);
       const newClosed = cfg ? !cfg.closed : true;
       await upsert(date, { closed: newClosed });
@@ -84,6 +89,11 @@ exports.handler = async (event) => {
 
     return { statusCode: 405, headers: cors({}), body: JSON.stringify({ error: 'Method not allowed' }) };
   } catch (err) {
+    if (isBackendError(err)) {
+      console.warn('[day-overrides] backend non raggiungibile:', err.message);
+      if (method === 'GET') return { statusCode: 200, headers: cors({}), body: JSON.stringify({}) };
+      return { statusCode: 503, headers: cors({}), body: JSON.stringify({ error: 'backend non raggiungibile' }) };
+    }
     return { statusCode: 500, headers: cors({}), body: JSON.stringify({ error: err.message }) };
   }
 };

@@ -1,12 +1,13 @@
 // Netlify Function — Day Time Bands (persisted in Strapi DayConfig.timeBand)
-const STRAPI_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+// Backend opzionale: senza STRAPI_URL la GET risponde vuota e le scritture 503.
+const { hasBackend, apiUrl, isBackendError } = require('../lib/strapi');
 
 function cors(headers) {
   return { ...headers, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type', 'Content-Type': 'application/json' };
 }
 
 async function strapiFetch(path, opts = {}) {
-  return fetch(`${STRAPI_URL}/api/${path}`, { ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+  return fetch(apiUrl(path), { ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) } });
 }
 
 async function findByDate(date) {
@@ -22,7 +23,7 @@ async function upsert(date, { note, closed, timeBand }) {
   const payload = {
     data: {
       date,
-      note: note !== undefined ? (note ? String(note).trim() : null) : (cfg ? cfg.note || null : null),
+      note: note !== undefined ? (note ? String(note) : null) : (cfg ? cfg.note || null : null),
       closed: closed !== undefined ? !!closed : (cfg ? !!cfg.closed : false),
       timeBand: timeBand !== undefined ? (timeBand || null) : (cfg ? cfg.timeBand || null : null),
     },
@@ -46,6 +47,7 @@ exports.handler = async (event) => {
   const method = event.httpMethod;
   try {
     if (method === 'GET') {
+      if (!hasBackend()) return { statusCode: 200, headers: cors({}), body: JSON.stringify({}) };
       const configs = await allConfigs();
       const bands = {};
       configs.forEach((c) => { if (c.timeBand) bands[c.date] = c.timeBand; });
@@ -55,11 +57,19 @@ exports.handler = async (event) => {
       const body = event.body ? JSON.parse(event.body) : {};
       const { date, band } = body;
       if (!date) return { statusCode: 400, headers: cors({}), body: JSON.stringify({ error: 'date required' }) };
+      if (!hasBackend()) {
+        return { statusCode: 503, headers: cors({}), body: JSON.stringify({ error: 'backend non configurato' }) };
+      }
       const cfg = await upsert(date, { timeBand: band || null, closed: !band });
       return { statusCode: 200, headers: cors({}), body: JSON.stringify({ ok: true, band: cfg.timeBand || null }) };
     }
     return { statusCode: 405, headers: cors({}), body: JSON.stringify({ error: 'Method not allowed' }) };
   } catch (err) {
+    if (isBackendError(err)) {
+      console.warn('[day-bands] backend non raggiungibile:', err.message);
+      if (method === 'GET') return { statusCode: 200, headers: cors({}), body: JSON.stringify({}) };
+      return { statusCode: 503, headers: cors({}), body: JSON.stringify({ error: 'backend non raggiungibile' }) };
+    }
     return { statusCode: 500, headers: cors({}), body: JSON.stringify({ error: err.message }) };
   }
 };
