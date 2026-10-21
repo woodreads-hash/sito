@@ -2595,6 +2595,13 @@ try {
     track(item.dataset.id, { clicks: 1 });
   }
 
+  window.addEventListener('pagehide', function(){
+    if (!state.openId || !state.openAt) return;
+    const ms = Date.now() - state.openAt;
+    state.openAt = 0;
+    if (ms >= 350) track(state.openId, { read_ms: ms, read_count: 1 });
+  });
+
   function toggleItem(item){
     if (state.openId === item.dataset.id){ closeItem(item); return; }
     if (state.openId){
