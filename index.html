@@ -151,22 +151,92 @@ nav a:hover{color:var(--green);}
 .tk4{animation:tick2 22s linear infinite reverse;}
 
 /* ════════════════════════════════════════════════════
-   SERVIZI – LIGHT
+   SERVIZI – LIGHT (5 box, accordion stile FAQ)
 ════════════════════════════════════════════════════ */
-.srv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;position:relative;z-index:2;}
-.srv-card{background:#fff;border-radius:18px;padding:2rem;border:1.5px solid rgba(26,26,30,.07);position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;cursor:none;}
-.srv-card:hover{transform:translateY(-7px);box-shadow:0 24px 60px rgba(0,0,0,.12);}
-.srv-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--cg,linear-gradient(90deg,var(--leaf1),var(--green)));}
+.srv-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1.2rem;position:relative;z-index:2;align-items:stretch;}
+.srv-grid.has-open{align-items:start;}
+.srv-card{grid-column:span 2;background:#fff;border-radius:18px;border:1.5px solid rgba(26,26,30,.07);position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s;cursor:none;}
+.srv-card:nth-child(4),.srv-card:nth-child(5){grid-column:span 3;}
+.srv-card:hover{transform:translateY(-5px);box-shadow:0 24px 60px rgba(0,0,0,.12);}
+.srv-card.open{border-color:rgba(181,140,255,.55);box-shadow:0 0 0 1px rgba(140,255,0,.25),0 26px 62px -30px rgba(181,140,255,.7),inset 0 0 34px rgba(181,140,255,.05);transform:none;}
+.srv-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--cg,linear-gradient(90deg,var(--leaf1),var(--green)));z-index:3;}
 .srv-card:nth-child(2){--cg:linear-gradient(90deg,var(--purple),var(--lime));}
 .srv-card:nth-child(3){--cg:linear-gradient(90deg,var(--leaf2),var(--lime));}
 .srv-card:nth-child(4){--cg:linear-gradient(90deg,var(--purple),var(--green));}
-.srv-num{font-family:var(--fd);font-size:3.5rem;color:rgba(0,0,0,.04);position:absolute;top:.6rem;right:1rem;line-height:1;font-weight:900;}
-.srv-icon{font-size:2.2rem;margin-bottom:.9rem;}
-.srv-card h3{font-family:var(--fd);font-size:1rem;letter-spacing:2px;margin-bottom:.6rem;color:var(--text-l);}
-.srv-card p{font-size:.85rem;color:var(--muted-l);line-height:1.7;}
-.srv-tag{display:inline-block;margin-top:1rem;background:rgba(44,90,39,.1);color:var(--leaf1);border-radius:4px;padding:.25rem .8rem;font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
-.srv-card:nth-child(2) .srv-tag,.srv-card:nth-child(4) .srv-tag{background:rgba(181,140,255,.12);color:#7c54cc;}
+.srv-card:nth-child(5){--cg:linear-gradient(90deg,var(--green),var(--purple));}
+.srv-card::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,rgba(181,140,255,.14) 0px,rgba(140,255,0,.06) 1px,transparent 2px,transparent 4px);mix-blend-mode:screen;opacity:0;transition:opacity .3s;}
+.srv-card.open::after{opacity:.5;animation:scan-shift .8s linear infinite;}
+.srv-q{position:relative;z-index:2;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:1rem;align-items:start;background:none;border:0;padding:1.5rem 1.45rem 1.35rem;color:var(--text-l);font-family:var(--fb);text-align:left;cursor:none;}
+.srv-q:focus-visible{outline:2px solid var(--green);outline-offset:-4px;border-radius:18px;}
+.srv-num{font-family:var(--fd);font-size:1.55rem;line-height:1;font-weight:900;color:rgba(26,26,30,.16);align-self:start;transition:color .3s;}
+.srv-card.open .srv-num{color:var(--leaf1);text-shadow:0 0 18px rgba(74,140,63,.35);}
+.srv-head{display:flex;flex-direction:column;gap:.5rem;min-width:0;}
+.srv-title-row{display:flex;align-items:center;gap:.7rem;min-width:0;}
+.srv-icon{font-size:1.6rem;line-height:1;flex:0 0 auto;transition:transform .4s cubic-bezier(.2,.8,.2,1);}
+.srv-card.open .srv-icon{transform:scale(1.12) rotate(-4deg);}
+.srv-title{font-family:var(--fd);font-size:1rem;letter-spacing:2px;color:var(--text-l);line-height:1.3;}
+.srv-tag{display:inline-block;align-self:flex-start;background:rgba(44,90,39,.1);color:var(--leaf1);border-radius:4px;padding:.22rem .7rem;font-size:.62rem;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;}
+.srv-card:nth-child(2) .srv-tag,.srv-card:nth-child(4) .srv-tag,.srv-card:nth-child(5) .srv-tag{background:rgba(181,140,255,.14);color:#7c54cc;}
 .srv-card:nth-child(3) .srv-tag{background:rgba(74,140,63,.12);color:var(--leaf1);}
+.srv-plus{position:relative;width:1.5rem;height:1.5rem;flex:0 0 auto;color:var(--purple);transition:transform .38s cubic-bezier(.2,.8,.2,1),color .3s;align-self:start;margin-top:.12rem;}
+.srv-plus::before,.srv-plus::after{content:"";position:absolute;left:50%;top:50%;background:currentColor;border-radius:2px;transform:translate(-50%,-50%);box-shadow:0 0 8px currentColor;}
+.srv-plus::before{width:1rem;height:2px;}
+.srv-plus::after{width:2px;height:1rem;transition:transform .38s,opacity .3s;}
+.srv-card.open .srv-plus{transform:rotate(180deg);color:var(--leaf1);}
+.srv-card.open .srv-plus::after{transform:translate(-50%,-50%) rotate(90deg);opacity:0;}
+.srv-a-wrap{position:relative;z-index:2;display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .55s cubic-bezier(.22,.9,.24,1),opacity .4s ease;}
+.srv-card.open .srv-a-wrap{grid-template-rows:1fr;opacity:1;}
+.srv-card.srv-closing .srv-a-wrap{transition-duration:.26s,.18s;}
+.srv-a{overflow:hidden;min-height:0;}
+.srv-a-inner{padding:.1rem 1.45rem 1.5rem 3.55rem;border-top:1px solid rgba(181,140,255,.18);}
+.srv-a-inner p{font-size:.87rem;color:var(--muted-l);line-height:1.85;padding-top:.9rem;}
+.srv-a-inner p:first-of-type{padding-top:1rem;}
+.srv-a-inner p strong{color:var(--text-l);font-weight:600;}
+.srv-list{list-style:none;margin:1rem 0 0;padding:0;display:grid;gap:.5rem;}
+.srv-list li{position:relative;padding-left:1.15rem;font-size:.82rem;line-height:1.6;color:var(--muted-l);}
+.srv-list li::before{content:"✦";position:absolute;left:0;top:0;color:var(--leaf1);font-size:.72rem;text-shadow:0 0 8px rgba(140,255,0,.5);}
+.srv-card:nth-child(2) .srv-list li::before,.srv-card:nth-child(4) .srv-list li::before,.srv-card:nth-child(5) .srv-list li::before{color:#8f63d8;text-shadow:0 0 8px rgba(181,140,255,.5);}
+.srv-card.srv-glitch .srv-title,.srv-card.srv-glitch .srv-icon{animation:faq-glitch-in .34s steps(6,end) 1;}
+.srv-card.srv-closing .srv-title,.srv-card.srv-closing .srv-a-inner{animation:faq-glitch-out .24s steps(5,end) forwards;}
+.srv-hint{margin-top:1.6rem;font-size:.7rem;letter-spacing:2.4px;text-transform:uppercase;color:rgba(26,26,30,.42);font-weight:600;}
+.srv-hint::before{content:"▸ ";color:var(--leaf1);}
+@media (min-width:681px){
+  .srv-a-inner{padding-left:6.05rem;}
+  .srv-grid.has-open .srv-card{grid-column:span 3;}
+  .srv-grid.has-open .srv-card.open{grid-column:1/-1;}
+  .srv-grid.has-open .srv-card.open .srv-a-inner p,
+  .srv-grid.has-open .srv-card.open .srv-a-inner .srv-list{max-width:70ch;}
+}
+@media (min-width:1101px){
+  .srv-grid.has-open .srv-card.open .srv-a-inner{column-count:2;column-gap:3.2rem;}
+  .srv-grid.has-open .srv-card.open .srv-a-inner p,
+  .srv-grid.has-open .srv-card.open .srv-a-inner .srv-list{max-width:none;break-inside:avoid;}
+  .srv-grid.has-open .srv-card.open .srv-a-inner p{padding-right:.4rem;}
+}
+@media (max-width:1100px){
+  .srv-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .srv-card,.srv-card:nth-child(4){grid-column:span 1;}
+  .srv-card:nth-child(5){grid-column:span 2;}
+  .srv-grid.has-open .srv-card{grid-column:span 1;}
+  .srv-grid.has-open .srv-card.open{grid-column:span 2;}
+}
+@media (max-width:680px){
+  .srv-grid{grid-template-columns:1fr;gap:1rem;}
+  .srv-card,.srv-card:nth-child(4),.srv-card:nth-child(5){grid-column:span 1;}
+  .srv-grid.has-open .srv-card,
+  .srv-grid.has-open .srv-card.open{grid-column:span 1;}
+  .srv-q{padding:1.3rem 1.15rem 1.15rem;gap:.8rem;}
+  .srv-num{font-size:1.25rem;}
+  .srv-icon{font-size:1.35rem;}
+  .srv-title{font-size:.94rem;letter-spacing:1.6px;}
+  .srv-a-inner{padding:.1rem 1.15rem 1.25rem 1.15rem;}
+  .srv-a-inner p{font-size:.83rem;line-height:1.78;}
+  .srv-card::after,.srv-card.srv-glitch .srv-title,.srv-card.srv-glitch .srv-icon,.srv-card.srv-closing .srv-title,.srv-card.srv-closing .srv-a-inner{animation:none!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  .srv-card::after,.srv-card.srv-glitch .srv-title,.srv-card.srv-glitch .srv-icon,.srv-card.srv-closing .srv-title,.srv-card.srv-closing .srv-a-inner{animation:none!important;}
+  .srv-a-wrap{transition:none;}
+}
 
 /* ════════════════════════════════════════════════════
    MARQUEE TITLE (grande testo che scorre in orizzontale)
@@ -947,36 +1017,143 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   <span class="lbl lbl-g rev">— Cosa facciamo</span>
   <p class="sub sub-l rev" style="max-width:540px;">Ogni testa è un'opera unica. Tecnica ad uncinetto, nessuna cera, nessun compromesso.</p>
 
-  <div class="srv-grid">
-    <div class="srv-card rev">
-      <span class="srv-num">01</span>
-      <div class="srv-icon">🌿</div>
-      <h3>Dreadlocks Naturali</h3>
-      <p>Creazione dal tuo capello con tecnica ad uncinetto. Veloci, duratevoli, quasi indolori.</p>
-      <span class="srv-tag">Testa completa</span>
-    </div>
-    <div class="srv-card rev">
-      <span class="srv-num">02</span>
-      <div class="srv-icon">⚡</div>
-      <h3>Cyberdreads</h3>
-      <p>Sintetici temporanei, colorati e personalizzati. Sperimenta senza impegno permanente.</p>
-      <span class="srv-tag">Temporanei</span>
-    </div>
-    <div class="srv-card rev">
-      <span class="srv-num">03</span>
-      <div class="srv-icon">🔧</div>
-      <h3>Manutenzione & Restauro</h3>
-      <p>Recupero di dread trascurati anche da anni. Nessun dread è perso per sempre.</p>
-      <span class="srv-tag">Recupero garantito</span>
-    </div>
-    <div class="srv-card rev">
-      <span class="srv-num">04</span>
-      <div class="srv-icon">✨</div>
-      <h3>Estensioni</h3>
-      <p>Allungamento con capelli naturali o sintetici. Più volume, più lunghezza, stesso carattere.</p>
-      <span class="srv-tag">Naturale & sintetico</span>
-    </div>
+  <div class="srv-grid" id="srv-grid">
+    <article class="srv-card rev" data-srv="01">
+      <button type="button" class="srv-q" id="srv-q-01" aria-expanded="false" aria-controls="srv-a-01">
+        <span class="srv-num">01</span>
+        <span class="srv-head">
+          <span class="srv-title-row">
+            <span class="srv-icon" aria-hidden="true">🌿</span>
+            <span class="srv-title" role="heading" aria-level="3">Dreadlocks Naturali</span>
+          </span>
+          <span class="srv-tag">Testa completa · 5–10 ore</span>
+        </span>
+        <span class="srv-plus" aria-hidden="true"></span>
+      </button>
+      <div class="srv-a-wrap" id="srv-a-01" role="region" aria-labelledby="srv-q-01">
+        <div class="srv-a"><div class="srv-a-inner">
+          <p>La creazione di un full set è il cuore di WooDreads: i dreads nascono dal tuo capello, fibra per fibra, con la tecnica ad uncinetto. Niente cera, niente collanti, niente calore: solo un nodo vero, chiuso dal primo giorno e destinato a durare anni.</p>
+          <p>Prima di iniziare studiamo la <strong>sezione</strong> — dimensione, numero e distribuzione dei dreads — la direzione di crescita e la densità della tua chioma. Il lavoro richiede dalle 5 alle 10 ore, a volte distribuite su due appuntamenti, perché la precisione non si improvvisa. Il risultato è ordinato subito e si ammorbidisce nelle settimane successive, seguendo la tua testa.</p>
+          <p>I dreads naturali si lavano, si asciugano e si mantengono come capelli veri: la manutenzione alle radici ogni 2–3 mesi tiene il lavoro pulito e ordinato nel tempo.</p>
+          <ul class="srv-list">
+            <li>Adatti a capelli lisci, mossi, ricci e afro</li>
+            <li>Lunghezza minima consigliata 8–10 cm, ideale 15–20 cm</li>
+            <li>Nessuna cera, nessun collante, nessuna piega forzata</li>
+            <li>Consulenza, sezione e prima manutenzione programmata incluse</li>
+          </ul>
+        </div></div>
+      </div>
+    </article>
+
+    <article class="srv-card rev" data-srv="02">
+      <button type="button" class="srv-q" id="srv-q-02" aria-expanded="false" aria-controls="srv-a-02">
+        <span class="srv-num">02</span>
+        <span class="srv-head">
+          <span class="srv-title-row">
+            <span class="srv-icon" aria-hidden="true">⚡</span>
+            <span class="srv-title" role="heading" aria-level="3">Cyberdreads</span>
+          </span>
+          <span class="srv-tag">Temporanei · 2–4 ore</span>
+        </span>
+        <span class="srv-plus" aria-hidden="true"></span>
+      </button>
+      <div class="srv-a-wrap" id="srv-a-02" role="region" aria-labelledby="srv-q-02">
+        <div class="srv-a"><div class="srv-a-inner">
+          <p>I cyberdreads sono l'anima più sperimentale del nostro lavoro: dreads sintetici o mix di fibre, colori accesi, forme geometriche e lunghezze fuori misura. Si installano e si rimuovono senza tagliare, senza trattamenti chimici e senza impegnare il capello per sempre.</p>
+          <p>Li scegli chi vuole provare un look per un evento, un festival, un servizio fotografico o semplicemente testare la sensazione dei dreads prima di un full set. Con la giusta manutenzione durano da uno a tre mesi: si lavano, si asciugano e si trattano con la stessa cura dei dreads naturali.</p>
+          <p>L'installazione rispetta direzione e trazione: nessun nodo troppo stretto, nessun fastidio che duri. Alla fine del percorso la rimozione è inclusa e sicura, così puoi tornare ai tuoi capelli senza sorprese.</p>
+          <ul class="srv-list">
+            <li>Colori, spessori e lunghezze personalizzabili</li>
+            <li>Nessun taglio e nessun trattamento chimico</li>
+            <li>Durata 1–3 mesi, rimozione inclusa</li>
+            <li>Perfetti per eventi, shooting e prime volte</li>
+          </ul>
+        </div></div>
+      </div>
+    </article>
+
+    <article class="srv-card rev" data-srv="03">
+      <button type="button" class="srv-q" id="srv-q-03" aria-expanded="false" aria-controls="srv-a-03">
+        <span class="srv-num">03</span>
+        <span class="srv-head">
+          <span class="srv-title-row">
+            <span class="srv-icon" aria-hidden="true">🔧</span>
+            <span class="srv-title" role="heading" aria-level="3">Manutenzione &amp; Restauro</span>
+          </span>
+          <span class="srv-tag">Recupero garantito</span>
+        </span>
+        <span class="srv-plus" aria-hidden="true"></span>
+      </button>
+      <div class="srv-a-wrap" id="srv-a-03" role="region" aria-labelledby="srv-q-03">
+        <div class="srv-a"><div class="srv-a-inner">
+          <p>Il restauro è il lavoro più delicato e quello di cui siamo più orgogliosi. Arrivano dreads appiattiti, con residui di cera, anelli, radici larghe o chiuse male, a volte fermi da anni. Nessun dread è perso per sempre: quasi sempre c'è margine per recuperarlo.</p>
+          <p>Interveniamo con una <strong>pulizia profonda</strong> per eliminare residui di prodotto e odori, poi riapriamo e ricostruiamo il nodo, chiudiamo le radici e riallineiamo la sezione. Se una parte è compromessa lo diciamo con chiarezza, senza promettere miracoli: il recupero è reale, ma va valutato dread per dread.</p>
+          <p>La manutenzione ordinaria, ogni 2–3 mesi, è la parte più sottovalutata: controllare le radici, asciugare bene e usare i prodotti giusti significa avere dreads puliti, solidi e sani per anni.</p>
+          <ul class="srv-list">
+            <li>Pulizia profonda e rimozione di cera e residui</li>
+            <li>Ricostruzione del nodo e chiusura delle radici</li>
+            <li>Recupero di dreads trascurati anche da anni</li>
+            <li>Piano di manutenzione personalizzato</li>
+          </ul>
+        </div></div>
+      </div>
+    </article>
+
+    <article class="srv-card rev" data-srv="04">
+      <button type="button" class="srv-q" id="srv-q-04" aria-expanded="false" aria-controls="srv-a-04">
+        <span class="srv-num">04</span>
+        <span class="srv-head">
+          <span class="srv-title-row">
+            <span class="srv-icon" aria-hidden="true">✨</span>
+            <span class="srv-title" role="heading" aria-level="3">Estensioni</span>
+          </span>
+          <span class="srv-tag">Naturale &amp; sintetico</span>
+        </span>
+        <span class="srv-plus" aria-hidden="true"></span>
+      </button>
+      <div class="srv-a-wrap" id="srv-a-04" role="region" aria-labelledby="srv-q-04">
+        <div class="srv-a"><div class="srv-a-inner">
+          <p>Le estensioni aggiungono lunghezza, volume o colore senza aspettare anni di crescita. Lavoriamo con capelli naturali o fibre sintetiche selezionate, abbinate per texture e tonalità, così il risultato resta coerente con il tuo dread e non sembra un innesto.</p>
+          <p>L'integrazione avviene con un nodo invisibile che rispetta direzione e spessore: si può allungare l'intero set oppure intervenire solo su alcune zone, per esempio il front o le lunghezze laterali, per correggere proporzioni e riempire punti più radi.</p>
+          <p>Si lavano e si mantengono come i tuoi dreads. La manutenzione periodica tiene insieme giunzioni e radici ed è il modo migliore per far durare le estensioni a lungo senza stressare il capello.</p>
+          <ul class="srv-list">
+            <li>Capelli naturali o fibre sintetiche</li>
+            <li>Abbinamento di colore, spessore e texture</li>
+            <li>Integrazione invisibile sui dreads esistenti</li>
+            <li>Anche solo su zone specifiche, per equilibrio e volume</li>
+          </ul>
+        </div></div>
+      </div>
+    </article>
+
+    <article class="srv-card rev" data-srv="05">
+      <button type="button" class="srv-q" id="srv-q-05" aria-expanded="false" aria-controls="srv-a-05">
+        <span class="srv-num">05</span>
+        <span class="srv-head">
+          <span class="srv-title-row">
+            <span class="srv-icon" aria-hidden="true">🔍</span>
+            <span class="srv-title" role="heading" aria-level="3">Consulenza Personalizzata</span>
+          </span>
+          <span class="srv-tag">Prima di iniziare</span>
+        </span>
+        <span class="srv-plus" aria-hidden="true"></span>
+      </button>
+      <div class="srv-a-wrap" id="srv-a-05" role="region" aria-labelledby="srv-q-05">
+        <div class="srv-a"><div class="srv-a-inner">
+          <p>La consulenza è il primo vero passo, e forse il più importante. Non serve a venderti un servizio: serve a capire se i dreads sono la scelta giusta per te, come impostarli e quale percorso seguire per avere un risultato che ti somigli e duri nel tempo.</p>
+          <p>Valutiamo il <strong>capello</strong> — texture, densità, porosità, lunghezza e stato del cuoio capelluto — e la <strong>struttura della testa</strong>: forma del cranio, attaccatura, direzione di crescita e zone più sensibili. Poi ascoltiamo il tuo stile di vita: tempo a disposizione, sport, lavoro, abitudini di cura. Da questi elementi nasce il progetto: dimensione e numero dei dreads, lunghezza finale, sezione più adatta, tempi e budget realistici.</p>
+          <p>La consulenza dura 30–45 minuti, si svolge in salone a Roma oppure a distanza con foto e video su WhatsApp, ed è senza impegno. Si conclude con un preventivo chiaro e un piano di manutenzione, senza sorprese. Dal 2012 accompagniamo le persone in questa scelta: a volte la risposta migliore è iniziare subito, altre è aspettare la lunghezza giusta o passare prima dalle estensioni.</p>
+          <ul class="srv-list">
+            <li>Analisi di capello, cuoio capelluto e struttura della testa</li>
+            <li>Definizione di dimensione, numero e lunghezza dei dreads</li>
+            <li>Preventivo chiaro, tempi e piano di manutenzione</li>
+            <li>In salone a Roma o a distanza, con foto e video</li>
+          </ul>
+        </div></div>
+      </div>
+    </article>
   </div>
+  <p class="srv-hint rev">Clicca su un servizio per aprire tutti i dettagli</p>
 </section>
 
 <!-- ── TICKER 3: dark/verde ── -->
@@ -2367,6 +2544,47 @@ async function loadShowroom(){
   renderShowroom();
 }
 
+/* ── Servizi: accordion con lo stesso effetto delle FAQ ── */
+(function(){
+  const grid = document.getElementById('srv-grid');
+  if(!grid) return;
+  let openEl = null;
+
+  function close(el){
+    el.classList.remove('open');
+    el.classList.add('srv-closing');
+    grid.classList.remove('has-open');
+    const q = el.querySelector('.srv-q');
+    if(q) q.setAttribute('aria-expanded', 'false');
+    setTimeout(function(){ el.classList.remove('srv-closing'); }, 320);
+    if(openEl === el) openEl = null;
+  }
+
+  function open(el){
+    openEl = el;
+    el.classList.remove('srv-closing');
+    el.classList.add('open');
+    el.classList.add('srv-glitch');
+    grid.classList.add('has-open');
+    const q = el.querySelector('.srv-q');
+    if(q) q.setAttribute('aria-expanded', 'true');
+    setTimeout(function(){ el.classList.remove('srv-glitch'); }, 380);
+  }
+
+  function toggle(el){
+    if(el.classList.contains('open')){ close(el); return; }
+    if(openEl && openEl !== el) close(openEl);
+    open(el);
+  }
+
+  grid.addEventListener('click', function(ev){
+    const q = ev.target.closest ? ev.target.closest('.srv-q') : null;
+    if(!q || !grid.contains(q)) return;
+    const card = q.closest('.srv-card');
+    if(card) toggle(card);
+  });
+})();
+
 /* ── Sincronizzazione galleria: l'admin aggiorna, il sito si aggiorna ── */
 function initGallerySync(){
   if(window.__gallerySyncInit) return;
@@ -2931,12 +3149,12 @@ try {
 
   window.faqShareAll = function(kind, btn){
     const url = location.origin + location.pathname + '#faq';
-    const text = 'Le 30 domande più frequenti sulle dread — WooDreads ' + url;
+    const text = 'Le 30 domande più frequenti sui dreads — WooDreads ' + url;
 
     if (kind === 'copy'){ copyText(url, btn); return; }
 
     if (kind === 'native' || kind === 'instagram'){
-      if (nativeShare({ title: 'WooDreads — FAQ', text: 'Le 30 domande più frequenti sulle dread', url: url }, bumpGlobalShares)) return;
+      if (nativeShare({ title: 'WooDreads — FAQ', text: 'Le 30 domande più frequenti sui dreads', url: url }, bumpGlobalShares)) return;
       if (kind === 'instagram'){
         copyText(url, btn);
         try { window.open('https://www.instagram.com/', '_blank', 'noopener'); } catch (e) {}
