@@ -186,7 +186,7 @@ function mapSupabasePost(row){
     updatedAt: row.updated_at,
     readingTime: row.reading_time || 5,
     content: row.text || '',
-    videoUrl: row.video_url || '',
+    videoUrl: row.video_url || row.video_name || '',
     youtube: row.youtube || ''
   };
 }

@@ -997,7 +997,7 @@ function mapBlogRow(row){
     category: row.category || '',
     excerpt: row.excerpt || '',
     coverUrl: row.cover_url || '',
-    videoUrl: row.video_url || '',
+    videoUrl: row.video_url || row.video_name || '',
     youtube: row.youtube || '',
     readingTime: Number(row.reading_time || 0),
     status: row.status || 'draft',

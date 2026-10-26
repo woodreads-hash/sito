@@ -77,40 +77,69 @@ window.supabaseGetBlogPostBySlug = async function (slug) {
   return rows && rows[0] ? rows[0] : null;
 };
 
+window.__wdBlogVideoUrlSupported = window.__wdBlogVideoUrlSupported === false ? false : null;
+
 window.supabaseSaveBlogPost = async function (post) {
   if (!post || !post.title) throw new Error('titolo richiesto');
-  const row = {
+  const baseRow = {
     title: String(post.title).trim(),
     slug: String(post.slug || '').trim(),
     text: String(post.text || ''),
     category: String(post.category || ''),
     excerpt: String(post.excerpt || ''),
     cover_url: String(post.coverUrl || ''),
-    video_url: String(post.videoUrl || ''),
+    video_name: '',
     youtube: String(post.youtube || ''),
     reading_time: Number(post.readingTime || 1),
     status: post.status === 'published' ? 'published' : 'draft',
     updated_at: new Date().toISOString()
   };
-  if (!row.slug) throw new Error('slug richiesto');
+  if (!baseRow.slug) throw new Error('slug richiesto');
   const path = '/rest/v1/' + window.SUPABASE_TABLE;
-  if (post.id) {
-    const updated = await window.supabaseFetch(path + '?id=eq.' + encodeURIComponent(post.id), {
-      method: 'PATCH',
+  const video = String(post.videoUrl || '');
+
+  async function writeRow(row, id) {
+    if (id) {
+      const updated = await window.supabaseFetch(path + '?id=eq.' + encodeURIComponent(id), {
+        method: 'PATCH',
+        headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
+        body: JSON.stringify(row)
+      });
+      if (!updated || !updated[0]) throw new Error('Articolo non trovato o non aggiornato');
+      return updated[0];
+    }
+    row.created_at = new Date().toISOString();
+    const created = await window.supabaseFetch(path, {
+      method: 'POST',
       headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
       body: JSON.stringify(row)
     });
-    if (!updated || !updated[0]) throw new Error('Articolo non trovato o non aggiornato');
-    return updated[0];
+    if (!created || !created[0]) throw new Error('Articolo non creato');
+    return created[0];
   }
-  row.created_at = new Date().toISOString();
-  const created = await window.supabaseFetch(path, {
-    method: 'POST',
-    headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
-    body: JSON.stringify(row)
-  });
-  if (!created || !created[0]) throw new Error('Articolo non creato');
-  return created[0];
+
+  const attempts = [];
+  if (window.__wdBlogVideoUrlSupported !== false) attempts.push('video_url');
+  if (window.__wdBlogVideoUrlSupported !== true) attempts.push('video_name');
+  let lastError = null;
+  for (const field of attempts) {
+    const row = Object.assign({}, baseRow);
+    row[field] = video;
+    try {
+      const saved = await writeRow(row, post.id);
+      window.__wdBlogVideoUrlSupported = field === 'video_url';
+      return saved;
+    } catch(e) {
+      lastError = e;
+      const msg = e && e.message ? e.message : '';
+      if (field === 'video_url' && /video_url/i.test(msg) && /(does not exist|schema cache|42703)/i.test(msg)) {
+        window.__wdBlogVideoUrlSupported = false;
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastError || new Error('Salvataggio non riuscito');
 };
 
 window.supabaseDeleteBlogPost = async function (id) {
