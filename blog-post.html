@@ -35,10 +35,6 @@ nav a:hover{color:var(--green);}
 .cat{color:var(--purple);font-size:.7rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;}
 h1{font-family:var(--fd);font-size:clamp(1.7rem,5vw,3rem);line-height:1.05;margin:.6rem 0 1rem;}
 .meta{display:flex;gap:1rem;flex-wrap:wrap;font-size:.75rem;color:var(--muted-d);margin-bottom:1.2rem;}
-.tldr{background:linear-gradient(135deg,rgba(140,255,0,.08),rgba(181,140,255,.08));border:1px solid rgba(140,255,0,.2);border-radius:14px;padding:1.2rem 1.3rem;margin:1.4rem 0 2rem;}
-.tldr h2{font-family:var(--fd);font-size:.9rem;letter-spacing:2px;margin-bottom:.5rem;color:var(--green);}
-.tldr ul{padding-left:1.2rem;}
-.tldr li{margin:.25rem 0;font-size:.9rem;}
 article .content{font-size:1rem;}
 article .content h1{font-family:var(--fd);font-size:1.8rem;margin:2.2rem 0 .8rem;color:var(--green);line-height:1.2;}
 article .content h2{font-family:var(--fd);font-size:1.5rem;margin:2rem 0 .8rem;color:var(--green);}
@@ -361,8 +357,6 @@ function renderPost(post, nextPost){
     if(canonical) canonical.setAttribute('href', url);
     document.getElementById('bc-title').textContent = post.title;
 
-    const excerpt = post.excerpt || '';
-    const tldrItems = excerpt.split(/[.!?]\s+/).filter(Boolean).slice(0,3);
     const body = extractArticleMedia(post.content || '');
     const mediaSection = articleMediaBlock(post, body.mediaHtml);
 
@@ -390,7 +384,6 @@ function renderPost(post, nextPost){
       '<h1>'+esc(post.title)+'</h1>'+
       '<div class="meta"><span>'+formatDate(published)+'</span><span>'+esc(author)+'</span>'+(post.readingTime?'<span>'+post.readingTime+' min lettura</span>':'')+'</div>'+
       '</header>'+
-      (tldrItems.length?'<section class="tldr" aria-label="Sommario"><h2>📌 In sintesi (TL;DR)</h2><ul>'+tldrItems.map(function(x){ return '<li>'+esc(x.trim())+(x.trim().endsWith('.')?'':'.')+'</li>'; }).join('')+'</ul></section>':'')+
       '<section class="content">'+body.html+'</section>'+
       mediaSection+
       (tags.length?'<div class="tags">'+tags.map(function(t){ return '<span class="tag">#'+esc(t)+'</span>'; }).join('')+'</div>':'')+
