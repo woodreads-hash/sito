@@ -428,18 +428,23 @@ tr:hover{background:rgba(140,255,0,.02);}
   <div id="tab-blog" style="display:none;">
     <div class="page-title">
       <h1>Blog <span>│</span> <span id="blog-total-count">0</span></h1>
-      <p>Editor editoriale pulito, scuro e neon, pronto per bozze e pubblicazioni</p>
+      <p>Articoli sincronizzati direttamente con Supabase, media dal bucket gallery e statistiche reali</p>
     </div>
 
     <div class="sec-card">
-      <div class="sec-hdr"><h3>✨ Componi articolo</h3></div>
+      <div class="sec-hdr"><h3>✨ Componi articolo</h3><span class="count" id="blog-cloud-state">…</span></div>
       <div class="sec-body" style="padding:2rem;">
         <div style="margin-bottom:1.5rem;">
           <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;">Informazioni base</div>
           <div class="fgrow">
-            <div class="fg"><label>Titolo</label><input type="text" id="bl-title" placeholder="Titolo dell'articolo"></div>
-            <div class="fg"><label>Slug URL</label><input type="text" id="bl-slug" placeholder="es. dread-manutenzione"></div>
+            <div class="fg"><label>Titolo</label><input type="text" id="bl-title" placeholder="Titolo dell'articolo" oninput="syncBlogSlug()"></div>
+            <div class="fg"><label>Slug URL</label><input type="text" id="bl-slug" placeholder="es. manutenzione-dreads" oninput="blogSlugTouched=true"></div>
           </div>
+          <div class="fgrow">
+            <div class="fg"><label>Categoria</label><input type="text" id="bl-category" list="bl-category-list" placeholder="Manutenzione, Stile, Cultura…"><datalist id="bl-category-list"></datalist></div>
+            <div class="fg"><label>Tempo di lettura (min)</label><input type="number" id="bl-reading" min="1" max="60" placeholder="Automatico"></div>
+          </div>
+          <div class="fg"><label>Estratto / descrizione</label><textarea id="bl-excerpt" placeholder="Breve descrizione mostrata nel blog e nella home"></textarea></div>
         </div>
 
         <div style="margin-bottom:1.5rem;">
@@ -448,28 +453,48 @@ tr:hover{background:rgba(140,255,0,.02);}
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem;margin-bottom:.3rem;">
               <label style="margin:0;">Editor full-width</label>
               <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
-                <button type="button" class="btn-sm" onclick="blogFormat('bold')" title="Grassetto" style="padding:.35rem .75rem;">B</button>
-                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h2')" style="padding:.35rem .75rem;">H2</button>
-                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h3')" style="padding:.35rem .75rem;">H3</button>
-                <button type="button" class="btn-sm" onclick="blogFormat('insertUnorderedList')" style="padding:.35rem .75rem;">• Lista</button>
-                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(181,140,255,.35);color:var(--purple);" onclick="triggerBlogMedia('image')">📷 Immagine</button>
-                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(255,107,241,.35);color:var(--pink, #ff7bf1);" onclick="triggerBlogMedia('video')">🎬 Video/GIF</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('bold')" title="Grassetto" style="padding:.35rem .75rem;font-weight:900;">B</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('italic')" title="Corsivo" style="padding:.35rem .75rem;font-style:italic;">I</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h1')" title="Titolo H1" style="padding:.35rem .75rem;">H1</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h2')" title="Titolo H2" style="padding:.35rem .75rem;">H2</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','h3')" title="Titolo H3" style="padding:.35rem .75rem;">H3</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('insertUnorderedList')" title="Lista puntata" style="padding:.35rem .75rem;">• Lista</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('insertOrderedList')" title="Lista numerata" style="padding:.35rem .75rem;">1. Lista</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('formatBlock','blockquote')" title="Citazione" style="padding:.35rem .75rem;">❝</button>
+                <button type="button" class="btn-sm" onclick="insertBlogLink()" title="Inserisci link" style="padding:.35rem .75rem;">🔗</button>
+                <button type="button" class="btn-sm" onclick="blogFormat('removeFormat')" title="Rimuovi formattazione" style="padding:.35rem .75rem;">🧹</button>
+                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(181,140,255,.35);color:var(--purple);" onclick="openBlogMedia('inline-image')">📷 Immagine</button>
+                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(255,107,241,.35);color:var(--pink, #ff7bf1);" onclick="openBlogMedia('inline-video')">🎬 Video/GIF</button>
+                <button type="button" class="btn-sm" style="padding:.35rem .75rem;border-color:rgba(140,255,0,.35);color:var(--green);" onclick="insertBlogYouTube()">▶ YouTube</button>
               </div>
             </div>
-            <div id="bl-editor" contenteditable="true" spellcheck="true" onblur="saveEditorSelection()" style="width:100%;min-height:460px;height:460px;resize:vertical;overflow:auto;background:rgba(6,8,16,.88);border:1px solid rgba(181,140,255,.28);border-radius:12px;padding:1.25rem 1.5rem;color:var(--text-d);font-family:inherit;font-size:1rem;line-height:1.85;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 0 30px rgba(181,140,255,.08);"></div>
+            <div id="bl-editor" contenteditable="true" spellcheck="true" onblur="saveEditorSelection()" onpaste="handleBlogPaste(event)" oninput="updateBlogEditorInfo()" style="width:100%;min-height:460px;height:460px;resize:vertical;overflow:auto;background:rgba(6,8,16,.88);border:1px solid rgba(181,140,255,.28);border-radius:12px;padding:1.25rem 1.5rem;color:var(--text-d);font-family:inherit;font-size:1rem;line-height:1.85;outline:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03), 0 0 30px rgba(181,140,255,.08);"></div>
             <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-top:.2rem;">
-              <span style="font-size:.72rem;color:var(--muted-d);">Posiziona il cursore e usa i pulsanti per inserire foto/video/GIF in linea. Gli elementi multimediali caricati vengono inseriti al punto del cursore.</span>
+              <span style="font-size:.72rem;color:var(--muted-d);">Incolla da Word, Google Docs o pagine web: grassetti, corsivi, titoli H1/H2/H3 e liste vengono mantenuti e sanitizzati.</span>
+              <span id="bl-editor-info" style="font-size:.72rem;color:var(--purple);"></span>
             </div>
-            <input type="file" id="bl-inline-image" accept="image/*" style="display:none;" onchange="insertBlogMedia(this,'image')">
-            <input type="file" id="bl-inline-video" accept="video/*,image/gif" style="display:none;" onchange="insertBlogMedia(this,'video')">
           </div>
         </div>
 
         <div style="margin-bottom:1.5rem;">
           <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;">Media e collegamenti</div>
           <div class="fgrow">
-            <div class="fg"><label>Immagine di accompagnamento</label><input type="file" id="bl-image" accept="image/*"></div>
-            <div class="fg"><label>Mini-video (loop stile GIF)</label><input type="file" id="bl-video" accept="video/*"></div>
+            <div class="fg">
+              <label>Immagine di copertina (URL)</label>
+              <div style="display:flex;gap:.5rem;align-items:center;">
+                <input type="url" id="bl-cover" placeholder="https://… oppure scegli dal bucket" style="flex:1;min-width:0;" oninput="previewBlogMedia('cover')">
+                <button type="button" class="btn-sm" onclick="openBlogMedia('cover')" style="padding:.55rem .8rem;white-space:nowrap;">Scegli</button>
+              </div>
+              <div id="bl-cover-preview" style="margin-top:.6rem;"></div>
+            </div>
+            <div class="fg">
+              <label>Video/GIF di copertina (URL)</label>
+              <div style="display:flex;gap:.5rem;align-items:center;">
+                <input type="url" id="bl-video-url" placeholder="https://… mp4, webm o gif" style="flex:1;min-width:0;" oninput="previewBlogMedia('video')">
+                <button type="button" class="btn-sm" onclick="openBlogMedia('video')" style="padding:.55rem .8rem;white-space:nowrap;">Scegli</button>
+              </div>
+              <div id="bl-video-preview" style="margin-top:.6rem;"></div>
+            </div>
           </div>
           <div class="fg"><label>Link video YouTube</label><input type="text" id="bl-yt" placeholder="https://www.youtube.com/watch?v=..."></div>
         </div>
@@ -479,25 +504,46 @@ tr:hover{background:rgba(140,255,0,.02);}
           <button class="btn-sm approve" onclick="saveBlogArticle('published')" style="background:var(--green);color:var(--dark);border-color:var(--green);padding:.55rem 1.2rem;font-weight:800;">🚀 Pubblica</button>
           <button class="btn-sm reject" onclick="clearBlogEditor()" style="padding:.55rem 1rem;">Pulisci</button>
         </div>
-        <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;line-height:1.6;">Pubblicazione cloud/permanente richiede collegamento backend (Supabase/Strapi) con token di scrittura. In locale, i post pubblicati restano in lista pubblicata e sono modificabili in qualunque momento.</p>
+        <p style="font-size:.72rem;color:var(--muted-d);margin-top:1rem;line-height:1.6;">Ogni salvataggio scrive direttamente su Supabase. Il sito pubblico legge solo gli articoli con stato <strong>published</strong>; le bozze restano visibili esclusivamente qui.</p>
       </div>
     </div>
 
     <div class="appt-grid">
       <div class="sec-card">
-        <div class="sec-hdr"><h3>📄 Bozze locali</h3><span class="count" id="blog-draft-total">0</span></div>
-        <div class="sec-body" id="blog-drafts" style="overflow-x:auto;max-height:320px;overflow-y:auto;padding:1rem 1.5rem;"></div>
+        <div class="sec-hdr"><h3>📄 Bozze Supabase</h3><span class="count" id="blog-draft-total">0</span></div>
+        <div class="sec-body" id="blog-drafts" style="overflow-x:auto;max-height:360px;overflow-y:auto;padding:1rem 1.5rem;"></div>
       </div>
       <div class="sec-card">
-        <div class="sec-hdr"><h3>✅ Blog pubblicati</h3><span class="count" id="blog-published-total">0</span></div>
-        <div class="sec-body" id="blog-published" style="overflow-x:auto;max-height:320px;overflow-y:auto;padding:1rem 1.5rem;"></div>
+        <div class="sec-hdr"><h3>✅ Pubblicati su Supabase</h3><span class="count" id="blog-published-total">0</span></div>
+        <div class="sec-body" id="blog-published" style="overflow-x:auto;max-height:360px;overflow-y:auto;padding:1rem 1.5rem;"></div>
       </div>
     </div>
 
     <div class="stats-row" id="blog-analytics-row">
-      <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali</div></div>
-      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio di permanenza</div></div>
-      <div class="stat-card"><div class="num l" id="bl-ig">0</div><div class="lbl">Interazioni (link/video)</div></div>
+      <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali</div><div class="sub">Aperture degli articoli pubblicati</div></div>
+      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio di permanenza</div><div class="sub">Media reale per visualizzazione</div></div>
+      <div class="stat-card"><div class="num l" id="bl-published-count">0</div><div class="lbl">Articoli pubblicati</div><div class="sub">Online in questo momento</div></div>
+    </div>
+  </div>
+
+  <div class="editor-overlay" id="blog-media-modal">
+    <div class="editor-panel" style="max-width:900px;width:94%;">
+      <h3>Media <span id="blog-media-title">Gallery</span></h3>
+      <label>Incolla un link pubblico</label>
+      <div style="display:flex;gap:.6rem;align-items:center;">
+        <input type="url" id="bl-media-url" placeholder="https://…" style="flex:1;min-width:0;"/>
+        <button type="button" class="btn-sm approve" onclick="useBlogMediaUrl()" style="padding:.6rem .9rem;white-space:nowrap;">Usa link</button>
+      </div>
+      <label>Oppure carica nel bucket gallery</label>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+        <input type="file" id="bl-media-file" accept="image/*,video/*,.gif" style="flex:1;min-width:180px;"/>
+        <button type="button" class="btn-sm" onclick="uploadBlogMedia()" style="padding:.6rem .9rem;">Carica e usa</button>
+      </div>
+      <div id="bl-media-status" style="font-size:.72rem;color:var(--muted-d);margin-top:.6rem;">Caricamento file dal bucket…</div>
+      <div id="bl-media-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.65rem;max-height:360px;overflow-y:auto;margin-top:1rem;"></div>
+      <div class="editor-actions">
+        <button type="button" class="btn-close" onclick="closeBlogMedia()">Chiudi</button>
+      </div>
     </div>
   </div>
 
@@ -660,6 +706,7 @@ tr:hover{background:rgba(140,255,0,.02);}
   <div class="sec-card">
     <div class="sec-hdr">
       <h3>Ultimi percorsi</h3>
+      <span class="count" id="quiz-cloud-state">…</span>
       <button class="btn-sm reject" onclick="clearQuizResults()">Cancella storico</button>
     </div>
     <div class="sec-body" style="overflow-x:auto;max-height:420px;overflow-y:auto;">
@@ -701,6 +748,7 @@ tr:hover{background:rgba(140,255,0,.02);}
 
 <script src="/faq-data.js"></script>
 <script src="/supabase-config.js"></script>
+<script src="/blog-utils.js"></script>
 <script>
 /* ── Config ── */
 const API = '/.netlify/functions';
@@ -786,6 +834,7 @@ function showTab(name, el){
   document.getElementById('tab-photos').style.display = name==='photos'?'':'none';
   document.getElementById('tab-quiz').style.display = name==='quiz'?'':'none';
   document.getElementById('tab-settings').style.display = name==='settings'?'':'none';
+  if(name==='blog') loadBlogPosts();
   if(name==='quiz') loadQuizResults();
   if(name==='faq') loadFaqsAdmin();
 }
@@ -798,14 +847,30 @@ function toast(msg, isErr){
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-/* ── Quiz Results ── */
-function loadQuizResults(){
-  let data = [];
-  try { data = JSON.parse(localStorage.getItem('wd_quiz_results')||'[]'); } catch(e) { data = []; }
-  const total = data.length;
-  const consult = data.filter(d => d.consult).length;
-  const booking = total - consult;
+/* ── Quiz Results (Supabase) ── */
+let quizCloudOk = false;
 
+function setQuizCloudState(text, ok){
+  const el = document.getElementById('quiz-cloud-state');
+  if(!el) return;
+  el.textContent = text;
+  el.style.color = ok ? 'var(--green)' : 'var(--muted-d)';
+}
+
+function mapQuizRow(row){
+  return {
+    id: row.id,
+    result: row.result || 'Risultato',
+    consult: !!row.consult,
+    path: Array.isArray(row.path) ? row.path : [],
+    ts: row.created_at
+  };
+}
+
+function renderQuizResults(data){
+  const total = data.length;
+  const consult = data.filter(function(d){ return d.consult; }).length;
+  const booking = total - consult;
   const t = document.getElementById('qz-total');
   const c = document.getElementById('qz-consult');
   const b = document.getElementById('qz-booking');
@@ -817,196 +882,586 @@ function loadQuizResults(){
   if(b) b.textContent = booking;
   if(cnt) cnt.textContent = total;
 
-  // Frequencies by result
   const freq = {};
-  data.forEach(d => { freq[d.result] = (freq[d.result]||0) + 1; });
-  const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]);
-
+  data.forEach(function(d){ freq[d.result] = (freq[d.result] || 0) + 1; });
+  const sorted = Object.entries(freq).sort(function(a,b){ return b[1] - a[1]; });
   if(summary){
-    if(!sorted.length){
-      summary.textContent = 'Nessun tentativo registrato ancora.';
-    } else {
-      summary.innerHTML = sorted.map(([r,n]) =>
-        '<div style="display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;border-bottom:1px solid rgba(245,245,247,.05);">' +
-        '<span>' + esc(r) + '</span>' +
-        '<strong style="color:var(--green);">' + n + '</strong>' +
-        '</div>'
-      ).join('');
-    }
+    summary.innerHTML = sorted.length
+      ? sorted.map(function(entry){
+          return '<div style="display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;border-bottom:1px solid rgba(245,245,247,.05);">' +
+            '<span>' + esc(entry[0]) + '</span>' +
+            '<strong style="color:var(--green);">' + entry[1] + '</strong>' +
+          '</div>';
+        }).join('')
+      : 'Nessun tentativo registrato ancora.';
   }
-
   if(body){
     if(!data.length){
       body.innerHTML = '<tr class="loading-row"><td colspan="3">Nessun tentativo ancora</td></tr>';
       return;
     }
-    const recent = data.slice().reverse().slice(0,50);
-    body.innerHTML = recent.map(d => {
-      const when = d.ts ? new Date(d.ts).toLocaleString('it-IT',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-      const path = (d.path||[]).map(esc).join(' → ') || '—';
-      return '<tr><td style="font-size:.78rem;">' + esc(d.result||'—') + '</td>' +
+    body.innerHTML = data.slice(0,50).map(function(d){
+      const when = d.ts ? new Date(d.ts).toLocaleString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      const path = (d.path || []).map(esc).join(' → ') || '—';
+      return '<tr><td style="font-size:.78rem;">' + esc(d.result || '—') + '</td>' +
         '<td style="font-size:.72rem;color:var(--muted-d);max-width:420px;">' + path + '</td>' +
         '<td style="font-size:.72rem;color:var(--muted-d);white-space:nowrap;">' + when + '</td></tr>';
     }).join('');
   }
 }
 
-function clearQuizResults(){
-  if(!confirm('Cancellare tutto lo storico del quiz?')) return;
-  localStorage.removeItem('wd_quiz_results');
-  loadQuizResults();
-  toast('Storico quiz cancellato');
+async function loadQuizResults(silent){
+  if(!silent) setQuizCloudState('Caricamento…', false);
+  let data = [];
+  try {
+    if (!window.supabaseGetQuizResults) throw new Error('helper Supabase non caricato');
+    const rows = await window.supabaseGetQuizResults(300);
+    data = (rows || []).map(mapQuizRow);
+    quizCloudOk = true;
+    setQuizCloudState('● Supabase attivo', true);
+  } catch(e){
+    quizCloudOk = false;
+    setQuizCloudState('⚠ ' + (e.message || 'Supabase non raggiungibile'), false);
+    try { data = JSON.parse(localStorage.getItem('wd_quiz_results') || '[]').map(function(d){ return { result:d.result, consult:!!d.consult, path:d.path || [], ts:d.ts }; }); } catch(_) { data = []; }
+  }
+  renderQuizResults(data);
 }
 
-/* ── Blog articles (local pipeline) ── */
-function getBlogArticles(){ try { return JSON.parse(localStorage.getItem('wd_blog_articles')||'[]'); } catch(e){ return []; } }
-function setBlogArticles(v){ localStorage.setItem('wd_blog_articles', JSON.stringify(v)); }
-function saveBlogArticle(status){
-  const title=(document.getElementById('bl-title').value||'').trim();
-  if(!title){ toast('Inserisci un titolo'); return; }
-  const article={
-    id: Date.now(),
-    title,
-    slug: (document.getElementById('bl-slug').value||'').trim(),
-    text: document.getElementById('bl-editor').innerHTML.trim(),
-    imageName: (document.getElementById('bl-image').files[0]||{}).name || '',
-    videoName: (document.getElementById('bl-video').files[0]||{}).name || '',
-    youtube: document.getElementById('bl-yt').value.trim(),
-    status: status === 'published' ? 'published' : 'draft',
-    views: 0, timeOnPage: 0, interactions: 0,
-    updatedAt: new Date().toISOString(),
+async function clearQuizResults(){
+  if(!confirm('Cancellare tutto lo storico del quiz su Supabase?')) return;
+  try {
+    if (quizCloudOk && window.supabaseDeleteQuizResults) await window.supabaseDeleteQuizResults();
+    localStorage.removeItem('wd_quiz_results');
+    await loadQuizResults();
+    broadcastQuiz();
+    toast('Storico quiz cancellato');
+  } catch(e){
+    toast('Errore cancellazione: ' + e.message, true);
+  }
+}
+
+function broadcastQuiz(){
+  try { new BroadcastChannel('woodreads-quiz').postMessage({ type:'quiz-updated' }); } catch(e){}
+  try { localStorage.setItem('wd_quiz_ts', String(Date.now())); } catch(e){}
+}
+
+function initQuizSync(){
+  if (window.__quizSyncInit) return;
+  window.__quizSyncInit = true;
+  try {
+    const bc = new BroadcastChannel('woodreads-quiz');
+    bc.onmessage = function(){ loadQuizResults(true); };
+  } catch(e){}
+  window.addEventListener('storage', function(ev){
+    if (ev.key === 'wd_quiz_ts') loadQuizResults(true);
+  });
+  setInterval(function(){
+    if (document.hidden) return;
+    const tab = document.getElementById('tab-quiz');
+    if (tab && tab.style.display !== 'none') loadQuizResults(true);
+  }, 15000);
+}
+
+/* ── Blog articles (Supabase) ── */
+let blogPosts = [];
+let blogCloudOk = false;
+let blogEditingId = null;
+let blogSlugTouched = false;
+let blogSaving = false;
+let blogEditorRange = null;
+let blogMediaTarget = '';
+let blogMediaSelection = null;
+
+function blogAttr(value){
+  return String(value == null ? '' : value)
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+function setBlogCloudState(text, ok){
+  const el = document.getElementById('blog-cloud-state');
+  if(!el) return;
+  el.textContent = text;
+  el.style.color = ok ? 'var(--green)' : 'var(--muted-d)';
+}
+
+function mapBlogRow(row){
+  return {
+    id: row.id,
+    title: row.title || '',
+    slug: row.slug || '',
+    text: row.text || '',
+    category: row.category || '',
+    excerpt: row.excerpt || '',
+    coverUrl: row.cover_url || '',
+    videoUrl: row.video_url || '',
+    youtube: row.youtube || '',
+    readingTime: Number(row.reading_time || 0),
+    status: row.status || 'draft',
+    views: Number(row.views || 0),
+    timeOnPage: Number(row.time_on_page || 0),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
   };
-  const all=getBlogArticles();
-  all.unshift(article);
-  setBlogArticles(all.slice(0,200));
-  clearBlogEditor();
+}
+
+async function loadBlogPosts(silent){
+  if(!silent) setBlogCloudState('Caricamento…', false);
+  try {
+    if (!window.supabaseGetBlogPosts) throw new Error('helper Supabase non caricato');
+    const rows = await window.supabaseGetBlogPosts({ limit: 300 });
+    blogPosts = (rows || []).map(mapBlogRow);
+    blogCloudOk = true;
+    setBlogCloudState('● Supabase attivo', true);
+  } catch (e) {
+    blogCloudOk = false;
+    blogPosts = [];
+    setBlogCloudState('⚠ ' + (e.message || 'Supabase non raggiungibile'), false);
+  }
   renderBlogLists();
   updateBlogAnalytics();
-  toast(status === 'published' ? 'Articolo pubblicato (locale)' : 'Bozza salvata');
 }
+
+function syncBlogSlug(){
+  if (blogEditingId || blogSlugTouched) return;
+  const title = document.getElementById('bl-title').value || '';
+  const slug = document.getElementById('bl-slug');
+  if (slug) slug.value = window.WD_BLOG ? window.WD_BLOG.slugify(title) : title;
+}
+
+function updateBlogEditorInfo(){
+  const editor = document.getElementById('bl-editor');
+  const info = document.getElementById('bl-editor-info');
+  if (!editor || !info || !window.WD_BLOG) return;
+  const words = window.WD_BLOG.textFromHtml(editor.innerHTML).split(/\s+/).filter(Boolean).length;
+  const minutes = window.WD_BLOG.readingTime(editor.innerHTML);
+  info.textContent = words + ' parole · ~' + minutes + ' min';
+}
+
 function clearBlogEditor(){
-  ['bl-title','bl-slug','bl-image','bl-video','bl-yt'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
+  ['bl-title','bl-slug','bl-category','bl-reading','bl-excerpt','bl-cover','bl-video-url','bl-yt'].forEach(function(id){
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
+  const editor = document.getElementById('bl-editor');
+  if (editor) editor.innerHTML = '';
+  const cover = document.getElementById('bl-cover-preview');
+  if (cover) cover.innerHTML = '';
+  const video = document.getElementById('bl-video-preview');
+  if (video) video.innerHTML = '';
+  const info = document.getElementById('bl-editor-info');
+  if (info) info.textContent = '';
+  blogEditingId = null;
+  blogSlugTouched = false;
+  blogEditorRange = null;
+  blogMediaSelection = null;
 }
-function deleteBlogArticle(id){
-  if(!confirm('Eliminare questo articolo?')) return;
-  setBlogArticles(getBlogArticles().filter(a=>a.id!==id));
-  renderBlogLists(); updateBlogAnalytics();
-  toast('Articolo eliminato');
+
+function blogListRow(a){
+  const date = a.updatedAt ? new Date(a.updatedAt).toLocaleString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const avg = a.views ? (a.timeOnPage / a.views) : 0;
+  const stats = a.status === 'published'
+    ? '👁 ' + a.views.toLocaleString('it-IT') + ' · ⏱ ' + (avg ? window.WD_BLOG.formatDuration(avg) : '—') + ' medi'
+    : 'Bozza non pubblicata';
+  const preview = a.status === 'published'
+    ? '<a class="btn-sm" href="blog-post.html?slug=' + encodeURIComponent(a.slug) + '&preview=1" target="_blank" rel="noopener" style="padding:.35rem .6rem;">Apri</a>'
+    : '';
+  return '<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);">' +
+    '<div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;">' +
+      '<strong style="color:var(--text-d);line-height:1.4;">' + esc(a.title) + '</strong>' +
+      '<div style="display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end;">' +
+        preview +
+        '<button class="btn-sm approve" onclick="loadBlogEdit(\'' + blogAttr(a.id) + '\')">Modifica</button>' +
+        '<button class="btn-sm reject" onclick="deleteBlogArticle(\'' + blogAttr(a.id) + '\')">X</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">' + esc(a.slug || 'senza-slug') + ' · ' + esc(a.status) + ' · ' + date + '</div>' +
+    '<div style="font-size:.7rem;color:var(--muted-l);margin-top:.35rem;">' + stats + '</div>' +
+  '</div>';
 }
+
 function renderBlogLists(){
-  const draftsEl=document.getElementById('blog-drafts');
-  const pubEl=document.getElementById('blog-published');
-  const totalDraft=document.getElementById('blog-draft-total');
-  const totalPub=document.getElementById('blog-published-total');
-  const total=document.getElementById('blog-total-count');
-  const all=getBlogArticles();
-  const drafts=all.filter(a=>a.status==='draft');
-  const published=all.filter(a=>a.status==='published');
-  if(totalDraft) totalDraft.textContent=drafts.length;
-  if(totalPub) totalPub.textContent=published.length;
-  if(total) total.textContent=all.length;
-  if(draftsEl) draftsEl.innerHTML = drafts.length
-    ? drafts.map(a=>'<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;"><strong style="color:var(--text-d);">'+esc(a.title)+'</strong><div style="display:flex;gap:.4rem;"><button class="btn-sm approve" onclick="loadBlogEdit('+a.id+')">Modifica</button><button class="btn-sm reject" onclick="deleteBlogArticle('+a.id+')">X</button></div></div><div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">'+esc(a.slug||'senza-slug')+' · draft · '+new Date(a.updatedAt).toLocaleString('it-IT')+'</div></div>').join('')
-    : '<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessuna bozza</div>';
-  if(pubEl) pubEl.innerHTML = published.length
-    ? published.map(a=>'<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);"><div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;"><strong style="color:var(--text-d);">'+esc(a.title)+'</strong><div style="display:flex;gap:.4rem;"><button class="btn-sm approve" onclick="loadBlogEdit('+a.id+')">Modifica</button><button class="btn-sm reject" onclick="deleteBlogArticle('+a.id+')">X</button></div></div><div style="font-size:.72rem;color:var(--muted-d);margin-top:.3rem;">'+esc(a.slug||'senza-slug')+' · published · '+new Date(a.updatedAt).toLocaleString('it-IT')+'</div><div style="font-size:.7rem;color:var(--muted-l);margin-top:.35rem;">Viste: '+a.views+' | Tempo: '+a.timeOnPage+'s | Interazioni: '+a.interactions+'</div></div>').join('')
-    : '<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessun articolo pubblicato</div>';
+  const draftsEl = document.getElementById('blog-drafts');
+  const pubEl = document.getElementById('blog-published');
+  const totalDraft = document.getElementById('blog-draft-total');
+  const totalPub = document.getElementById('blog-published-total');
+  const total = document.getElementById('blog-total-count');
+  const drafts = blogPosts.filter(function(a){ return a.status === 'draft'; });
+  const published = blogPosts.filter(function(a){ return a.status === 'published'; });
+  if (totalDraft) totalDraft.textContent = drafts.length;
+  if (totalPub) totalPub.textContent = published.length;
+  if (total) total.textContent = blogPosts.length;
+  if (draftsEl) draftsEl.innerHTML = drafts.length
+    ? drafts.map(blogListRow).join('')
+    : '<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessuna bozza su Supabase</div>';
+  if (pubEl) pubEl.innerHTML = published.length
+    ? published.map(blogListRow).join('')
+    : '<div class="loading-row" style="padding:1rem;color:var(--muted-d);">Nessun articolo pubblicato su Supabase</div>';
+  const categories = Array.from(new Set(blogPosts.map(function(a){ return a.category; }).filter(Boolean))).sort();
+  const datalist = document.getElementById('bl-category-list');
+  if (datalist) datalist.innerHTML = categories.map(function(c){ return '<option value="' + blogAttr(c) + '"></option>'; }).join('');
 }
-function loadBlogEdit(id){
-  const a=getBlogArticles().find(x=>x.id===id);
-  if(!a) return;
-  document.getElementById('bl-title').value=a.title||'';
-  document.getElementById('bl-slug').value=a.slug||'';
-  document.getElementById('bl-editor').innerHTML=a.text||'';
-  document.getElementById('bl-yt').value=a.youtube||'';
-  toast('Articolo caricato in editor');
-}
+
 function updateBlogAnalytics(){
-  const all=getBlogArticles();
-  const views=all.reduce((t,a)=>t+(a.views||0),0);
-  const time=Math.round(all.reduce((t,a)=>t+(a.timeOnPage||0),0)/Math.max(1,all.length));
-  const interactions=all.reduce((t,a)=>t+(a.interactions||0),0);
-  const v=document.getElementById('bl-views'), ti=document.getElementById('bl-time'), inm=document.getElementById('bl-ig');
-  if(v) v.textContent=views; if(ti) ti.textContent=time+'s'; if(inm) inm.textContent=interactions;
+  const published = blogPosts.filter(function(a){ return a.status === 'published'; });
+  const views = published.reduce(function(t,a){ return t + a.views; }, 0);
+  const seconds = published.reduce(function(t,a){ return t + a.timeOnPage; }, 0);
+  const avg = views ? seconds / views : 0;
+  const v = document.getElementById('bl-views');
+  const ti = document.getElementById('bl-time');
+  const pc = document.getElementById('bl-published-count');
+  if (v) v.textContent = views.toLocaleString('it-IT');
+  if (ti) ti.textContent = avg ? window.WD_BLOG.formatDuration(avg) : '0s';
+  if (pc) pc.textContent = published.length;
 }
-/* -- Rich blog editor helpers -- */
-let blogEditorRange=null;
+
+function loadBlogEdit(id){
+  const article = blogPosts.find(function(a){ return a.id === id; });
+  if (!article) return;
+  blogEditingId = article.id;
+  blogSlugTouched = true;
+  document.getElementById('bl-title').value = article.title;
+  document.getElementById('bl-slug').value = article.slug;
+  document.getElementById('bl-category').value = article.category;
+  document.getElementById('bl-reading').value = article.readingTime || '';
+  document.getElementById('bl-excerpt').value = article.excerpt;
+  document.getElementById('bl-cover').value = article.coverUrl;
+  document.getElementById('bl-video-url').value = article.videoUrl;
+  document.getElementById('bl-yt').value = article.youtube;
+  document.getElementById('bl-editor').innerHTML = window.WD_BLOG.sanitizeHtml(article.text);
+  previewBlogMedia('cover');
+  previewBlogMedia('video');
+  updateBlogEditorInfo();
+  const tab = document.getElementById('tab-blog');
+  if (tab) tab.scrollIntoView({ behavior:'smooth', block:'start' });
+  toast('Articolo caricato dall’editor Supabase');
+}
+
+function previewBlogMedia(kind){
+  const input = document.getElementById(kind === 'cover' ? 'bl-cover' : 'bl-video-url');
+  const box = document.getElementById(kind === 'cover' ? 'bl-cover-preview' : 'bl-video-preview');
+  if (!input || !box) return;
+  const url = input.value.trim();
+  if (!url || !/^https?:\/\//i.test(url)){ box.innerHTML = ''; return; }
+  if (kind === 'video' && window.WD_BLOG.isVideoUrl(url) && !window.WD_BLOG.isGifUrl(url)){
+    box.innerHTML = '<video src="' + blogAttr(url) + '" muted loop playsinline controls style="max-width:220px;max-height:130px;border-radius:10px;border:1px solid rgba(255,255,255,.1);"></video>';
+  } else {
+    box.innerHTML = '<img src="' + blogAttr(url) + '" alt="" loading="lazy" style="max-width:220px;max-height:130px;border-radius:10px;border:1px solid rgba(255,255,255,.1);object-fit:cover;"/>';
+  }
+}
+
 function saveEditorSelection(){
-  const editor=document.getElementById('bl-editor');
-  if(!editor) return;
-  const sel=window.getSelection();
-  if(!sel || !sel.rangeCount) return;
-  const range=sel.getRangeAt(0);
-  if(editor.contains(range.commonAncestorContainer)){ blogEditorRange=range.cloneRange(); }
+  const editor = document.getElementById('bl-editor');
+  if (!editor) return;
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (editor.contains(range.commonAncestorContainer)) blogEditorRange = range.cloneRange();
 }
-function blogFormat(command, value){
-  const editor=document.getElementById('bl-editor');
-  if(!editor) return;
+
+function restoreBlogEditorRange(){
+  const editor = document.getElementById('bl-editor');
+  if (!editor) return null;
   editor.focus();
-  try { document.execCommand(command, false, value); } catch(e){}
+  const sel = window.getSelection();
+  if (blogEditorRange && editor.contains(blogEditorRange.commonAncestorContainer)){
+    try { sel.removeAllRanges(); sel.addRange(blogEditorRange); } catch(e){}
+    return sel.getRangeAt(0);
+  }
+  const range = document.createRange();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  return range;
 }
-function triggerBlogMedia(type){
-  saveEditorSelection();
-  const id=type==='image'?'bl-inline-image':'bl-inline-video';
-  const el=document.getElementById(id);
-  if(el) el.click();
-}
-function insertBlogMedia(input, type){
-  if(!input || !input.files || !input.files[0]) return;
-  const file=input.files[0];
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const editor=document.getElementById('bl-editor');
-    if(!editor) return;
-    editor.focus();
-    const sel=window.getSelection();
-    let range=blogEditorRange;
-    if(range) { try { sel.removeAllRanges(); sel.addRange(range); } catch(e){} }
-    if(!sel || !sel.rangeCount){
-      range=document.createRange();
-      range.selectNodeContents(editor);
-      range.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-    range=sel.getRangeAt(0);
+
+function insertBlogHtml(html){
+  const editor = document.getElementById('bl-editor');
+  if (!editor || !html) return;
+  const range = restoreBlogEditorRange();
+  let inserted = false;
+  try {
+    inserted = document.execCommand('insertHTML', false, html);
+  } catch(e){}
+  if (!inserted && range){
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    const fragment = document.createDocumentFragment();
+    while (template.content.firstChild) fragment.appendChild(template.content.firstChild);
     range.deleteContents();
-    let node=null;
-    if(type==='image'){
-      node=document.createElement('img');
-      node.src=ev.target.result;
-      node.alt=file.name;
-      node.style.maxWidth='100%';
-      node.style.height='auto';
-      node.style.borderRadius='10px';
-      node.style.margin='1rem 0';
-      node.style.display='block';
+    range.insertNode(fragment);
+  }
+  saveEditorSelection();
+  updateBlogEditorInfo();
+}
+
+function handleBlogPaste(event){
+  if (!event || !event.clipboardData) return;
+  const html = event.clipboardData.getData('text/html');
+  const text = event.clipboardData.getData('text/plain');
+  if (!html && !text) return;
+  event.preventDefault();
+  let clean = html && window.WD_BLOG ? window.WD_BLOG.sanitizeHtml(html) : '';
+  if (!clean && text && window.WD_BLOG) clean = window.WD_BLOG.markdownToHtml(text);
+  if (!clean && text) clean = '<p>' + window.WD_BLOG.escapeHtml(text).replace(/\n/g,'<br>') + '</p>';
+  insertBlogHtml(clean);
+}
+
+function blogFormat(command, value){
+  const editor = document.getElementById('bl-editor');
+  if (!editor) return;
+  restoreBlogEditorRange();
+  try { document.execCommand(command, false, value); } catch(e){}
+  saveEditorSelection();
+  updateBlogEditorInfo();
+}
+
+function insertBlogLink(){
+  saveEditorSelection();
+  const url = prompt('Incolla l’URL del link:');
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)){
+    toast('Il link deve iniziare con http(s)://', true);
+    return;
+  }
+  insertBlogHtml('<a href="' + blogAttr(url) + '" target="_blank" rel="noopener noreferrer">' + window.WD_BLOG.escapeHtml(url) + '</a>');
+}
+
+function insertBlogYouTube(){
+  saveEditorSelection();
+  const url = prompt('Incolla il link YouTube:');
+  if (!url) return;
+  const embed = window.WD_BLOG.youtubeEmbed(url);
+  if (!embed){
+    toast('Link YouTube non riconosciuto', true);
+    return;
+  }
+  insertBlogHtml('<iframe src="' + embed + '" title="Video YouTube" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0;border-radius:12px;margin:1.2rem 0;"></iframe>');
+}
+
+function openBlogMedia(target){
+  blogMediaTarget = target;
+  saveEditorSelection();
+  blogMediaSelection = target.indexOf('inline') === 0 && blogEditorRange ? blogEditorRange.cloneRange() : null;
+  const modal = document.getElementById('blog-media-modal');
+  const title = document.getElementById('blog-media-title');
+  const url = document.getElementById('bl-media-url');
+  const status = document.getElementById('bl-media-status');
+  const grid = document.getElementById('bl-media-grid');
+  if (title) title.textContent = target === 'cover' ? 'copertina' : (target === 'video' ? 'video/GIF' : 'contenuto');
+  if (url) url.value = '';
+  if (status) status.textContent = 'Caricamento file dal bucket…';
+  if (grid) grid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted-d);font-size:.8rem;padding:1rem;">Caricamento…</div>';
+  if (modal) modal.classList.add('open');
+  loadBlogMediaFiles();
+}
+
+function closeBlogMedia(){
+  const modal = document.getElementById('blog-media-modal');
+  if (modal) modal.classList.remove('open');
+  const file = document.getElementById('bl-media-file');
+  if (file) file.value = '';
+  blogMediaTarget = '';
+  blogMediaSelection = null;
+}
+
+async function loadBlogMediaFiles(){
+  const grid = document.getElementById('bl-media-grid');
+  const status = document.getElementById('bl-media-status');
+  if (!grid) return;
+  const wantVideo = blogMediaTarget === 'video' || blogMediaTarget === 'inline-video';
+  let items = [];
+  try {
+    const requests = [];
+    if (window.supabaseGetGalleryPhotos) requests.push(window.supabaseGetGalleryPhotos({ publishedOnly:false, limit:300 }).catch(function(){ return []; }));
+    if (window.supabaseListGalleryFiles) requests.push(window.supabaseListGalleryFiles(['','photos','blog']).catch(function(){ return []; }));
+    const results = await Promise.all(requests);
+    (results[0] || []).forEach(function(photo){
+      if (photo && photo.url) items.push({ url:photo.url, name:photo.title || photo.url.split('/').pop(), mime:'' });
+    });
+    (results[1] || []).forEach(function(file){
+      if (file && file.url) items.push({ url:file.url, name:file.name || file.path, mime:file.mime || '' });
+    });
+  } catch(e){}
+  const seen = {};
+  items = items.filter(function(item){
+    if (!item.url || seen[item.url]) return false;
+    seen[item.url] = true;
+    const isVideo = /^video\//i.test(item.mime) || (window.WD_BLOG.isVideoUrl(item.url) && !window.WD_BLOG.isGifUrl(item.url));
+    return wantVideo ? true : !isVideo;
+  });
+  if (!items.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted-d);font-size:.8rem;padding:1rem;">Nessun file trovato. Carica un file o incolla un link pubblico.</div>';
+    if (status) status.textContent = 'Bucket gallery raggiungibile, nessun media compatibile.';
+    return;
+  }
+  grid.innerHTML = items.map(function(item){
+    const isVideo = /^video\//i.test(item.mime) || (window.WD_BLOG.isVideoUrl(item.url) && !window.WD_BLOG.isGifUrl(item.url));
+    const thumb = isVideo
+      ? '<video src="' + blogAttr(item.url) + '" muted playsinline preload="metadata" style="width:100%;height:88px;object-fit:cover;display:block;"></video>'
+      : '<img src="' + blogAttr(item.url) + '" alt="" loading="lazy" style="width:100%;height:88px;object-fit:cover;display:block;"/>';
+    return '<button type="button" class="blog-media-item" data-url="' + blogAttr(item.url) + '" style="border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden;background:var(--dark2);color:var(--text-d);padding:0;cursor:pointer;text-align:left;">' +
+      thumb + '<span style="display:block;padding:.35rem .45rem;font-size:.62rem;color:var(--muted-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(item.name) + '</span></button>';
+  }).join('');
+  grid.querySelectorAll('.blog-media-item').forEach(function(btn){
+    btn.addEventListener('click', function(){ chooseBlogMedia(this.dataset.url); });
+  });
+  if (status) status.textContent = items.length + ' media disponibili nel bucket gallery.';
+}
+
+function chooseBlogMedia(url){
+  if (!url) return;
+  if (blogMediaTarget === 'cover'){
+    document.getElementById('bl-cover').value = url;
+    previewBlogMedia('cover');
+    closeBlogMedia();
+    return;
+  }
+  if (blogMediaTarget === 'video'){
+    document.getElementById('bl-video-url').value = url;
+    previewBlogMedia('video');
+    closeBlogMedia();
+    return;
+  }
+  if (blogMediaTarget === 'inline-image' || blogMediaTarget === 'inline-video'){
+    blogEditorRange = blogMediaSelection ? blogMediaSelection.cloneRange() : blogEditorRange;
+    const isVideo = window.WD_BLOG.isVideoUrl(url) && !window.WD_BLOG.isGifUrl(url);
+    const html = isVideo
+      ? '<video src="' + blogAttr(url) + '" controls autoplay loop muted playsinline style="max-width:100%;height:auto;border-radius:12px;margin:1rem 0;display:block;"></video>'
+      : '<img src="' + blogAttr(url) + '" alt="" loading="lazy" style="max-width:100%;height:auto;border-radius:12px;margin:1rem 0;display:block;"/>';
+    closeBlogMedia();
+    insertBlogHtml(html);
+  }
+}
+
+function useBlogMediaUrl(){
+  const input = document.getElementById('bl-media-url');
+  const url = (input && input.value || '').trim();
+  if (!/^https?:\/\//i.test(url)){
+    toast('Incolla un link pubblico valido (http/https)', true);
+    return;
+  }
+  chooseBlogMedia(url);
+}
+
+async function uploadBlogMedia(){
+  const input = document.getElementById('bl-media-file');
+  const status = document.getElementById('bl-media-status');
+  const file = input && input.files && input.files[0];
+  if (!file){ toast('Seleziona un file da caricare', true); return; }
+  if (!window.supabaseUploadGalleryFile){ toast('Supabase Storage non disponibile', true); return; }
+  if (status) status.textContent = 'Caricamento di ' + file.name + '…';
+  try {
+    const uploaded = await window.supabaseUploadGalleryFile(file, 'blog');
+    if (status) status.textContent = 'Caricato. Inserimento in corso…';
+    chooseBlogMedia(uploaded.url);
+    toast('File caricato nel bucket gallery ✅');
+  } catch(e){
+    if (status) status.textContent = 'Errore: ' + e.message;
+    toast('Errore caricamento: ' + e.message, true);
+  }
+}
+
+async function ensureUniqueBlogSlug(base, id){
+  let candidate = base;
+  for (let i = 2; i < 30; i++){
+    const rows = await window.supabaseFetch('/rest/v1/' + window.SUPABASE_TABLE + '?select=id,slug&slug=eq.' + encodeURIComponent(candidate) + '&limit=1');
+    if (!rows || !rows.length || (id && rows[0].id === id)) return candidate;
+    candidate = base + '-' + i;
+  }
+  return base + '-' + Date.now().toString(36);
+}
+
+async function saveBlogArticle(status){
+  if (blogSaving) return;
+  const title = (document.getElementById('bl-title').value || '').trim();
+  if (!title){ toast('Inserisci un titolo', true); return; }
+  const editor = document.getElementById('bl-editor');
+  const text = window.WD_BLOG.sanitizeHtml(editor.innerHTML).trim();
+  if (!text){ toast('Inserisci il contenuto dell’articolo', true); return; }
+  const baseSlug = window.WD_BLOG.slugify(document.getElementById('bl-slug').value || title);
+  if (!baseSlug){ toast('Slug non valido', true); return; }
+  const excerptInput = (document.getElementById('bl-excerpt').value || '').trim();
+  const readingInput = Number(document.getElementById('bl-reading').value || 0);
+  const coverUrl = (document.getElementById('bl-cover').value || '').trim();
+  const videoUrl = (document.getElementById('bl-video-url').value || '').trim();
+  const youtube = (document.getElementById('bl-yt').value || '').trim();
+  if (coverUrl && !/^https?:\/\//i.test(coverUrl)){ toast('URL copertina non valido: usa http(s)://', true); return; }
+  if (videoUrl && !/^https?:\/\//i.test(videoUrl)){ toast('URL video/GIF non valido: usa http(s)://', true); return; }
+  if (youtube && !window.WD_BLOG.youtubeEmbed(youtube)){ toast('Link YouTube non riconosciuto', true); return; }
+  blogSaving = true;
+  setBlogCloudState('Salvataggio…', false);
+  try {
+    const slug = await ensureUniqueBlogSlug(baseSlug, blogEditingId);
+    const payload = {
+      id: blogEditingId,
+      title: title,
+      slug: slug,
+      text: text,
+      category: (document.getElementById('bl-category').value || '').trim(),
+      excerpt: excerptInput || window.WD_BLOG.truncateHtml(text, 180),
+      coverUrl: coverUrl,
+      videoUrl: videoUrl,
+      youtube: youtube,
+      readingTime: readingInput || window.WD_BLOG.readingTime(text),
+      status: status === 'published' ? 'published' : 'draft'
+    };
+    const saved = await window.supabaseSaveBlogPost(payload);
+    if (saved && saved.id) blogEditingId = saved.id;
+    await loadBlogPosts();
+    clearBlogEditor();
+    broadcastBlog();
+    toast(status === 'published' ? 'Articolo pubblicato su Supabase ✅' : 'Bozza salvata su Supabase ✅');
+  } catch(e){
+    const msg = e && e.message ? e.message : 'errore sconosciuto';
+    setBlogCloudState('⚠ ' + msg, false);
+    if (/video_url|quiz_results|schema cache|does not exist/i.test(msg)){
+      toast('Schema Supabase non aggiornato: esegui supabase/schema.sql e riprova.', true);
     } else {
-      node=document.createElement('video');
-      node.src=ev.target.result;
-      node.autoplay=true;
-      node.loop=true;
-      node.muted=true;
-      node.controls=true;
-      node.playsInline=true;
-      node.style.maxWidth='100%';
-      node.style.height='auto';
-      node.style.borderRadius='10px';
-      node.style.margin='1rem 0';
-      node.style.display='block';
+      toast('Errore Supabase: ' + msg, true);
     }
-    range.insertNode(node);
-    const after=document.createRange();
-    after.setStartAfter(node);
-    after.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(after);
-    saveEditorSelection();
-    input.value='';
-  };
-  reader.readAsDataURL(file);
+  } finally {
+    blogSaving = false;
+  }
+}
+
+async function deleteBlogArticle(id){
+  if (!confirm('Eliminare definitivamente questo articolo da Supabase?')) return;
+  try {
+    await window.supabaseDeleteBlogPost(id);
+    if (blogEditingId === id) clearBlogEditor();
+    await loadBlogPosts();
+    broadcastBlog();
+    toast('Articolo eliminato da Supabase');
+  } catch(e){
+    toast('Errore eliminazione: ' + e.message, true);
+  }
+}
+
+function broadcastBlog(){
+  try { new BroadcastChannel('woodreads-blog').postMessage({ type:'blog-updated' }); } catch(e){}
+  try { localStorage.setItem('wd_blog_ts', String(Date.now())); } catch(e){}
+}
+
+function initBlogSync(){
+  if (window.__blogSyncInit) return;
+  window.__blogSyncInit = true;
+  try {
+    const bc = new BroadcastChannel('woodreads-blog');
+    bc.onmessage = function(){ loadBlogPosts(true); };
+  } catch(e){}
+  window.addEventListener('storage', function(ev){
+    if (ev.key === 'wd_blog_ts') loadBlogPosts(true);
+  });
+  setInterval(function(){
+    if (document.hidden) return;
+    const tab = document.getElementById('tab-blog');
+    if (tab && tab.style.display !== 'none') loadBlogPosts(true);
+  }, 30000);
 }
 /* ── FAQ ── */
 let faqAdmin = [];
@@ -1315,11 +1770,13 @@ async function init(){
     loadCategories(),
     loadDayData(),
     loadQuizResults(),
-    renderBlogLists(),
+    loadBlogPosts(),
     loadFaqsAdmin(),
   ]);
   renderCalendar();
   initCalendarSync();
+  initBlogSync();
+  initQuizSync();
   initFaqAdminEvents();
 }
 

@@ -4,12 +4,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="color-scheme" content="only light"/>
-<title>Blog WooDreads — Dreadlocks Roma</title>
-<meta name="description" content="Articoli, consigli e ispirazione sui dreadlocks: naturali, cyberdreads, manutenzione, stili e trend. Blog ufficiale WooDreads, dreadmaker a Roma."/>
+<title>Blog WooDreads — Dreads Roma</title>
+<meta name="description" content="Articoli, consigli e ispirazione sui dreads: naturali, cyberdreads, manutenzione, stili e trend. Blog ufficiale WooDreads, dreadmaker a Roma."/>
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="Blog WooDreads — Dreadlocks Roma"/>
-<meta property="og:description" content="Articoli, consigli e ispirazione sui dreadlocks."/>
+<meta property="og:title" content="Blog WooDreads — Dreads Roma"/>
+<meta property="og:description" content="Articoli, consigli e ispirazione sui dreads."/>
 <meta property="og:url" content="/blog.html"/>
 <meta property="og:locale" content="it_IT"/>
 <meta name="twitter:card" content="summary_large_image"/>
@@ -112,8 +112,8 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
 <header class="hero">
   <div class="wrap">
     <span style="color:var(--purple);font-size:.7rem;letter-spacing:4px;text-transform:uppercase;font-weight:700;">— Blog</span>
-    <h1>Guide, trend e <em>consigli</em> sui dreadlocks</h1>
-    <p>Articoli pratici su dreadlocks naturali, cyberdreads, manutenzione, restyling e cultura. Letture utili per curare il tuo look con consapevolezza.</p>
+    <h1>Guide, trend e <em>consigli</em> sui dreads</h1>
+    <p>Articoli pratici sui dreads naturali, cyberdreads, manutenzione, restyling e cultura. Letture utili per curare il tuo look con consapevolezza.</p>
     <div class="filters" id="filters" role="tablist" aria-label="Filtra per categoria"></div>
   </div>
 </header>
@@ -134,57 +134,16 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
 
 <script src="supabase-config.js"></script>
 <script>
-const API = '/.netlify/functions/blog';
-const DEFAULT_POST = {
-  id:'default-guida',
-  slug:'guida-manutenzione-dreads-naturali-roma',
-  title:"Guida definitiva alla manutenzione dei dreadlocks naturali a Roma: come curarli senza cera",
-  category:{name:'Manutenzione'},
-  excerpt:"Scopri come lavare, idratare, proteggere e prevenire odori o frizz senza usare cera. Una guida editoriale step-by-step per mantenere i tuoi dreadlocks naturali sani, puliti e perfettamente ordinati con il metodo WooDreads.",
-  coverImage:{url:"https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80"},
-  publishedAt:"2026-01-15T09:00:00.000Z",
-  readingTime:6,
-  content:`<h2>Perché evitare la cera</h2><p>La cera rende i dreadlocks pesanti, pastosi e difficili da lavare. Nel metodo WooDreads la manutenzione si basa su acqua controllata, shampoo delicato, palm rolling e routine settimanale.</p><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80" alt="Manutenzione dreadlocks naturali" loading="lazy"/><h3>Lavaggio corretto</h3><p>Usa uno shampoo leggero due volte, risciacqua abbondantemente e tampona con microfibra. Non coprire il lavoro con prodotti pesanti: l\'aria e il movimento fissano la struttura.</p><div style="margin:1.2rem 0;"><img src="https://media.giphy.com/media/3o7TKB3IUHuOqQVdWU/giphy.gif" alt="Mini video loop cura dreadlocks" style="max-width:100%;border-radius:12px;"/><p style="font-size:.75rem;color:var(--muted-d);margin-top:.4rem;">Loop stile GIF — cura e manipolazione leggera.</p></div><h2>Anteprima video YouTube</h2><p>Durante la manutenzione osserva sempre il movimento naturale dei dread: tensione uniforme, radice pulita e nessun accumulo.</p><div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;margin:1.2rem 0;"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ" title="Anteprima YouTube" frameborder="0" allow="autoplay;encrypted-media" style="position:absolute;inset:0;width:100%;height:100%;"></iframe></div><h3>Routine settimanale</h3><ul><li>Giorno 1: lavaggio delicato.</li><li>Giorno 2: asciugatura completa all\'aria.</li><li>Giorno 4: idratazione leggera.</li><li>Giorno 7: controllo radice e palm rolling.</li></ul><p>Con costanza otterrai dreadlocks lucidi, ordinati e senza cera, con meno stress per capelli e scalp.</p>`
-};
 const grid = document.getElementById('grid');
 const empty = document.getElementById('empty');
 const filtersEl = document.getElementById('filters');
-let page = 1, pageSize = 9, category = null, hasMore = true, loading = false;
+let allPosts = [];
+let activeCategory = '';
 
-function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function imgUrl(img,size){
-  if(!img||!img.url) return '';
-  const base = img.url.startsWith('http')?'':(API.replace(/\/[^/]+$/,''));
-  if(size && img.formats && img.formats[size]) return base+img.formats[size].url;
-  return base+img.url;
-}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML.replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function formatDate(iso){try{return new Date(iso).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});}catch(e){return '';}}
 function readTime(t){return t? t+' min lettura':'4 min lettura';}
 
-async function loadCategories(){
-  try{
-    const r = await fetch(API+'/categories');
-    const d = await r.json();
-    const cats = d.data||d||[];
-    let html = '<button class="filter active" data-cat="">Tutti</button>';
-    cats.forEach(c=>{
-      const a=c.attributes||c;
-      html += '<button class="filter" data-cat="'+esc(a.slug||'')+'">'+esc(a.name||'')+'</button>';
-    });
-    filtersEl.innerHTML = html;
-    filtersEl.querySelectorAll('.filter').forEach(b=>{
-      b.addEventListener('click',()=>{
-        filtersEl.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
-        category = b.dataset.cat||null;
-        resetAndLoad();
-      });
-    });
-  }catch(e){filtersEl.innerHTML='';}
-}
-
-
-function sanitizeCategory(v){ return String(v||'').replace(/[^\w\-. ]/g,'').trim().slice(0,80); }
 function mapSupabasePost(row){
   return {
     id: row.id,
@@ -194,77 +153,90 @@ function mapSupabasePost(row){
     category: row.category ? {name: row.category} : null,
     coverImage: row.cover_url ? {url: row.cover_url} : null,
     publishedAt: row.created_at,
-    readingTime: row.reading_time || 5,
-    content: row.text || ''
+    updatedAt: row.updated_at,
+    readingTime: row.reading_time || 5
   };
 }
 
-async function loadPosts(append){
-  if(loading) return; loading=true;
-  if(!append){ page=1; grid.innerHTML='<div class="loading">Caricamento articoli…</div>'; empty.style.display='none'; }
-  try{
-    let items = [];
-    let hasMoreRemote = false;
-    try {
-      const qs = new URLSearchParams();
-      qs.set('select', '*');
-      qs.set('status', 'eq.published');
-      qs.set('order', 'created_at.desc');
-      if (category) qs.set('category', 'eq.'+sanitizeCategory(category));
-      const rows = await window.supabaseFetch('/rest/v1/' + window.SUPABASE_TABLE + '?' + qs.toString());
-      items = (rows || []).map(mapSupabasePost);
-      hasMoreRemote = false;
-    } catch (sbErr) {
-      const url = API+'?p='+page+'&n='+pageSize+(category?('&cat='+encodeURIComponent(category)):'');
-      const r = await fetch(url);
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      const d = await r.json();
-      items = (d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
-      const pagination = d.meta?.pagination;
-      hasMoreRemote = pagination ? (pagination.page < pagination.pageCount) : items.length===pageSize;
-    }
-    if(!items.some(p=>(p.slug||'')===DEFAULT_POST.slug)) items = [DEFAULT_POST, ...items];
-    hasMore = hasMoreRemote;
+function renderFilters(){
+  const categories = Array.from(new Set(allPosts.map(function(p){ return p.category && p.category.name; }).filter(Boolean))).sort(function(a,b){ return a.localeCompare(b,'it'); });
+  filtersEl.innerHTML = '<button class="filter' + (activeCategory ? '' : ' active') + '" data-cat="">Tutti</button>' +
+    categories.map(function(cat){ return '<button class="filter' + (activeCategory === cat ? ' active' : '') + '" data-cat="' + esc(cat) + '">' + esc(cat) + '</button>'; }).join('');
+}
 
-    if(!append) grid.innerHTML='';
-    if(!items.length && page===1){
-      empty.style.display='block';
-    } else {
-      empty.style.display='none';
-    }
-    items.forEach(post=>{
-      const cover = imgUrl(post.coverImage, 'medium') || imgUrl(post.coverImage);
-      const catName = post.category?.data?.attributes?.name || post.category?.name || '';
-      const published = formatDate(post.publishedAt || post.createdAt);
-      const card = document.createElement('article');
-      card.className='card';
-      card.innerHTML =
-        (cover?'<a href="blog-post.html?slug='+encodeURIComponent(post.slug)+'" class="thumb"><img src="'+cover+'" alt="'+esc(post.title)+'" loading="lazy" decoding="async"/></a>':'')+
-        '<div class="body">'+
-        (catName?'<span class="cat">'+esc(catName)+'</span>':'')+
-        '<h2><a href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">'+esc(post.title)+'</a></h2>'+
-        '<p>'+esc(post.excerpt)+'</p>'+
-        '<div class="meta"><span>'+published+'</span><span>'+readTime(post.readingTime)+'</span></div>'+
-        '<a class="read" href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">Leggi l\'articolo →</a>'+
-        '</div>';
-      grid.appendChild(card);
-    });
-  }catch(e){
-    if(!append){
-      grid.innerHTML='';
-      const card = document.createElement('article');
-      card.className='card';
-      card.innerHTML = '<div class="thumb"><img src="'+(DEFAULT_POST.coverImage.url)+'" alt="'+esc(DEFAULT_POST.title)+'" loading="lazy"/></div><div class="body"><span class="cat">'+esc(DEFAULT_POST.category.name)+'</span><h2><a href="blog-post.html?slug='+encodeURIComponent(DEFAULT_POST.slug)+'">'+esc(DEFAULT_POST.title)+'</a></h2><p>'+esc(DEFAULT_POST.excerpt)+'</p><div class="meta"><span>'+formatDate(DEFAULT_POST.publishedAt)+'</span><span>'+readTime(DEFAULT_POST.readingTime)+'</span></div><a class="read" href="blog-post.html?slug='+encodeURIComponent(DEFAULT_POST.slug)+'">Leggi l\'articolo →</a></div>';
-      grid.appendChild(card);
-    }
-  }finally{
-    loading=false;
+function renderPosts(){
+  const items = activeCategory ? allPosts.filter(function(p){ return p.category && p.category.name === activeCategory; }) : allPosts;
+  if(!items.length){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = activeCategory ? 'Nessun articolo pubblicato in questa categoria.' : 'Nessun articolo pubblicato ancora.';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = items.map(function(post){
+    const cover = post.coverImage ? post.coverImage.url : '';
+    const catName = post.category ? post.category.name : '';
+    const published = formatDate(post.publishedAt);
+    const href = 'blog-post.html?slug=' + encodeURIComponent(post.slug);
+    return '<article class="card">' +
+      (cover ? '<a href="' + href + '" class="thumb"><img src="' + esc(cover) + '" alt="' + esc(post.title) + '" loading="lazy" decoding="async"/></a>' : '') +
+      '<div class="body">' +
+      (catName ? '<span class="cat">' + esc(catName) + '</span>' : '') +
+      '<h2><a href="' + href + '">' + esc(post.title) + '</a></h2>' +
+      '<p>' + esc(post.excerpt) + '</p>' +
+      '<div class="meta"><span>' + published + '</span><span>' + readTime(post.readingTime) + '</span></div>' +
+      '<a class="read" href="' + href + '">Leggi l\'articolo →</a>' +
+      '</div></article>';
+  }).join('');
+}
+
+async function loadPosts(silent){
+  if(!silent) grid.innerHTML = '<div class="loading">Caricamento articoli…</div>';
+  empty.style.display = 'none';
+  try {
+    if(!window.supabaseGetBlogPosts) throw new Error('Supabase non disponibile');
+    const rows = await window.supabaseGetBlogPosts({ status:'published', limit:100 });
+    allPosts = (rows || []).map(mapSupabasePost);
+    if(activeCategory && !allPosts.some(function(p){ return p.category && p.category.name === activeCategory; })) activeCategory = '';
+    renderFilters();
+    renderPosts();
+  } catch(e){
+    allPosts = [];
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = 'Impossibile caricare gli articoli. Riprova più tardi.';
   }
 }
-function resetAndLoad(){ page=1; hasMore=true; loadPosts(false); }
 
-loadCategories();
-loadPosts(false);
+filtersEl.addEventListener('click', function(e){
+  const btn = e.target.closest('.filter');
+  if(!btn) return;
+  activeCategory = btn.dataset.cat || '';
+  renderFilters();
+  renderPosts();
+});
+
+loadPosts();
+
+function initBlogSync(){
+  if(window.__blogListSync) return;
+  window.__blogListSync = true;
+  try {
+    const bc = new BroadcastChannel('woodreads-blog');
+    bc.onmessage = function(){ loadPosts(true); };
+  } catch(e){}
+  window.addEventListener('storage', function(ev){
+    if(ev.key === 'wd_blog_ts') loadPosts(true);
+  });
+  window.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') loadPosts(true);
+  });
+  setInterval(function(){
+    if(document.hidden) return;
+    loadPosts(true);
+  }, 30000);
+}
+initBlogSync();
 
 const purpleCols = ['rgba(181,140,255,.9)','rgba(255,107,241,.85)','rgba(230,180,255,.75)','rgba(181,140,255,.55)','rgba(255,255,255,.4)'];
 function makePurpleParticles(containerId,count){

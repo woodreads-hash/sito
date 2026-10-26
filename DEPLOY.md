@@ -51,9 +51,16 @@ exactly the Netlify layout this site already had.
 
 ### Backend attuale
 - **Supabase è il backend principale** (il browser interroga direttamente l'API REST):
-  `day_configs` (fasce orarie, chiusure, note del giorno) e `blog_posts` (articoli).
-  La tabella `faqs` non esiste ancora nel progetto: eseguire `supabase/schema.sql`
-  nella SQL editor di Supabase per crearla (FAQ in cloud + contatori).
+  `blog_posts` (articoli, media e contatori), `day_configs` (fasce orarie, chiusure,
+  note del giorno), `faqs` (domande + statistiche), `gallery_photos` (galleria) e
+  `quiz_results` (percorsi anonimi del mini quiz).
+- Eseguire `supabase/schema.sql` nella SQL editor di Supabase per creare/aggiornare
+  tabelle, policy RLS, bucket `gallery` e funzioni RPC `blog_track_view` /
+  `blog_track_time`. Lo script è idempotente e include un articolo dimostrativo
+  eliminabile dall'admin.
+- Il blog pubblico legge solo `blog_posts.status = 'published'`; l'admin scrive
+  direttamente su Supabase. I contatori di visualizzazioni e tempo di lettura sono
+  aggiornati con RPC atomiche, senza funzioni serverless aggiuntive.
 - **Strapi non è più disponibile**: galleria, slot di prenotazione e contatori social
   hanno fallback (payload vuoti, valori statici, CTA WhatsApp). Le funzioni in
   `api/_lib/handlers/` rispondono 200 con dati vuoti invece di 500.
@@ -91,6 +98,8 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 - `api/_lib/route.js` — mapping tra rotta pubblica e sotto-rotta del dominio.
 - `api/_lib/dev-server.js` — local dev server (static + API).
 - `api/_lib/strapi.js` — optional-backend helper (`hasBackend`, `apiUrl`, `isBackendError`).
+- `blog-utils.js` — sanitizzazione HTML, conversione Markdown/plain text, slug, reading time
+  e helper YouTube condivisi da admin e pagina articolo.
 - `netlify/functions/*.js` — thin Netlify wrappers around the same handlers
   (used by the Netlify fallback deploy).
 - `.vercelignore` — keeps `api-gateway/`, `progetto-locale/`, `strapi/`, `hermes/`,
@@ -105,7 +114,9 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 - `.env` e `.env.local` sono in `.gitignore` **e** in `.vercelignore`: il file non viene
   committato né pubblicato come file statico.
 - HTTPS and secure headers are configured in `vercel.json` (and mirrored in `netlify.toml`).
-- Backend blog endpoints are proxied through the serverless functions to Strapi.
+- Blog, quiz, FAQ and gallery use Supabase directly from the browser. The legacy
+  serverless blog endpoints remain available for compatibility but are not used by
+  the public pages.
 
 ## Admin access
 - Public link to `/admin` is removed from the site (`/admin` answers 404).
@@ -113,18 +124,22 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 - Replace hardcoded admin credentials with hashed server-side credentials before production.
 
 ## Data persistence
-- Production data is stored in Supabase (blog posts + calendar day configuration + FAQ).
-- Run `supabase/schema.sql` in the Supabase SQL editor once to create/refresh the
-  `blog_posts`, `day_configs` and `faqs` tables (and their RLS policies) before going live.
-- Calendar availability (days, time bands, notes) is written by the admin panel to
-  Supabase and read by the public calendar in near real time (polling + BroadcastChannel).
-- FAQ content is managed from the admin tab “FAQ” and stored in the `faqs` table. The 30
-  default questions live in `faq-data.js` (`window.WD_DEFAULT_FAQS`) and are shared by the
-  site and the admin panel. The public page also tracks openings, reading time and shares;
-  counters are written back to Supabase and mirrored to LocalStorage as a fallback.
-- LocalStorage is only a fallback/cache layer and should not be relied on for published content.
-- If Supabase is unreachable, the FAQ admin keeps working in LocalStorage and the
-  “Sincronizza al cloud” button re-uploads all questions once the backend is available.
+- Production data is stored in Supabase: `blog_posts`, `day_configs`, `faqs`,
+  `gallery_photos` and `quiz_results`.
+- Run `supabase/schema.sql` in the Supabase SQL editor to create/refresh tables, RLS
+  policies, the public `gallery` bucket and the `blog_track_view` / `blog_track_time`
+  RPC functions.
+- Blog articles are created, edited and deleted from the admin panel directly on
+  Supabase. The public blog, article page and homepage preview read only published
+  posts; BroadcastChannel, storage events and polling keep open tabs in sync.
+- Blog views and reading time are updated through the two RPC functions; the admin
+  shows total views, average time and per-article counters.
+- Quiz results are inserted directly into `quiz_results`; the admin reads them from
+  Supabase and refreshes every 15 seconds while the tab is open.
+- Calendar availability, FAQ content and gallery photos are also managed from the
+  admin panel and stored in Supabase.
+- LocalStorage remains a fallback/cache layer only (FAQ, calendar, gallery, quiz).
+  It is not the source of truth for published blog content.
 
 ## Fallback: Netlify
 Netlify is no longer the target (credits exhausted), but the project still deploys there:

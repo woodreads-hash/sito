@@ -1935,14 +1935,20 @@ function finishQuiz(result){
   const cta = consult
     ? '<a href="https://wa.me/393485393826" target="_blank" rel="noopener" class="btn btn-g">💬 Contattaci su WhatsApp</a>'
     : '<a href="#appt" class="btn btn-gl">Prenota ora →</a>';
-  // Salva il percorso nel localStorage per il pannello admin
+  const quizPayload = { result: (safeResult.title||'Risultato'), consult, path: quizPath.slice(), ts:new Date().toISOString() };
   try{
     const key='wd_quiz_results';
     const arr=JSON.parse(localStorage.getItem(key)||'[]');
-    arr.push({ result: (safeResult.title||'Risultato'), consult, path: quizPath.slice(), ts:new Date().toISOString() });
+    arr.push(quizPayload);
     if(arr.length>300) arr.splice(0, arr.length-300);
     localStorage.setItem(key, JSON.stringify(arr));
   }catch(e){}
+  if(window.supabaseSaveQuizResult){
+    Promise.resolve(window.supabaseSaveQuizResult(quizPayload)).then(function(){
+      try { localStorage.setItem('wd_quiz_ts', String(Date.now())); } catch(e){}
+      try { new BroadcastChannel('woodreads-quiz').postMessage({ type:'quiz-updated' }); } catch(e){}
+    }).catch(function(){});
+  }
   document.getElementById('qres-box').innerHTML=
     '<div class="qres-emoji">'+(safeResult.emoji||'🌀')+'</div>'+
     '<h3>'+ (safeResult.title||'Risultato') +'</h3>'+
@@ -2750,28 +2756,12 @@ function escHtml(s){
   if(!s) return '';
   const d = document.createElement('div');
   d.textContent = s;
-  return d.innerHTML;
+  return d.innerHTML.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 
 /* BLOG PREVIEW (home) */
-const BLOG_API='/.netlify/functions/blog';
-function escHtml2(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function imgUrl2(img,size){
-  if(!img||!img.url) return '';
-  const base = img.url.startsWith('http')?'':(BLOG_API.replace(/\/[^/]+$/,''));
-  if(size && img.formats && img.formats[size]) return base+img.formats[size].url;
-  return base+img.url;
-}
-const HOME_DEFAULT_POST = {
-  title:"Guida definitiva alla manutenzione dei dreadlocks naturali a Roma: come curarli senza cera",
-  slug:"guida-manutenzione-dreads-naturali-roma",
-  category:{name:'Manutenzione'},
-  excerpt:"Scopri come lavare, idratare, proteggere e prevenire odori o frizz senza usare cera.",
-  coverImage:{url:"https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80"},
-  publishedAt:"2026-01-15T09:00:00.000Z",
-  readingTime:6
-};
+function escHtml2(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML.replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 function mapLandingSupabasePost(row){
   return {
@@ -2789,26 +2779,19 @@ async function loadBlogPreview(){
   const grid=document.getElementById('blog-preview-grid');
   if(!grid) return;
   try{
-    let items=[];
-    try {
-      const rows = await window.supabaseFetch('/rest/v1/'+window.SUPABASE_TABLE+'?select=*&status=eq.published&order=created_at.desc&limit=3');
-      items = (rows||[]).map(mapLandingSupabasePost);
-    } catch(_) {
-      const r=await fetch(BLOG_API+'?p=1&n=3');
-      if(!r.ok) throw new Error('http '+r.status);
-      const d=await r.json();
-      const apiItems=(d.data||d||[]).map(p=>{const a=p.attributes||p;return {id:p.id,...a};});
-      items=apiItems;
+    if(!window.supabaseGetBlogPosts) throw new Error('Supabase non disponibile');
+    const rows = await window.supabaseGetBlogPosts({ status:'published', limit:3 });
+    const items = (rows||[]).map(mapLandingSupabasePost);
+    if(!items.length){
+      grid.innerHTML='<div style="color:var(--muted-d);font-size:.85rem;padding:1rem 0;">Nessun articolo pubblicato ancora.</div>';
+      return;
     }
-    if(!items.length){ items=[HOME_DEFAULT_POST]; }
-    if(!items.some(p=>(p.slug||'')===HOME_DEFAULT_POST.slug)) items=[HOME_DEFAULT_POST,...items];
-    if(!items.length){ grid.innerHTML='<div style="color:var(--muted-d);">Nessun articolo pubblicato ancora.</div>'; return; }
     grid.innerHTML=items.map(post=>{
-      const cover=imgUrl2(post.coverImage,'medium')||imgUrl2(post.coverImage);
-      const cat=post.category?.data?.attributes?.name||post.category?.name||'';
+      const cover=post.coverImage?post.coverImage.url:'';
+      const cat=post.category?post.category.name:'';
       const date=post.publishedAt?new Date(post.publishedAt).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
       return '<article class="bp-card">'+
-        (cover?'<a class="bp-thumb" href="blog-post.html?slug='+encodeURIComponent(post.slug)+'"><img src="'+cover+'" alt="'+escHtml2(post.title)+'" loading="lazy" decoding="async"/></a>':'')+
+        (cover?'<a class="bp-thumb" href="blog-post.html?slug='+encodeURIComponent(post.slug)+'"><img src="'+escHtml2(cover)+'" alt="'+escHtml2(post.title)+'" loading="lazy" decoding="async"/></a>':'')+
         '<div class="bp-body">'+
         (cat?'<span class="bp-cat">'+escHtml2(cat)+'</span>':'')+
         '<h3><a href="blog-post.html?slug='+encodeURIComponent(post.slug)+'">'+escHtml2(post.title)+'</a></h3>'+
@@ -2818,8 +2801,27 @@ async function loadBlogPreview(){
         '</div></article>';
     }).join('');
   }catch(e){
-    grid.innerHTML = '<article class="bp-card"><div class="bp-thumb"><img src="'+HOME_DEFAULT_POST.coverImage.url+'" alt="'+escHtml2(HOME_DEFAULT_POST.title)+'" loading="lazy" decoding="async"/></div><div class="bp-body"><span class="bp-cat">'+escHtml2(HOME_DEFAULT_POST.category.name)+'</span><h3><a href="blog-post.html?slug='+encodeURIComponent(HOME_DEFAULT_POST.slug)+'">'+escHtml2(HOME_DEFAULT_POST.title)+'</a></h3><p>'+escHtml2(HOME_DEFAULT_POST.excerpt)+'</p><a class="bp-read" href="blog-post.html?slug='+encodeURIComponent(HOME_DEFAULT_POST.slug)+'">Leggi →</a></div></article>';
+    grid.innerHTML='<div style="color:var(--muted-d);font-size:.85rem;padding:1rem 0;">Blog temporaneamente non disponibile.</div>';
   }
+}
+
+function initBlogPreviewSync(){
+  if(window.__blogPreviewSync) return;
+  window.__blogPreviewSync = true;
+  try{
+    const bc = new BroadcastChannel('woodreads-blog');
+    bc.onmessage = function(){ loadBlogPreview(); };
+  }catch(e){}
+  window.addEventListener('storage', function(ev){
+    if(ev.key === 'wd_blog_ts') loadBlogPreview();
+  });
+  window.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') loadBlogPreview();
+  });
+  setInterval(function(){
+    if(document.hidden) return;
+    loadBlogPreview();
+  }, 30000);
 }
 
 /* ── Real-time calendar state sync (polling + broadcast) ── */
@@ -2872,6 +2874,7 @@ loadSiteData();
 loadShowroom();
 initGallerySync();
 loadBlogPreview();
+initBlogPreviewSync();
 refreshCalendarState();
 setInterval(refreshCalendarState, 5000);
 document.addEventListener('visibilitychange', () => {

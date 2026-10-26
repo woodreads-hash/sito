@@ -64,7 +64,9 @@
           <tr><td><code>wd_faqs</code></td><td>Cache locale delle FAQ e contatori di lettura</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
           <tr><td><code>wd_faq_global_shares</code></td><td>Contatore locale delle condivisioni delle FAQ</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
           <tr><td><code>wd_calendar_data</code></td><td>Cache locale delle disponibilità del calendario</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
-          <tr><td><code>wd_quiz_results</code></td><td>Risultati del mini quiz salvati solo sul dispositivo</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
+          <tr><td><code>wd_quiz_results</code></td><td>Copia locale di fallback dei risultati del mini quiz; il dato principale è su Supabase</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
+          <tr><td><code>wd_quiz_ts</code></td><td>Timestamp tecnico di sincronizzazione dei risultati quiz</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
+          <tr><td><code>wd_blog_ts</code></td><td>Timestamp tecnico di sincronizzazione degli articoli del blog</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
           <tr><td><code>wd_social_stats</code></td><td>Cache locale dei numeri social mostrati nel sito</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
           <tr><td><code>wd_gallery_ts</code></td><td>Timestamp di sincronizzazione della galleria</td><td>Fino a cancellazione</td><td>Funzionale</td></tr>
         </tbody>
@@ -72,12 +74,12 @@
     </div>
     <p>Nessuno di questi strumenti contiene nome, cognome, numero di telefono, email o altri dati personali. Sono informazioni tecniche che restano sul tuo dispositivo e che puoi eliminare in autonomia.</p>
     <h3>Area riservata</h3>
-    <p>Nell'area riservata al titolare (accessibile solo con credenziali) vengono salvate sul dispositivo dell'operatore le chiavi <code>wd_id_hash</code> e <code>wd_pw_hash</code> (credenziali cifrate) e la cache <code>wd_blog_articles</code>. Non riguardano i visitatori del sito.</p>
+    <p>Nell'area riservata al titolare (accessibile solo con credenziali) vengono salvate sul dispositivo dell'operatore le chiavi <code>wd_id_hash</code> e <code>wd_pw_hash</code> (credenziali cifrate), la cache locale delle FAQ (<code>wd_faqs</code>) e i timestamp di sincronizzazione (<code>wd_blog_ts</code>, <code>wd_quiz_ts</code>). Non riguardano i visitatori del sito.</p>
   </section>
 
   <section>
     <h2>4. Statistiche aggregate</h2>
-    <p>Il sito registra su database alcuni conteggi aggregati e anonimi, ad esempio quante volte una FAQ viene letta o condivisa. Questi conteggi <strong>non contengono indirizzi IP, nomi o identificatori</strong> e non permettono di risalire alla singola persona: servono solo a capire quali contenuti sono utili e a migliorare il servizio.</p>
+    <p>Il sito registra su database alcuni conteggi aggregati e anonimi, ad esempio quante volte una FAQ viene letta o condivisa, quante visualizzazioni riceve un articolo, il tempo medio di permanenza e i percorsi anonimi del mini quiz. Questi conteggi <strong>non contengono indirizzi IP, nomi o identificatori personali</strong> e non permettono di risalire alla singola persona: servono solo a capire quali contenuti sono utili e a migliorare il servizio.</p>
   </section>
 
   <section>
