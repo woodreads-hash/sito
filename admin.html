@@ -473,6 +473,14 @@ tr:hover{background:rgba(140,255,0,.02);}
               <span style="font-size:.72rem;color:var(--muted-d);">Incolla da Word, Google Docs o pagine web: grassetti, corsivi, titoli H1/H2/H3 e liste vengono mantenuti e sanitizzati.</span>
               <span id="bl-editor-info" style="font-size:.72rem;color:var(--purple);"></span>
             </div>
+            <div style="margin-top:1rem;padding:.9rem 1rem;border:1px solid rgba(255,92,168,.28);border-radius:12px;background:rgba(255,92,168,.045);">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:.7rem;flex-wrap:wrap;">
+                <div style="font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:#ff7bf1;font-weight:700;">🗑 Media nell'articolo <span id="bl-editor-media-count">0</span></div>
+                <button type="button" class="btn-sm reject" id="bl-remove-all-media" onclick="removeAllBlogEditorMedia()" style="padding:.35rem .7rem;display:none;">Rimuovi tutti</button>
+              </div>
+              <div id="bl-editor-media" style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.65rem;"></div>
+              <div id="bl-editor-media-empty" style="font-size:.75rem;color:var(--muted-d);line-height:1.5;">Nessun media nel corpo. Immagini, GIF e video inseriti compariranno qui con un pulsante per rimuoverli.</div>
+            </div>
           </div>
         </div>
 
@@ -480,23 +488,31 @@ tr:hover{background:rgba(140,255,0,.02);}
           <div style="font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--purple);font-weight:700;margin-bottom:.8rem;">Media e collegamenti</div>
           <div class="fgrow">
             <div class="fg">
-              <label>Immagine di copertina (URL)</label>
-              <div style="display:flex;gap:.5rem;align-items:center;">
+              <label>Immagine di copertina (solo anteprime)</label>
+              <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
                 <input type="url" id="bl-cover" placeholder="https://… oppure scegli dal bucket" style="flex:1;min-width:0;" oninput="previewBlogMedia('cover')">
                 <button type="button" class="btn-sm" onclick="openBlogMedia('cover')" style="padding:.55rem .8rem;white-space:nowrap;">Scegli</button>
+                <button type="button" class="btn-sm reject" onclick="clearBlogMediaField('cover')" style="padding:.55rem .8rem;white-space:nowrap;">Rimuovi</button>
               </div>
               <div id="bl-cover-preview" style="margin-top:.6rem;"></div>
             </div>
             <div class="fg">
-              <label>Video/GIF di copertina (URL)</label>
-              <div style="display:flex;gap:.5rem;align-items:center;">
+              <label>Video/GIF (sezione finale)</label>
+              <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
                 <input type="url" id="bl-video-url" placeholder="https://… mp4, webm o gif" style="flex:1;min-width:0;" oninput="previewBlogMedia('video')">
                 <button type="button" class="btn-sm" onclick="openBlogMedia('video')" style="padding:.55rem .8rem;white-space:nowrap;">Scegli</button>
+                <button type="button" class="btn-sm reject" onclick="clearBlogMediaField('video')" style="padding:.55rem .8rem;white-space:nowrap;">Rimuovi</button>
               </div>
               <div id="bl-video-preview" style="margin-top:.6rem;"></div>
             </div>
           </div>
-          <div class="fg"><label>Link video YouTube</label><input type="text" id="bl-yt" placeholder="https://www.youtube.com/watch?v=..."></div>
+          <div class="fg">
+            <label>Link video YouTube (sezione finale)</label>
+            <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+              <input type="text" id="bl-yt" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;min-width:0;">
+              <button type="button" class="btn-sm reject" onclick="clearBlogMediaField('youtube')" style="padding:.55rem .8rem;white-space:nowrap;">Rimuovi</button>
+            </div>
+          </div>
         </div>
 
         <div style="display:flex;gap:.7rem;flex-wrap:wrap;justify-content:flex-end;padding-top:.5rem;border-top:1px solid rgba(245,245,247,.08);">
@@ -971,6 +987,7 @@ let blogSaving = false;
 let blogEditorRange = null;
 let blogMediaTarget = '';
 let blogMediaSelection = null;
+let blogMediaSignature = null;
 
 function blogAttr(value){
   return String(value == null ? '' : value)
@@ -1039,6 +1056,144 @@ function updateBlogEditorInfo(){
   const words = window.WD_BLOG.textFromHtml(editor.innerHTML).split(/\s+/).filter(Boolean).length;
   const minutes = window.WD_BLOG.readingTime(editor.innerHTML);
   info.textContent = words + ' parole · ~' + minutes + ' min';
+  renderBlogEditorMedia();
+}
+
+function blogEditorMediaItems(){
+  const editor = document.getElementById('bl-editor');
+  return editor ? Array.prototype.slice.call(editor.querySelectorAll('img, video, iframe')) : [];
+}
+
+function blogMediaUrl(el){
+  if (!el) return '';
+  let url = el.getAttribute('src') || '';
+  if (!url && el.tagName.toLowerCase() === 'video'){
+    const source = el.querySelector('source');
+    if (source) url = source.getAttribute('src') || '';
+  }
+  return url;
+}
+
+function blogMediaLabel(el){
+  const tag = el ? el.tagName.toLowerCase() : '';
+  if (tag === 'iframe') return 'Video incorporato';
+  if (tag === 'video') return 'Video';
+  return window.WD_BLOG && window.WD_BLOG.isGifUrl(blogMediaUrl(el)) ? 'GIF' : 'Immagine';
+}
+
+function blogMediaName(url){
+  const value = String(url || '');
+  const name = value.split('/').pop().split('?')[0] || value;
+  try { return decodeURIComponent(name); } catch(e){ return name; }
+}
+
+function blogMediaThumb(el){
+  const tag = el ? el.tagName.toLowerCase() : '';
+  const url = blogMediaUrl(el);
+  const style = 'width:52px;height:52px;border-radius:8px;object-fit:cover;display:block;background:var(--dark2);border:1px solid rgba(255,255,255,.08);';
+  if (tag === 'iframe') return '<span style="' + style + 'display:flex;align-items:center;justify-content:center;color:var(--purple);font-size:1.2rem;">▶</span>';
+  if (tag === 'video') return '<video src="' + blogAttr(url) + '" muted playsinline preload="metadata" style="' + style + '"></video>';
+  return '<img src="' + blogAttr(url) + '" alt="" loading="lazy" style="' + style + '"/>';
+}
+
+function cleanupBlogEditorEmptyWrappers(editor){
+  if (!editor) return;
+  Array.prototype.slice.call(editor.querySelectorAll('p, div, figure')).forEach(function(el){
+    if (el.querySelector('img, video, iframe')) return;
+    if (el.textContent.trim()) return;
+    if (el.querySelector('br, hr')) return;
+    if (!el.children.length) el.remove();
+  });
+}
+
+function renderBlogEditorMedia(){
+  const box = document.getElementById('bl-editor-media');
+  const empty = document.getElementById('bl-editor-media-empty');
+  const count = document.getElementById('bl-editor-media-count');
+  const removeAll = document.getElementById('bl-remove-all-media');
+  if (!box) return;
+  const items = blogEditorMediaItems();
+  const signature = items.map(function(el){ return el.tagName + ':' + blogMediaUrl(el); }).join('|');
+  if (signature === blogMediaSignature) return;
+  blogMediaSignature = signature;
+  if (count) count.textContent = items.length;
+  if (empty) empty.style.display = items.length ? 'none' : '';
+  if (removeAll) removeAll.style.display = items.length > 1 ? '' : 'none';
+  if (!items.length){ box.innerHTML = ''; return; }
+  box.innerHTML = items.map(function(el, index){
+    const url = blogMediaUrl(el);
+    return '<div style="display:flex;align-items:center;gap:.55rem;padding:.4rem .5rem;border:1px solid rgba(255,123,241,.25);border-radius:10px;background:rgba(6,8,16,.6);max-width:100%;">' +
+      blogMediaThumb(el) +
+      '<div style="min-width:0;max-width:190px;">' +
+        '<div style="font-size:.58rem;letter-spacing:1.4px;text-transform:uppercase;color:#ff7bf1;font-weight:700;">' + esc(blogMediaLabel(el)) + '</div>' +
+        '<div style="font-size:.64rem;color:var(--muted-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(blogMediaName(url)) + '</div>' +
+      '</div>' +
+      '<button type="button" class="btn-sm reject" data-blog-media-remove="' + index + '" style="padding:.35rem .55rem;white-space:nowrap;">Rimuovi</button>' +
+    '</div>';
+  }).join('');
+  box.querySelectorAll('[data-blog-media-remove]').forEach(function(btn){
+    btn.addEventListener('click', function(){ removeBlogEditorMedia(Number(this.getAttribute('data-blog-media-remove'))); });
+  });
+}
+
+function removeBlogEditorMedia(index){
+  const editor = document.getElementById('bl-editor');
+  if (!editor) return;
+  const items = blogEditorMediaItems();
+  const el = items[index];
+  if (!el) return;
+  const figure = el.closest('figure');
+  const link = el.closest('a');
+  if (figure && figure.querySelectorAll('img, video, iframe').length === 1){
+    figure.remove();
+  } else {
+    el.remove();
+  }
+  if (link && !link.textContent.trim() && !link.querySelector('img, video, iframe')) link.remove();
+  cleanupBlogEditorEmptyWrappers(editor);
+  blogMediaSignature = null;
+  updateBlogEditorInfo();
+  toast('Media rimosso dall’articolo');
+}
+
+function removeAllBlogEditorMedia(){
+  const editor = document.getElementById('bl-editor');
+  const items = blogEditorMediaItems();
+  if (!editor || !items.length){ toast('Nessun media da rimuovere', true); return; }
+  if (!confirm('Rimuovere tutti i media dal corpo dell’articolo?')) return;
+  items.forEach(function(el){
+    const figure = el.closest('figure');
+    if (figure && figure.querySelectorAll('img, video, iframe').length === 1){
+      figure.remove();
+    } else {
+      el.remove();
+    }
+  });
+  cleanupBlogEditorEmptyWrappers(editor);
+  blogMediaSignature = null;
+  updateBlogEditorInfo();
+  toast('Tutti i media rimossi dall’articolo');
+}
+
+function clearBlogMediaField(kind){
+  if (kind === 'cover'){
+    const input = document.getElementById('bl-cover');
+    const preview = document.getElementById('bl-cover-preview');
+    if (input) input.value = '';
+    if (preview) preview.innerHTML = '';
+    return;
+  }
+  if (kind === 'video'){
+    const input = document.getElementById('bl-video-url');
+    const preview = document.getElementById('bl-video-preview');
+    if (input) input.value = '';
+    if (preview) preview.innerHTML = '';
+    return;
+  }
+  if (kind === 'youtube'){
+    const input = document.getElementById('bl-yt');
+    if (input) input.value = '';
+  }
 }
 
 function clearBlogEditor(){
@@ -1058,6 +1213,8 @@ function clearBlogEditor(){
   blogSlugTouched = false;
   blogEditorRange = null;
   blogMediaSelection = null;
+  blogMediaSignature = null;
+  renderBlogEditorMedia();
 }
 
 function blogListRow(a){
@@ -1132,6 +1289,7 @@ function loadBlogEdit(id){
   document.getElementById('bl-video-url').value = article.videoUrl;
   document.getElementById('bl-yt').value = article.youtube;
   document.getElementById('bl-editor').innerHTML = window.WD_BLOG.sanitizeHtml(article.text);
+  blogMediaSignature = null;
   previewBlogMedia('cover');
   previewBlogMedia('video');
   updateBlogEditorInfo();
