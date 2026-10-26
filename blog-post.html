@@ -14,6 +14,7 @@
 <meta property="og:locale" content="it_IT"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="cookie-consent.css"/>
 <link rel="canonical" href=""/>
 <style>
 :root{color-scheme:only light;--green:#8CFF00;--purple:#B58CFF;--lime:#E6FF4D;--dark:#0D0D0F;--dark2:#111116;--mid:#1E1E24;--cream:#F7F4EE;--text-d:#F5F5F7;--text-l:#1A1A1E;--muted-d:rgba(245,245,247,.6);--fd:'Orbitron',sans-serif;--fb:'Exo 2',sans-serif;}
@@ -59,6 +60,9 @@ article .content code{background:var(--mid);padding:.15rem .4rem;border-radius:4
 .nav-btn.game:hover{background:var(--green);color:var(--dark);}
 
 footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
+footer a{color:var(--green);}
+footer a:hover{color:var(--lime);}
+footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5rem;flex-wrap:wrap;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;}
 @media(max-width:640px){h1{font-size:1.8rem;}}
 
 /* ── Purple neon particles & plants ── */
@@ -110,6 +114,7 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
   <ul>
     <li><a href="index.html">Home</a></li>
     <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#faq">FAQ</a></li>
     <li><a href="index.html#appt">Prenota</a></li>
   </ul>
 </nav>
@@ -119,7 +124,13 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
     <div class="loading">Caricamento articolo…</div>
   </div>
 </div>
-<footer>© 2025 WooDreads – Roma & Provincia</footer>
+<footer>
+  © 2025 WooDreads – Roma &amp; Provincia
+  <div class="legal-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="cookie-policy.html">Cookie Policy</a>
+  </div>
+</footer>
 
 <script src="supabase-config.js"></script>
 <script>
@@ -306,5 +317,6 @@ function makePurpleParticles(containerId,count){
 makePurpleParticles('blog-particles', 75);
 
 </script>
+<script src="cookie-consent.js" defer></script>
 </body>
 </html>

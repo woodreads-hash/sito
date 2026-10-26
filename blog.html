@@ -14,6 +14,7 @@
 <meta property="og:locale" content="it_IT"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="cookie-consent.css"/>
 <style>
 :root{color-scheme:only light;--green:#8CFF00;--purple:#B58CFF;--lime:#E6FF4D;--dark:#0D0D0F;--dark2:#111116;--mid:#1E1E24;--cream:#F7F4EE;--text-d:#F5F5F7;--text-l:#1A1A1E;--muted-d:rgba(245,245,247,.5);--fd:'Orbitron',sans-serif;--fb:'Exo 2',sans-serif;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -50,6 +51,9 @@ nav a:hover{color:var(--green);}
 .blog-home-btn{display:inline-flex;padding:.8rem 1.6rem;border:1px solid rgba(140,255,0,.4);border-radius:10px;color:var(--green);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:.8rem;background:rgba(140,255,0,.06);transition:.2s;}
 .blog-home-btn:hover{background:var(--green);color:var(--dark);box-shadow:0 0 24px rgba(140,255,0,.35);}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem 0;color:var(--muted-d);font-size:.8rem;text-align:center;}
+footer a{color:var(--green);}
+footer a:hover{color:var(--lime);}
+footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5rem;flex-wrap:wrap;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;}
 @media(max-width:640px){.grid{grid-template-columns:1fr;}}
 
 /* ── Purple neon particles & plants ── */
@@ -101,6 +105,7 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
   <ul>
     <li><a href="index.html">Home</a></li>
     <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#faq">FAQ</a></li>
     <li><a href="index.html#appt">Prenota</a></li>
   </ul>
 </nav>
@@ -119,7 +124,13 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
     <a href="index.html" class="btn btn-vp blog-home-btn">← Torna alla home</a>
   </div>
 </main>
-<footer>© 2025 WooDreads – Roma & Provincia</footer>
+<footer>
+  © 2025 WooDreads – Roma &amp; Provincia
+  <div class="legal-links">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="cookie-policy.html">Cookie Policy</a>
+  </div>
+</footer>
 
 <script src="supabase-config.js"></script>
 <script>
@@ -271,5 +282,6 @@ function makePurpleParticles(containerId,count){
 makePurpleParticles('blog-particles', 75);
 
 </script>
+<script src="cookie-consent.js" defer></script>
 </body>
 </html>
