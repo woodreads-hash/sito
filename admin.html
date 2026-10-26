@@ -535,6 +535,10 @@ tr:hover{background:rgba(140,255,0,.02);}
       </div>
     </div>
 
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;margin:1.2rem 0 .7rem;">
+      <div style="font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--purple);font-weight:700;">📊 Statistiche blog</div>
+      <button type="button" class="btn-sm reject" id="bl-reset-stats" onclick="resetBlogStats()" style="padding:.45rem .8rem;">↺ Azzera statistiche blog</button>
+    </div>
     <div class="stats-row" id="blog-analytics-row">
       <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali</div><div class="sub">Aperture degli articoli pubblicati</div></div>
       <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio di permanenza</div><div class="sub">Media reale per visualizzazione</div></div>
@@ -1273,6 +1277,24 @@ function updateBlogAnalytics(){
   if (v) v.textContent = views.toLocaleString('it-IT');
   if (ti) ti.textContent = avg ? window.WD_BLOG.formatDuration(avg) : '0s';
   if (pc) pc.textContent = published.length;
+}
+
+async function resetBlogStats(){
+  if (!window.supabaseResetBlogStats){ toast('Supabase non disponibile', true); return; }
+  if (!confirm('Azzerare visualizzazioni totali e tempo medio di tutti gli articoli? L’operazione non può essere annullata.')) return;
+  const btn = document.getElementById('bl-reset-stats');
+  if (btn){ btn.disabled = true; btn.textContent = 'Azzeramento…'; }
+  try {
+    await window.supabaseResetBlogStats();
+    blogPosts = blogPosts.map(function(a){ return Object.assign({}, a, {views:0, timeOnPage:0}); });
+    renderBlogLists();
+    updateBlogAnalytics();
+    toast('Statistiche blog azzerate');
+  } catch(e) {
+    toast('Errore azzeramento: ' + (e.message || 'riprova'), true);
+  } finally {
+    if (btn){ btn.disabled = false; btn.textContent = '↺ Azzera statistiche blog'; }
+  }
 }
 
 function loadBlogEdit(id){

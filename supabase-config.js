@@ -153,6 +153,18 @@ window.supabaseDeleteBlogPost = async function (id) {
   );
 };
 
+window.supabaseResetBlogStats = async function (id) {
+  const filter = id ? '?id=eq.' + encodeURIComponent(id) : '?id=not.is.null';
+  return window.supabaseFetch(
+    '/rest/v1/' + window.SUPABASE_TABLE + filter,
+    {
+      method: 'PATCH',
+      headers: window.supabaseHeaders({ 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ views: 0, time_on_page: 0 })
+    }
+  );
+};
+
 window.supabaseTrackBlogView = async function (id) {
   if (!id) return null;
   return window.supabaseFetch('/rest/v1/rpc/blog_track_view', {
