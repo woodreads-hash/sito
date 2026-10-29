@@ -76,6 +76,8 @@ a{color:var(--green);text-decoration:none;}
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid rgba(245,245,247,.06);}
 .sec-hdr h3{font-family:var(--fd);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;}
 .sec-hdr .count{background:rgba(140,255,0,.1);color:var(--green);border-radius:999px;padding:.15rem .65rem;font-size:.7rem;font-weight:700;}
+.sec-hdr-right{display:inline-flex;align-items:center;gap:.35rem;}
+.sec-hdr-right .week-badge{margin-left:0;}
 .sec-body{padding:0;}
 .sec-body.empty{padding:2rem;text-align:center;color:var(--muted-d);font-size:.85rem;}
 
@@ -107,6 +109,40 @@ tr:hover{background:rgba(140,255,0,.02);}
 .qlink:hover{background:rgba(140,255,0,.06);border-color:var(--green);transform:translateY(-3px);}
 .qlink .icon{font-size:1.6rem;margin-bottom:.5rem;display:block;}
 .qlink .name{font-family:var(--fd);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;}
+
+/* DASHBOARD ANALYTICS */
+.dash-analytics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2rem;margin-bottom:1.5rem;}
+.dash-card{background:var(--mid);border:1px solid rgba(245,245,247,.06);border-radius:14px;padding:1.25rem;min-width:0;}
+.dash-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;}
+.dash-kicker{font-size:.56rem;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted-d);}
+.dash-card-head h3{font-family:var(--fd);font-size:1rem;letter-spacing:1.5px;text-transform:uppercase;margin-top:.15rem;}
+.dash-open{border:1px solid rgba(140,255,0,.22);background:rgba(140,255,0,.06);color:var(--green);border-radius:999px;padding:.35rem .7rem;font-family:var(--fb);font-size:.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.dash-open:hover{background:var(--green);color:var(--dark);}
+.dash-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;}
+.dash-metric{background:rgba(245,245,247,.03);border:1px solid rgba(245,245,247,.05);border-radius:10px;padding:.75rem .7rem;min-width:0;}
+.dash-val{font-family:var(--fd);font-size:1.45rem;line-height:1;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dash-val.p{color:var(--purple);}
+.dash-val.l{color:var(--lime);}
+.dash-lbl{font-size:.56rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted-d);margin-top:.35rem;line-height:1.35;}
+.dash-lbl .week-badge{font-size:.5rem;padding:.04rem .28rem;margin-left:.2rem;}
+.dash-foot{font-size:.7rem;color:var(--muted-d);margin-top:.85rem;line-height:1.5;}
+.dash-subhead{font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin:1rem 0 .45rem;padding-top:.85rem;border-top:1px solid rgba(245,245,247,.06);}
+.dash-rank{display:grid;gap:.35rem;}
+.dash-rank-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.38rem 0;border-bottom:1px solid rgba(245,245,247,.04);font-size:.74rem;}
+.dash-rank-row:last-child{border-bottom:0;}
+.dash-rank-q{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-d);}
+.dash-rank-n{display:inline-flex;align-items:center;gap:.2rem;color:var(--green);font-family:var(--fd);font-size:.78rem;white-space:nowrap;}
+.dash-rank-n .week-badge{font-size:.5rem;padding:.04rem .28rem;margin-left:0;}
+.dash-empty{font-size:.72rem;color:var(--muted-d);padding:.5rem 0;}
+.dash-summary{padding:1.35rem 1.4rem;}
+.dash-note{font-size:.72rem;color:var(--muted-d);line-height:1.55;margin:-.2rem 0 1rem;max-width:70ch;}
+.dash-summary-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.75rem;}
+.dash-group{background:rgba(245,245,247,.025);border:1px solid rgba(245,245,247,.05);border-radius:10px;padding:.8rem .85rem;}
+.dash-group h4{font-family:var(--fd);font-size:.66rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-d);margin-bottom:.4rem;}
+.dash-var{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.3rem 0;border-bottom:1px solid rgba(245,245,247,.04);font-size:.72rem;color:var(--muted-d);}
+.dash-var:last-child{border-bottom:0;}
+.dash-var .week-badge{font-size:.5rem;margin-left:0;}
+.dash-group-wide{grid-column:span 2;}
 
 /* WORKING HOURS */
 .hours-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem;padding:1.5rem;}
@@ -301,6 +337,20 @@ tr:hover{background:rgba(140,255,0,.02);}
   .faq-admin-row .fq-metrics{order:4;flex:1 1 100%;gap:1.4rem;padding-left:2.25rem;}
   .fq-metric{align-items:flex-start;}
 }
+@media(max-width:1100px){
+  .dash-analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .dash-group-wide{grid-column:span 1;}
+}
+@media(max-width:900px){
+  .dash-analytics-grid{grid-template-columns:1fr;}
+  .dash-summary-groups{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:600px){
+  .dash-card,.dash-summary{padding:1rem;}
+  .dash-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .dash-summary-groups{grid-template-columns:1fr;}
+  .dash-open{font-size:.52rem;padding:.3rem .55rem;}
+}
 </style>
 </head>
 <body>
@@ -322,13 +372,13 @@ tr:hover{background:rgba(140,255,0,.02);}
 <div class="header" id="admin-header" style="display:none;">
   <div class="hlogo">WOO<em>DREADS</em> <span class="badge">Admin</span></div>
   <div class="hnav">
-    <a href="#" class="active" onclick="showTab('dashboard',this)">Dashboard</a>
-    <a href="#" onclick="showTab('blog',this)">Blog</a>
-    <a href="#" onclick="showTab('faq',this)">FAQ</a>
-    <a href="#" onclick="showTab('photos',this)">Foto</a>
-    <a href="#" onclick="showTab('quiz',this)">Risultati Quiz</a>
-    <a href="#" class="hermes-nav" onclick="showTab('hermes',this)">Hermes <span class="h-ai">AI</span></a>
-    <a href="#" onclick="showTab('settings',this)">Credenziali</a>
+    <a href="#" class="active" data-tab="dashboard" onclick="showTab('dashboard',this)">Dashboard</a>
+    <a href="#" data-tab="blog" onclick="showTab('blog',this)">Blog</a>
+    <a href="#" data-tab="faq" onclick="showTab('faq',this)">FAQ</a>
+    <a href="#" data-tab="photos" onclick="showTab('photos',this)">Foto</a>
+    <a href="#" data-tab="quiz" onclick="showTab('quiz',this)">Risultati Quiz</a>
+    <a href="#" class="hermes-nav" data-tab="hermes" onclick="showTab('hermes',this)">Hermes <span class="h-ai">AI</span></a>
+    <a href="#" data-tab="settings" onclick="showTab('settings',this)">Credenziali</a>
     <a href="https://wa.me/393485393826" target="_blank" class="hide-mob">💬 WhatsApp</a>
     <button class="logout" onclick="logout()">Esci</button>
   </div>
@@ -413,33 +463,141 @@ tr:hover{background:rgba(140,255,0,.02);}
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
-        <div class="sec-body">
-          <table><thead><tr><th>Cliente</th><th>Servizio</th><th>Data</th><th>Ora</th><th>Status</th><th class="hide-mob">Note</th><th></th></tr></thead>
-          <tbody id="r-body"><tr class="loading-row"><td colspan="7">Caricamento…</td></tr></tbody></table>
+    <div class="dash-analytics-grid">
+      <section class="dash-card">
+        <div class="dash-card-head">
+          <div>
+            <div class="dash-kicker">Contenuti</div>
+            <h3>Blog</h3>
+          </div>
+          <button class="dash-open" type="button" onclick="openAdminTab('blog')">Apri blog →</button>
         </div>
-      </div>
+        <div class="dash-metrics">
+          <div class="dash-metric">
+            <div class="dash-val" id="dash-blog-views">0</div>
+            <div class="dash-lbl">Visualizzazioni <span class="week-badge" data-weekly="blog_views">+0</span></div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-val p" id="dash-blog-time">0s</div>
+            <div class="dash-lbl">Tempo medio <span class="week-badge" data-weekly="blog_time" data-weekly-format="duration-avg" data-weekly-denominator="blog_views">+0s</span></div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-val l" id="dash-blog-published">0</div>
+            <div class="dash-lbl">Articoli online <span class="week-badge" data-weekly="blog_published">+0</span></div>
+          </div>
+        </div>
+        <div class="dash-foot" id="dash-blog-foot">Caricamento dati blog…</div>
+      </section>
 
-      <div class="sec-card">
-        <div class="sec-hdr"><h3>Azioni Rapide</h3></div>
-        <div class="grid-3">
-          <a class="qlink" href="/admin" target="_blank"><span class="icon">📸</span><span class="name">Media Library</span></a>
-          <a class="qlink" href="/admin" target="_blank"><span class="icon">📅</span><span class="name">Appuntamenti</span></a>
-          <a class="qlink" href="/admin" target="_blank"><span class="icon">📊</span><span class="name">Social Stats</span></a>
-          <a class="qlink" href="/admin" target="_blank"><span class="icon">🕐</span><span class="name">Orari Lavoro</span></a>
-          <a class="qlink" href="/admin" target="_blank"><span class="icon">🏷️</span><span class="name">Categorie</span></a>
-          <a class="qlink" href="/" target="_blank"><span class="icon">🌐</span><span class="name">Vedi Sito</span></a>
+      <section class="dash-card">
+        <div class="dash-card-head">
+          <div>
+            <div class="dash-kicker">Domande frequenti</div>
+            <h3>FAQ</h3>
+          </div>
+          <button class="dash-open" type="button" onclick="openAdminTab('faq')">Apri FAQ →</button>
         </div>
-      </div>
+        <div class="dash-metrics">
+          <div class="dash-metric">
+            <div class="dash-val" id="dash-faq-opens">0</div>
+            <div class="dash-lbl">Visualizzazioni <span class="week-badge" data-weekly="faq_clicks">+0</span></div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-val p" id="dash-faq-avg">0s</div>
+            <div class="dash-lbl">Tempo medio <span class="week-badge" data-weekly="faq_read_ms" data-weekly-format="duration-ms-avg" data-weekly-denominator="faq_clicks">+0s</span></div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-val l" id="dash-faq-shares">0</div>
+            <div class="dash-lbl">Condivisioni <span class="week-badge" data-weekly="faq_shares">+0</span></div>
+          </div>
         </div>
-      </div>
+        <div class="dash-subhead">Domande più viste</div>
+        <div class="dash-rank" id="dash-faq-top"><div class="dash-empty">Caricamento…</div></div>
+      </section>
+
+      <section class="dash-card">
+        <div class="dash-card-head">
+          <div>
+            <div class="dash-kicker">Interazioni</div>
+            <h3>Quiz</h3>
+          </div>
+          <button class="dash-open" type="button" onclick="openAdminTab('quiz')">Apri quiz →</button>
+        </div>
+        <div class="dash-metrics">
+          <div class="dash-metric">
+            <div class="dash-val" id="dash-quiz-total">0</div>
+            <div class="dash-lbl">Interazioni <span class="week-badge" data-weekly="quiz_results">+0</span></div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-val p" id="dash-quiz-consult">0</div>
+            <div class="dash-lbl">Consulenze <span class="week-badge" data-weekly="quiz_consult">+0</span></div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-val l" id="dash-quiz-booking">0</div>
+            <div class="dash-lbl">Prenotazioni <span class="week-badge" data-weekly="quiz_booking">+0</span></div>
+          </div>
+        </div>
+        <div class="dash-subhead">Risultati più frequenti</div>
+        <div class="dash-rank" id="dash-quiz-top"><div class="dash-empty">Caricamento…</div></div>
+      </section>
     </div>
+
+    <section class="dash-card dash-summary">
+      <div class="dash-card-head">
+        <div>
+          <div class="dash-kicker">Settimana corrente</div>
+          <h3>Riepilogo variazioni</h3>
+        </div>
+        <button class="dash-open" type="button" onclick="refreshDashboardAnalytics(true)">Aggiorna ↻</button>
+      </div>
+      <p class="dash-note">Incrementi da lunedì a domenica (Europe/Rome). I valori si azzerano automaticamente all'inizio di ogni nuova settimana.</p>
+      <div class="dash-summary-groups">
+        <div class="dash-group">
+          <h4>Appuntamenti</h4>
+          <div class="dash-var"><span>Nuovi appuntamenti</span><span class="week-badge" data-weekly="appointments">+0</span></div>
+          <div class="dash-var"><span>In attesa</span><span class="week-badge" data-weekly="appointments_pending">+0</span></div>
+        </div>
+        <div class="dash-group">
+          <h4>Gallery</h4>
+          <div class="dash-var"><span>Foto caricate</span><span class="week-badge" data-weekly="gallery_uploads">+0</span></div>
+          <div class="dash-var"><span>Nuove categorie</span><span class="week-badge" data-weekly="gallery_categories">+0</span></div>
+        </div>
+        <div class="dash-group">
+          <h4>Blog</h4>
+          <div class="dash-var"><span>Visualizzazioni</span><span class="week-badge" data-weekly="blog_views">+0</span></div>
+          <div class="dash-var"><span>Tempo medio</span><span class="week-badge" data-weekly="blog_time" data-weekly-format="duration-avg" data-weekly-denominator="blog_views">+0s</span></div>
+          <div class="dash-var"><span>Articoli pubblicati</span><span class="week-badge" data-weekly="blog_published">+0</span></div>
+        </div>
+        <div class="dash-group">
+          <h4>FAQ</h4>
+          <div class="dash-var"><span>Visualizzazioni</span><span class="week-badge" data-weekly="faq_clicks">+0</span></div>
+          <div class="dash-var"><span>Tempo medio</span><span class="week-badge" data-weekly="faq_read_ms" data-weekly-format="duration-ms-avg" data-weekly-denominator="faq_clicks">+0s</span></div>
+          <div class="dash-var"><span>Condivisioni</span><span class="week-badge" data-weekly="faq_shares">+0</span></div>
+        </div>
+        <div class="dash-group">
+          <h4>Quiz</h4>
+          <div class="dash-var"><span>Interazioni</span><span class="week-badge" data-weekly="quiz_results">+0</span></div>
+          <div class="dash-var"><span>Consulenze</span><span class="week-badge" data-weekly="quiz_consult">+0</span></div>
+          <div class="dash-var"><span>Prenotazioni</span><span class="week-badge" data-weekly="quiz_booking">+0</span></div>
+        </div>
+        <div class="dash-group dash-group-wide">
+          <h4>Social</h4>
+          <div class="dash-var"><span>Instagram follower</span><span class="week-badge" data-weekly="social:instagramFollowers">+0</span></div>
+          <div class="dash-var"><span>Instagram post</span><span class="week-badge" data-weekly="social:instagramPosts">+0</span></div>
+          <div class="dash-var"><span>TikTok follower</span><span class="week-badge" data-weekly="social:tiktokFollowers">+0</span></div>
+          <div class="dash-var"><span>TikTok like</span><span class="week-badge" data-weekly="social:tiktokLikes">+0</span></div>
+          <div class="dash-var"><span>YouTube iscritti</span><span class="week-badge" data-weekly="social:youtubeSubscribers">+0</span></div>
+          <div class="dash-var"><span>YouTube visualizzazioni</span><span class="week-badge" data-weekly="social:youtubeViews">+0</span></div>
+          <div class="dash-var"><span>Facebook follower</span><span class="week-badge" data-weekly="social:facebookFollowers">+0</span></div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- ══════ BLOG ══════ -->
   <div id="tab-blog" style="display:none;">
     <div class="page-title">
-      <h1>Blog <span>│</span> <span id="blog-total-count">0</span></h1>
+      <h1>Blog <span>│</span> <span id="blog-total-count">0</span> <span class="week-badge" data-weekly="blog_published">+0</span></h1>
       <p>Articoli sincronizzati direttamente con Supabase, media dal bucket gallery e statistiche reali</p>
     </div>
 
@@ -625,7 +783,7 @@ tr:hover{background:rgba(140,255,0,.02);}
   <!-- ══════ PHOTOS ══════ -->
   <div id="tab-photos" style="display:none;">
     <div class="page-title">
-      <h1>Gestione Foto <span>│</span> <span id="photo-count">0</span></h1>
+      <h1>Gestione Foto <span>│</span> <span id="photo-count">0</span> <span class="week-badge" data-weekly="gallery_uploads">+0</span></h1>
       <p>Aggiungi foto da link oppure caricale nel bucket Supabase · Clicca su una foto per modificarla</p>
     </div>
 
@@ -727,7 +885,7 @@ tr:hover{background:rgba(140,255,0,.02);}
   </div>
 
   <div class="sec-card">
-    <div class="sec-hdr"><h3>Risultati più frequenti</h3><span class="count" id="qz-count">0</span></div>
+    <div class="sec-hdr"><h3>Risultati più frequenti</h3><span class="sec-hdr-right"><span class="count" id="qz-count">0</span><span class="week-badge" data-weekly="quiz_results">+0</span></span></div>
     <div class="sec-body" style="padding:1.2rem 1.5rem;">
       <div id="qz-summary" style="font-size:.85rem;color:var(--muted-d);">Caricamento…</div>
     </div>
@@ -858,6 +1016,11 @@ function logout(){
   document.getElementById('admin-app').style.display = 'none';
 }
 
+function openAdminTab(name){
+  const link = document.querySelector('.hnav a[data-tab="' + name + '"]');
+  showTab(name, link);
+}
+
 function showTab(name, el){
   document.querySelectorAll('.hnav a').forEach(a => a.classList.remove('active'));
   if(el) el.classList.add('active');
@@ -873,6 +1036,7 @@ function showTab(name, el){
   if(name==='quiz') loadQuizResults();
   if(name==='faq') loadFaqsAdmin();
   if(name==='hermes' && window.WDHermes) window.WDHermes.show();
+  if(name==='dashboard') renderDashboardAnalytics();
   if(window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
@@ -886,6 +1050,7 @@ function toast(msg, isErr){
 
 /* ── Quiz Results (Supabase) ── */
 let quizCloudOk = false;
+let quizResultsData = [];
 
 function setQuizCloudState(text, ok){
   const el = document.getElementById('quiz-cloud-state');
@@ -905,8 +1070,9 @@ function mapQuizRow(row){
 }
 
 function renderQuizResults(data){
-  const total = data.length;
-  const consult = data.filter(function(d){ return d.consult; }).length;
+  quizResultsData = Array.isArray(data) ? data : [];
+  const total = quizResultsData.length;
+  const consult = quizResultsData.filter(function(d){ return d.consult; }).length;
   const booking = total - consult;
   const t = document.getElementById('qz-total');
   const c = document.getElementById('qz-consult');
@@ -918,10 +1084,11 @@ function renderQuizResults(data){
   if(c) c.textContent = consult;
   if(b) b.textContent = booking;
   if(cnt) cnt.textContent = total;
+  renderDashboardAnalytics();
   if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 
   const freq = {};
-  data.forEach(function(d){ freq[d.result] = (freq[d.result] || 0) + 1; });
+  quizResultsData.forEach(function(d){ freq[d.result] = (freq[d.result] || 0) + 1; });
   const sorted = Object.entries(freq).sort(function(a,b){ return b[1] - a[1]; });
   if(summary){
     summary.innerHTML = sorted.length
@@ -934,11 +1101,11 @@ function renderQuizResults(data){
       : 'Nessun tentativo registrato ancora.';
   }
   if(body){
-    if(!data.length){
+    if(!quizResultsData.length){
       body.innerHTML = '<tr class="loading-row"><td colspan="3">Nessun tentativo ancora</td></tr>';
       return;
     }
-    body.innerHTML = data.slice(0,50).map(function(d){
+    body.innerHTML = quizResultsData.slice(0,50).map(function(d){
       const when = d.ts ? new Date(d.ts).toLocaleString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
       const path = (d.path || []).map(esc).join(' → ') || '—';
       return '<tr><td style="font-size:.78rem;">' + esc(d.result || '—') + '</td>' +
@@ -1298,6 +1465,7 @@ function updateBlogAnalytics(){
   if (v) v.textContent = views.toLocaleString('it-IT');
   if (ti) ti.textContent = avg ? window.WD_BLOG.formatDuration(avg) : '0s';
   if (pc) pc.textContent = published.length;
+  renderDashboardAnalytics();
   if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
@@ -1750,6 +1918,7 @@ function renderFaqAdmin(){
   set('faq-admin-shares', faqNum(shares));
   set('faq-admin-avg', avg + 's');
   set('faq-cloud-state', faqCloudOk ? '☁️ cloud' : '💾 locale');
+  renderDashboardAnalytics();
   if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 
   const note = document.getElementById('faq-cloud-note');
@@ -1959,11 +2128,13 @@ async function init(){
     loadPhotos(),
     loadCategories(),
     loadDayData(),
+    loadAppointments(),
     loadQuizResults(),
     loadBlogPosts(),
     loadFaqsAdmin(),
   ]);
   renderCalendar();
+  renderDashboardAnalytics();
   initCalendarSync();
   initBlogSync();
   initQuizSync();
@@ -2021,10 +2192,12 @@ function renderAppointments(){
   const ab = document.getElementById('appt-body');
   const ac = document.getElementById('appt-count');
   if(ac) ac.textContent = filtered.length;
-  if(!filtered.length){
-    ab.innerHTML = '<tr class="loading-row"><td colspan="8">Nessun appuntamento</td></tr>';
-  } else {
-    ab.innerHTML = filtered.map(a => rowHTML(a)).join('');
+  if (ab) {
+    if(!filtered.length){
+      ab.innerHTML = '<tr class="loading-row"><td colspan="8">Nessun appuntamento</td></tr>';
+    } else {
+      ab.innerHTML = filtered.map(a => rowHTML(a)).join('');
+    }
   }
 
   const pending = appts.filter(a => a.status === 'pending').length;
@@ -2084,6 +2257,101 @@ function filterAppts(f){
     btn.style.borderColor = 'transparent';
   }
   renderAppointments();
+}
+
+/* ── Dashboard Analytics ── */
+function dashboardDuration(seconds){
+  const value = Math.max(0, Math.round(Number(seconds) || 0));
+  if (window.WD_BLOG && window.WD_BLOG.formatDuration) return window.WD_BLOG.formatDuration(value);
+  if (value < 60) return value + 's';
+  const minutes = Math.floor(value / 60);
+  const rest = value % 60;
+  return minutes + 'm' + (rest ? ' ' + rest + 's' : '');
+}
+
+function renderDashboardAnalytics(){
+  if (!document.getElementById('dash-blog-views')) return;
+
+  const published = blogPosts.filter(function(a){ return a.status === 'published'; });
+  const drafts = blogPosts.filter(function(a){ return a.status === 'draft'; });
+  const blogViews = published.reduce(function(total, a){ return total + Number(a.views || 0); }, 0);
+  const blogSeconds = published.reduce(function(total, a){ return total + Number(a.timeOnPage || 0); }, 0);
+  const blogAvg = blogViews ? blogSeconds / blogViews : 0;
+  const set = function(id, value){ const el = document.getElementById(id); if (el) el.textContent = value; };
+
+  set('dash-blog-views', blogViews.toLocaleString('it-IT'));
+  set('dash-blog-time', dashboardDuration(blogAvg));
+  set('dash-blog-published', published.length);
+  set('dash-blog-foot', published.length
+    ? published.length + ' articoli online · ' + drafts.length + ' bozze'
+    : 'Nessun articolo pubblicato');
+
+  const faqOpens = faqAdmin.reduce(function(total, f){ return total + Number(f.clicks || 0); }, 0);
+  const faqShares = faqAdmin.reduce(function(total, f){ return total + Number(f.shares || 0); }, 0) + faqGlobalShares();
+  const faqReadMs = faqAdmin.reduce(function(total, f){ return total + Number(f.read_ms || 0); }, 0);
+  const faqReads = faqAdmin.reduce(function(total, f){ return total + Number(f.read_count || 0); }, 0);
+  const faqAvg = faqReads ? Math.round(faqReadMs / faqReads / 1000) : 0;
+  set('dash-faq-opens', faqNum(faqOpens));
+  set('dash-faq-avg', faqAvg + 's');
+  set('dash-faq-shares', faqNum(faqShares));
+
+  const faqTop = faqAdmin
+    .filter(function(f){ return Number(f.clicks || 0) > 0; })
+    .sort(function(a, b){ return Number(b.clicks || 0) - Number(a.clicks || 0); })
+    .slice(0, 3);
+  const faqTopEl = document.getElementById('dash-faq-top');
+  if (faqTopEl){
+    faqTopEl.innerHTML = faqTop.length
+      ? faqTop.map(function(f){
+          const id = esc(f.id);
+          return '<div class="dash-rank-row">' +
+            '<span class="dash-rank-q" title="' + esc(f.question) + '">' + esc(f.question) + '</span>' +
+            '<span class="dash-rank-n">' + faqNum(f.clicks) + '<span class="week-badge" data-weekly="faq_click:' + id + '">+0</span></span>' +
+          '</div>';
+        }).join('')
+      : '<div class="dash-empty">Nessuna visualizzazione registrata.</div>';
+  }
+
+  const quizTotal = quizResultsData.length;
+  const quizConsult = quizResultsData.filter(function(d){ return d.consult; }).length;
+  const quizBooking = quizTotal - quizConsult;
+  set('dash-quiz-total', quizTotal.toLocaleString('it-IT'));
+  set('dash-quiz-consult', quizConsult.toLocaleString('it-IT'));
+  set('dash-quiz-booking', quizBooking.toLocaleString('it-IT'));
+
+  const quizFreq = {};
+  quizResultsData.forEach(function(d){ quizFreq[d.result] = (quizFreq[d.result] || 0) + 1; });
+  const quizTop = Object.entries(quizFreq)
+    .sort(function(a, b){ return b[1] - a[1]; })
+    .slice(0, 3);
+  const quizTopEl = document.getElementById('dash-quiz-top');
+  if (quizTopEl){
+    quizTopEl.innerHTML = quizTop.length
+      ? quizTop.map(function(entry){
+          return '<div class="dash-rank-row">' +
+            '<span class="dash-rank-q" title="' + esc(entry[0]) + '">' + esc(entry[0]) + '</span>' +
+            '<span class="dash-rank-n">' + entry[1].toLocaleString('it-IT') + '</span>' +
+          '</div>';
+        }).join('')
+      : '<div class="dash-empty">Nessuna interazione registrata.</div>';
+  }
+
+  if (window.WD_WEEKLY && window.WD_WEEKLY.apply) window.WD_WEEKLY.apply();
+}
+
+async function refreshDashboardAnalytics(force){
+  if (force){
+    await Promise.all([
+      loadPhotos().catch(function(){ return null; }),
+      loadBlogPosts(true),
+      loadFaqsAdmin(),
+      loadQuizResults(true)
+    ]);
+  }
+  renderDashboardAnalytics();
+  if (window.WD_WEEKLY && window.WD_WEEKLY.reload){
+    try { await window.WD_WEEKLY.reload(); } catch(e){}
+  }
 }
 
 /* ── Day Data (notes + overrides) ── */
