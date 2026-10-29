@@ -294,6 +294,9 @@ nav a:hover{color:var(--green);}
 .pstat.pp .num{color:var(--purple);text-shadow:0 0 14px rgba(140,255,0,.7),0 0 24px rgba(181,140,255,.45);}
 .pstat.pl .num{color:var(--purple);text-shadow:0 0 14px rgba(140,255,0,.7),0 0 24px rgba(181,140,255,.45);}
 .pstat .lbl{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-l);margin-top:.2rem;}
+.pstat .num{display:flex;align-items:baseline;gap:.3rem;flex-wrap:wrap;}
+.pstat-week{font-family:var(--fb);font-size:.58rem;font-weight:800;letter-spacing:.3px;color:#2D5A27;background:rgba(74,140,63,.13);border:1px solid rgba(74,140,63,.22);border-radius:999px;padding:.06rem .35rem;line-height:1.2;white-space:nowrap;text-shadow:none;}
+.pstat-week.is-zero{opacity:.5;}
 .api-note-wrap{text-align:center;margin-top:2.5rem;position:relative;z-index:2;}
 .api-note{display:inline-block;font-size:.78rem;color:var(--muted-d);background:rgba(140,255,0,.05);border:1px solid rgba(140,255,0,.12);border-radius:10px;padding:1rem 2rem;}
 .api-connect{display:inline-flex;align-items:center;gap:.5rem;margin-top:.8rem;background:var(--green);color:var(--dark);padding:.5rem 1.4rem;border-radius:5px;font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:none;transition:background .2s;}
@@ -1555,8 +1558,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <div><div class="plat-name">Instagram</div><div class="plat-handle">@woodreads</div></div>
       </div>
       <div class="plat-stats">
-        <div class="pstat"><div class="num" id="ig-followers">6300</div><div class="lbl">Follower</div></div>
-        <div class="pstat pp"><div class="num" id="ig-posts">310</div><div class="lbl">Post</div></div>
+        <div class="pstat"><div class="num"><span id="ig-followers">6300</span><span class="pstat-week" data-weekly="social:instagramFollowers">+0</span></div><div class="lbl">Follower</div></div>
+        <div class="pstat pp"><div class="num"><span id="ig-posts">310</span><span class="pstat-week" data-weekly="social:instagramPosts">+0</span></div><div class="lbl">Post</div></div>
       </div>
     </div>
     <div class="platform-card tt">
@@ -1565,8 +1568,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <div><div class="plat-name">TikTok</div><div class="plat-handle">@woodreads</div></div>
       </div>
       <div class="plat-stats">
-        <div class="pstat"><div class="num" id="tt-f">3558</div><div class="lbl">Follower</div></div>
-        <div class="pstat pp"><div class="num" id="tt-l">181100</div><div class="lbl">Like</div></div>
+        <div class="pstat"><div class="num"><span id="tt-f">3558</span><span class="pstat-week" data-weekly="social:tiktokFollowers">+0</span></div><div class="lbl">Follower</div></div>
+        <div class="pstat pp"><div class="num"><span id="tt-l">181100</span><span class="pstat-week" data-weekly="social:tiktokLikes">+0</span></div><div class="lbl">Like</div></div>
       </div>
     </div>
     <div class="platform-card yt">
@@ -1575,8 +1578,8 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <div><div class="plat-name">YouTube</div><div class="plat-handle">@woodreads</div></div>
       </div>
       <div class="plat-stats">
-        <div class="pstat"><div class="num" id="yt-s">710</div><div class="lbl">Iscritti</div></div>
-        <div class="pstat pp"><div class="num" id="yt-v">562.5k</div><div class="lbl">Visualizzazioni</div></div>
+        <div class="pstat"><div class="num"><span id="yt-s">710</span><span class="pstat-week" data-weekly="social:youtubeSubscribers">+0</span></div><div class="lbl">Iscritti</div></div>
+        <div class="pstat pp"><div class="num"><span id="yt-v">562.5k</span><span class="pstat-week" data-weekly="social:youtubeViews">+0</span></div><div class="lbl">Visualizzazioni</div></div>
       </div>
     </div>
     <div class="platform-card fb">
@@ -1585,7 +1588,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <div><div class="plat-name">Facebook</div><div class="plat-handle">@woodreads</div></div>
       </div>
       <div class="plat-stats">
-        <div class="pstat"><div class="num" id="fb-followers">2259</div><div class="lbl">Follower</div></div>
+        <div class="pstat"><div class="num"><span id="fb-followers">2259</span><span class="pstat-week" data-weekly="social:facebookFollowers">+0</span></div><div class="lbl">Follower</div></div>
       </div>
     </div>
   </div>
@@ -2407,6 +2410,10 @@ async function submitAppt(){
       }),
     });
     if (!r.ok) throw new Error('Errore');
+    if (window.supabaseIncrementWeeklyMetric){
+      window.supabaseIncrementWeeklyMetric('appointments', 1).catch(function(){});
+      window.supabaseIncrementWeeklyMetric('appointments_pending', 1).catch(function(){});
+    }
     document.getElementById('fsucc').style.display = 'block';
     btn.style.display = 'none';
   } catch(e) {
@@ -2420,7 +2427,17 @@ async function submitAppt(){
 /* ══════════════════════════════════════════
    SOCIAL STATS — cache locale + refresh periodico
 ══════════════════════════════════════════ */
-function applySocialStatsData(d){
+function parseStatValue(value){
+  if (typeof value === 'number') return value;
+  let raw = String(value == null ? '' : value).trim().replace(/\s+/g, '');
+  raw = /^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(raw) ? raw.replace(/,/g, '') : raw.replace(',', '.');
+  const match = raw.match(/^(-?\d+(?:\.\d+)?)([kKmM])?$/);
+  if (!match) return Number(raw);
+  let number = Number(match[1]);
+  if (match[2]) number *= match[2].toLowerCase() === 'k' ? 1000 : 1000000;
+  return number;
+}
+function applySocialStatsData(d, fresh){
   const s = d && (d.data?.attributes || d);
   const map = [
     ['ig-followers', s.instagramFollowers],
@@ -2434,12 +2451,18 @@ function applySocialStatsData(d){
     ['yt-v', s.youtubeViews],
     ['yt-vid', s.youtubeVideos],
     ['yt-w', s.youtubeWatchHours],
+    ['fb-followers', s.facebookFollowers],
   ];
   map.forEach(([id, val]) => {
     if (val !== null && val !== undefined && val !== '' && val !== '–') {
-      animNum2(id, Number(val));
+      const parsed = parseStatValue(val);
+      if (isFinite(parsed)) animNum2(id, parsed);
     }
   });
+  if (fresh && window.supabaseRecordSocialSnapshots){
+    try { window.supabaseRecordSocialSnapshots(s).catch(function(){}); } catch(e){}
+  }
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 async function loadSocialStats(){
   try {
@@ -2450,16 +2473,16 @@ async function loadSocialStats(){
     const r = await fetch('/.netlify/functions/social-stats');
     if (!r.ok) throw new Error('http '+r.status);
     const d = await r.json();
-    if (d && d.error) return;
+    if (d && d.error) throw new Error('social stats error');
     const s = d && (d.data?.attributes || d);
     localStorage.setItem('wd_social_stats', JSON.stringify(s));
-    applySocialStatsData(d);
+    applySocialStatsData(d, true);
   } catch(_) {}
   try {
     const ry = await fetch('/.netlify/functions/youtube-stats');
     if (ry.ok) {
       const dy = await ry.json();
-      if (!dy.error) applySocialStatsData(dy);
+      if (!dy.error) applySocialStatsData(dy, true);
     }
   } catch(_) {}
 }
@@ -2490,6 +2513,12 @@ async function loadSiteData(){
 
     // Load social stats with local cache and fresh fetch fallback
     loadSocialStats();
+    if (window.WD_WEEKLY) {
+      window.WD_WEEKLY.refresh();
+      if (!window.__weeklyInterval) {
+        window.__weeklyInterval = setInterval(function(){ if(!document.hidden) window.WD_WEEKLY.refresh(); }, 60000);
+      }
+    }
 
     // Periodic refresh while the section/page stays open
     if (!window.__socialStatsInterval) {

@@ -16,6 +16,12 @@
   status = 200
   force = true
 
+[[redirects]]
+  from = "/api/hermes"
+  to = "/.netlify/functions/hermes"
+  status = 200
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]

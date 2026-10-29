@@ -48,9 +48,9 @@ window.supabaseFetch = async function (path, options) {
   if (window.supabaseConfigReady) {
     try { await window.supabaseConfigReady; } catch (e) {}
   }
-  const response = await fetch(window.supabaseUrl(path), Object.assign({
-    headers: window.supabaseHeaders(),
-  }, options || {}));
+  const opts = Object.assign({}, options || {});
+  opts.headers = window.supabaseHeaders(opts.headers || {});
+  const response = await fetch(window.supabaseUrl(path), opts);
   const text = await response.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
@@ -59,6 +59,122 @@ window.supabaseFetch = async function (path, options) {
     throw new Error('Supabase ' + response.status + ': ' + message);
   }
   return data;
+};
+
+window.WD_WEEKLY_METRICS = {};
+window.WD_WEEKLY_READY = false;
+window.WD_WEEKLY = (function () {
+  var refreshPromise = null;
+  function formatValue(metric, mode, denominatorMetric) {
+    var value = Math.max(0, Number(window.WD_WEEKLY_METRICS[metric] || 0));
+    var average = mode === 'duration-avg' || mode === 'duration-ms-avg';
+    if (mode === 'duration' || mode === 'duration-ms' || average) {
+      var seconds = mode === 'duration-ms' || mode === 'duration-ms-avg' ? value / 1000 : value;
+      if (average) {
+        var denominator = Number(window.WD_WEEKLY_METRICS[denominatorMetric] || 0);
+        seconds = denominator > 0 ? seconds / denominator : 0;
+      }
+      if (seconds < 60) return '+' + Math.round(seconds) + 's';
+      if (seconds < 3600) return '+' + Math.round(seconds / 60) + 'm';
+      return '+' + (seconds / 3600).toFixed(1).replace('.0', '') + 'h';
+    }
+    return '+' + value.toLocaleString('it-IT');
+  }
+  function apply(map) {
+    var values = map || window.WD_WEEKLY_METRICS;
+    window.WD_WEEKLY_METRICS = values;
+    document.querySelectorAll('[data-weekly]').forEach(function (el) {
+      var metric = el.getAttribute('data-weekly');
+      var mode = el.getAttribute('data-weekly-format') || '';
+      var denominator = el.getAttribute('data-weekly-denominator') || '';
+      var average = mode === 'duration-avg' || mode === 'duration-ms-avg';
+      var raw = Number(values[metric] || 0);
+      var denom = Number(values[denominator] || 0);
+      el.textContent = formatValue(metric, mode, denominator);
+      el.classList.toggle('is-zero', raw <= 0 || (average && denom <= 0));
+      el.setAttribute('title', 'Incremento della settimana corrente (da lunedì)');
+    });
+  }
+  async function load() {
+    try {
+      var rows = await window.supabaseFetch('/rest/v1/rpc/get_weekly_metrics', {
+        method: 'POST',
+        body: '{}'
+      });
+      var map = {};
+      (rows || []).forEach(function (row) {
+        if (row && row.metric) map[row.metric] = Number(row.count || 0);
+      });
+      window.WD_WEEKLY_METRICS = map;
+      window.WD_WEEKLY_READY = true;
+      return map;
+    } catch (e) {
+      window.WD_WEEKLY_READY = false;
+      return window.WD_WEEKLY_METRICS;
+    }
+  }
+  function refresh() {
+    if (refreshPromise) return refreshPromise;
+    refreshPromise = load().then(function (map) {
+      apply(map);
+      refreshPromise = null;
+      return map;
+    }, function (error) {
+      refreshPromise = null;
+      throw error;
+    });
+    return refreshPromise;
+  }
+  function reload() {
+    return load().then(function (map) {
+      apply(map);
+      return map;
+    });
+  }
+  function get(metric) {
+    return Number(window.WD_WEEKLY_METRICS[metric] || 0);
+  }
+  function weekStart() {
+    var now = new Date();
+    var day = (now.getDay() + 6) % 7;
+    now.setHours(0, 0, 0, 0);
+    now.setDate(now.getDate() - day);
+    return now;
+  }
+  return { load: load, refresh: refresh, reload: reload, get: get, format: formatValue, apply: apply, weekStart: weekStart };
+})();
+
+window.supabaseIncrementWeeklyMetric = async function (metric, amount) {
+  if (!metric) return null;
+  return window.supabaseFetch('/rest/v1/rpc/increment_weekly_metric', {
+    method: 'POST',
+    body: JSON.stringify({ p_metric: metric, p_amount: amount === undefined || amount === null ? 1 : Number(amount) })
+  });
+};
+
+window.supabaseRecordSocialSnapshots = async function (stats) {
+  if (!stats || typeof stats !== 'object') return null;
+  var fields = [
+    'instagramFollowers', 'instagramPosts', 'instagramFollowing',
+    'tiktokFollowers', 'tiktokLikes', 'tiktokViews', 'tiktokVideos',
+    'youtubeSubscribers', 'youtubeViews', 'youtubeVideos', 'youtubeWatchHours',
+    'facebookFollowers'
+  ];
+  var metrics = {};
+  fields.forEach(function (field) {
+    var raw = String(stats[field] == null ? '' : stats[field]).trim().replace(/\s+/g, '');
+    if (!raw) return;
+    raw = /^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(raw) ? raw.replace(/,/g, '') : raw.replace(',', '.');
+    var match = raw.match(/^(-?\d+(?:\.\d+)?)([kKmM])?$/);
+    var value = match ? Number(match[1]) : Number(raw);
+    if (match && match[2]) value *= match[2].toLowerCase() === 'k' ? 1000 : 1000000;
+    if (isFinite(value) && value >= 0) metrics[field] = value;
+  });
+  if (!Object.keys(metrics).length) return null;
+  return window.supabaseFetch('/rest/v1/rpc/record_social_snapshots', {
+    method: 'POST',
+    body: JSON.stringify({ p_metrics: metrics })
+  });
 };
 
 window.supabaseGetBlogPosts = async function (opts) {
@@ -255,28 +371,42 @@ window.supabaseDeleteFaq = async function (id) {
 
 window.supabaseTrackFaq = async function (id, deltas) {
   if (!id || !deltas || typeof deltas !== 'object') throw new Error('id e deltas richiesti');
-  const allowed = ['clicks', 'shares', 'read_ms', 'read_count'];
-  const rows = await window.supabaseFetch(
-    '/rest/v1/' + window.FAQ_TABLE +
-    '?id=eq.' + encodeURIComponent(id) +
-    '&select=clicks,shares,read_ms,read_count'
-  );
-  const row = rows && rows[0];
-  if (!row) return null;
-  const patch = { updated_at: new Date().toISOString() };
-  allowed.forEach(function (key) {
-    const inc = Number(deltas[key] || 0);
-    if (inc) patch[key] = Number(row[key] || 0) + inc;
-  });
-  if (Object.keys(patch).length === 1) return row;
-  return window.supabaseFetch(
-    '/rest/v1/' + window.FAQ_TABLE + '?id=eq.' + encodeURIComponent(id),
-    {
-      method: 'PATCH',
-      headers: window.supabaseHeaders({ 'Prefer': 'return=minimal' }),
-      body: JSON.stringify(patch),
-    }
-  );
+  const payload = {
+    p_id: id,
+    p_clicks: Math.max(0, Math.round(Number(deltas.clicks || 0))),
+    p_shares: Math.max(0, Math.round(Number(deltas.shares || 0))),
+    p_read_ms: Math.max(0, Math.round(Number(deltas.read_ms || 0))),
+    p_read_count: Math.max(0, Math.round(Number(deltas.read_count || 0)))
+  };
+  try {
+    return await window.supabaseFetch('/rest/v1/rpc/faq_track', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  } catch (rpcError) {
+    const allowed = ['clicks', 'shares', 'read_ms', 'read_count'];
+    const rows = await window.supabaseFetch(
+      '/rest/v1/' + window.FAQ_TABLE +
+      '?id=eq.' + encodeURIComponent(id) +
+      '&select=clicks,shares,read_ms,read_count'
+    );
+    const row = rows && rows[0];
+    if (!row) return null;
+    const patch = { updated_at: new Date().toISOString() };
+    allowed.forEach(function (key) {
+      const inc = Number(deltas[key] || 0);
+      if (inc) patch[key] = Number(row[key] || 0) + inc;
+    });
+    if (Object.keys(patch).length === 1) return row;
+    return window.supabaseFetch(
+      '/rest/v1/' + window.FAQ_TABLE + '?id=eq.' + encodeURIComponent(id),
+      {
+        method: 'PATCH',
+        headers: window.supabaseHeaders({ 'Prefer': 'return=minimal' }),
+        body: JSON.stringify(patch),
+      }
+    );
+  }
 };
 
 window.supabaseSaveQuizResult = async function (result) {
@@ -291,6 +421,10 @@ window.supabaseSaveQuizResult = async function (result) {
     headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
     body: JSON.stringify(row)
   });
+  const metrics = ['quiz_results', row.consult ? 'quiz_consult' : 'quiz_booking'];
+  await Promise.all(metrics.map(function (metric) {
+    return window.supabaseIncrementWeeklyMetric(metric, 1).catch(function () {});
+  }));
   return created && created[0] ? created[0] : null;
 };
 
@@ -363,7 +497,9 @@ window.supabaseSaveGalleryPhoto = async function (photo) {
     headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
     body: JSON.stringify(row),
   });
-  return (created && created[0] && created[0].id) || null;
+  const id = (created && created[0] && created[0].id) || null;
+  if (id) await window.supabaseIncrementWeeklyMetric('gallery_uploads', 1).catch(function () {});
+  return id;
 };
 
 window.supabaseDeleteGalleryPhoto = async function (id) {

@@ -31,6 +31,7 @@ function buildEvent(req, path) {
     path: path,
     queryStringParameters: normalizeQuery(req.query),
     body: serializeBody(req),
+    rawBody: req.rawBody || null,
     headers: req.headers || {},
   };
 }

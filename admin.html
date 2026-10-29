@@ -11,6 +11,7 @@
 <link rel="shortcut icon" href="/favicon.ico"/>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/hermes-admin.css"/>
 <style>
 :root{
   color-scheme:only light;
@@ -65,6 +66,10 @@ a{color:var(--green);text-decoration:none;}
 .stat-card .num.l{color:var(--lime);}
 .stat-card .lbl{font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-top:.25rem;}
 .stat-card .sub{font-size:.72rem;color:var(--muted-d);margin-top:.3rem;}
+.week-badge{display:inline-flex;align-items:center;justify-content:center;margin-left:.35rem;padding:.08rem .38rem;border-radius:999px;background:rgba(140,255,0,.1);border:1px solid rgba(140,255,0,.22);color:var(--green);font-family:var(--fb);font-size:.56rem;font-weight:800;letter-spacing:.4px;line-height:1.2;vertical-align:middle;white-space:nowrap;}
+.week-badge.is-zero{opacity:.48;}
+.fq-metric b .week-badge{font-size:.5rem;padding:.04rem .28rem;margin-left:.25rem;}
+.bl-row-stats .week-badge{font-size:.52rem;}
 
 /* SECTION CARD */
 .sec-card{background:var(--mid);border-radius:14px;border:1px solid rgba(245,245,247,.06);overflow:hidden;margin-bottom:1.5rem;}
@@ -322,6 +327,7 @@ tr:hover{background:rgba(140,255,0,.02);}
     <a href="#" onclick="showTab('faq',this)">FAQ</a>
     <a href="#" onclick="showTab('photos',this)">Foto</a>
     <a href="#" onclick="showTab('quiz',this)">Risultati Quiz</a>
+    <a href="#" class="hermes-nav" onclick="showTab('hermes',this)">Hermes <span class="h-ai">AI</span></a>
     <a href="#" onclick="showTab('settings',this)">Credenziali</a>
     <a href="https://wa.me/393485393826" target="_blank" class="hide-mob">💬 WhatsApp</a>
     <button class="logout" onclick="logout()">Esci</button>
@@ -338,10 +344,10 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
 
     <div class="stats-row" id="stats-cards">
-      <div class="stat-card"><div class="num" id="s-appt-pending">–</div><div class="lbl">Appuntamenti in attesa</div></div>
-      <div class="stat-card"><div class="num p" id="s-appt-total">–</div><div class="lbl">Totale appuntamenti</div></div>
-      <div class="stat-card"><div class="num l" id="s-photos">–</div><div class="lbl">Foto in gallery</div></div>
-      <div class="stat-card"><div class="num" id="s-categories">–</div><div class="lbl">Categorie</div></div>
+      <div class="stat-card"><div class="num" id="s-appt-pending">–</div><div class="lbl">Appuntamenti in attesa <span class="week-badge" data-weekly="appointments_pending">+0</span></div></div>
+      <div class="stat-card"><div class="num p" id="s-appt-total">–</div><div class="lbl">Totale appuntamenti <span class="week-badge" data-weekly="appointments">+0</span></div></div>
+      <div class="stat-card"><div class="num l" id="s-photos">–</div><div class="lbl">Foto in gallery <span class="week-badge" data-weekly="gallery_uploads">+0</span></div></div>
+      <div class="stat-card"><div class="num" id="s-categories">–</div><div class="lbl">Categorie <span class="week-badge" data-weekly="gallery_categories">+0</span></div></div>
     </div>
 
     <!-- CALENDAR AVAILABILITY -->
@@ -542,9 +548,9 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
 
     <div class="stats-row" id="blog-analytics-row">
-      <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali</div><div class="sub">Aperture degli articoli pubblicati</div></div>
-      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio di permanenza</div><div class="sub">Media reale per visualizzazione</div></div>
-      <div class="stat-card"><div class="num l" id="bl-published-count">0</div><div class="lbl">Articoli pubblicati</div><div class="sub">Online in questo momento</div></div>
+      <div class="stat-card"><div class="num" id="bl-views">0</div><div class="lbl">Visualizzazioni totali <span class="week-badge" data-weekly="blog_views">+0</span></div><div class="sub">Aperture degli articoli pubblicati</div></div>
+      <div class="stat-card"><div class="num p" id="bl-time">0s</div><div class="lbl">Tempo medio di permanenza <span class="week-badge" data-weekly="blog_time" data-weekly-format="duration-avg" data-weekly-denominator="blog_views">+0s</span></div><div class="sub">Media reale per visualizzazione</div></div>
+      <div class="stat-card"><div class="num l" id="bl-published-count">0</div><div class="lbl">Articoli pubblicati <span class="week-badge" data-weekly="blog_published">+0</span></div><div class="sub">Online in questo momento</div></div>
     </div>
   </div>
 
@@ -577,9 +583,9 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
 
     <div class="stats-row">
-      <div class="stat-card"><div class="num" id="faq-admin-opens">0</div><div class="lbl">Aperture totali</div><div class="sub">Click sulle domande</div></div>
-      <div class="stat-card"><div class="num p" id="faq-admin-avg">0s</div><div class="lbl">Tempo medio di lettura</div><div class="sub">Per domanda aperta</div></div>
-      <div class="stat-card"><div class="num l" id="faq-admin-shares">0</div><div class="lbl">Condivisioni totali</div><div class="sub">WhatsApp, social e link</div></div>
+      <div class="stat-card"><div class="num" id="faq-admin-opens">0</div><div class="lbl">Aperture totali <span class="week-badge" data-weekly="faq_clicks">+0</span></div><div class="sub">Click sulle domande</div></div>
+      <div class="stat-card"><div class="num p" id="faq-admin-avg">0s</div><div class="lbl">Tempo medio di lettura <span class="week-badge" data-weekly="faq_read_ms" data-weekly-format="duration-ms-avg" data-weekly-denominator="faq_clicks">+0s</span></div><div class="sub">Per domanda aperta</div></div>
+      <div class="stat-card"><div class="num l" id="faq-admin-shares">0</div><div class="lbl">Condivisioni totali <span class="week-badge" data-weekly="faq_shares">+0</span></div><div class="sub">WhatsApp, social e link</div></div>
     </div>
 
     <div class="sec-card">
@@ -672,6 +678,8 @@ tr:hover{background:rgba(140,255,0,.02);}
     </div>
   </div>
 
+  <div id="tab-hermes" style="display:none;"></div>
+
 </div>
 
 <!-- ══════ PHOTO EDITOR OVERLAY ══════ -->
@@ -713,9 +721,9 @@ tr:hover{background:rgba(140,255,0,.02);}
   </div>
 
   <div class="stats-row" id="quiz-stats">
-    <div class="stat-card"><div class="num" id="qz-total">0</div><div class="lbl">Tentativi totali</div></div>
-    <div class="stat-card"><div class="num p" id="qz-consult">0</div><div class="lbl">Consulenze richieste</div></div>
-    <div class="stat-card"><div class="num l" id="qz-booking">0</div><div class="lbl">Con prenotazione</div></div>
+    <div class="stat-card"><div class="num" id="qz-total">0</div><div class="lbl">Tentativi totali <span class="week-badge" data-weekly="quiz_results">+0</span></div></div>
+    <div class="stat-card"><div class="num p" id="qz-consult">0</div><div class="lbl">Consulenze richieste <span class="week-badge" data-weekly="quiz_consult">+0</span></div></div>
+    <div class="stat-card"><div class="num l" id="qz-booking">0</div><div class="lbl">Con prenotazione <span class="week-badge" data-weekly="quiz_booking">+0</span></div></div>
   </div>
 
   <div class="sec-card">
@@ -771,6 +779,9 @@ tr:hover{background:rgba(140,255,0,.02);}
 <script src="/faq-data.js"></script>
 <script src="/supabase-config.js"></script>
 <script src="/blog-utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/hermes-embed.js"></script>
+<script src="/hermes-admin.js"></script>
 <script>
 /* ── Config ── */
 const API = '/.netlify/functions';
@@ -856,9 +867,13 @@ function showTab(name, el){
   document.getElementById('tab-photos').style.display = name==='photos'?'':'none';
   document.getElementById('tab-quiz').style.display = name==='quiz'?'':'none';
   document.getElementById('tab-settings').style.display = name==='settings'?'':'none';
+  const hermesTab = document.getElementById('tab-hermes');
+  if(hermesTab) hermesTab.style.display = name==='hermes'?'':'none';
   if(name==='blog') loadBlogPosts();
   if(name==='quiz') loadQuizResults();
   if(name==='faq') loadFaqsAdmin();
+  if(name==='hermes' && window.WDHermes) window.WDHermes.show();
+  if(window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
 function toast(msg, isErr){
@@ -903,6 +918,7 @@ function renderQuizResults(data){
   if(c) c.textContent = consult;
   if(b) b.textContent = booking;
   if(cnt) cnt.textContent = total;
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 
   const freq = {};
   data.forEach(function(d){ freq[d.result] = (freq[d.result] || 0) + 1; });
@@ -1226,8 +1242,10 @@ function clearBlogEditor(){
 function blogListRow(a){
   const date = a.updatedAt ? new Date(a.updatedAt).toLocaleString('it-IT',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
   const avg = a.views ? (a.timeOnPage / a.views) : 0;
+  const week = '<span class="week-badge" data-weekly="blog_view:' + blogAttr(a.id) + '">+0</span>';
+  const weekTime = '<span class="week-badge" data-weekly="blog_time:' + blogAttr(a.id) + '" data-weekly-format="duration-avg" data-weekly-denominator="blog_view:' + blogAttr(a.id) + '">+0s</span>';
   const stats = a.status === 'published'
-    ? '👁 ' + a.views.toLocaleString('it-IT') + ' · ⏱ ' + (avg ? window.WD_BLOG.formatDuration(avg) : '—') + ' medi'
+    ? '👁 ' + a.views.toLocaleString('it-IT') + ' ' + week + ' · ⏱ ' + (avg ? window.WD_BLOG.formatDuration(avg) : '—') + ' ' + weekTime + ' medi'
     : 'Bozza non pubblicata';
   const preview = a.status === 'published'
     ? '<a class="btn-sm" href="/blog-post.html?slug=' + encodeURIComponent(a.slug) + '&preview=1" target="_blank" rel="noopener" style="padding:.35rem .6rem;">Apri</a>'
@@ -1266,6 +1284,7 @@ function renderBlogLists(){
   const categories = Array.from(new Set(blogPosts.map(function(a){ return a.category; }).filter(Boolean))).sort();
   const datalist = document.getElementById('bl-category-list');
   if (datalist) datalist.innerHTML = categories.map(function(c){ return '<option value="' + blogAttr(c) + '"></option>'; }).join('');
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
 function updateBlogAnalytics(){
@@ -1279,6 +1298,7 @@ function updateBlogAnalytics(){
   if (v) v.textContent = views.toLocaleString('it-IT');
   if (ti) ti.textContent = avg ? window.WD_BLOG.formatDuration(avg) : '0s';
   if (pc) pc.textContent = published.length;
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
 function loadBlogEdit(id){
@@ -1559,6 +1579,8 @@ async function saveBlogArticle(status){
   if (youtube && !window.WD_BLOG.youtubeEmbed(youtube)){ toast('Link YouTube non riconosciuto', true); return; }
   blogSaving = true;
   setBlogCloudState('Salvataggio…', false);
+  const previousPost = blogEditingId ? blogPosts.find(function(a){ return a.id === blogEditingId; }) : null;
+  const wasPublished = !!(previousPost && previousPost.status === 'published');
   try {
     const slug = await ensureUniqueBlogSlug(baseSlug, blogEditingId);
     const payload = {
@@ -1576,6 +1598,9 @@ async function saveBlogArticle(status){
     };
     const saved = await window.supabaseSaveBlogPost(payload);
     if (saved && saved.id) blogEditingId = saved.id;
+    if (status === 'published' && !wasPublished && window.supabaseIncrementWeeklyMetric){
+      await window.supabaseIncrementWeeklyMetric('blog_published', 1).catch(function(){});
+    }
     await loadBlogPosts();
     clearBlogEditor();
     broadcastBlog();
@@ -1725,6 +1750,7 @@ function renderFaqAdmin(){
   set('faq-admin-shares', faqNum(shares));
   set('faq-admin-avg', avg + 's');
   set('faq-cloud-state', faqCloudOk ? '☁️ cloud' : '💾 locale');
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 
   const note = document.getElementById('faq-cloud-note');
   if (note){
@@ -1745,9 +1771,9 @@ function renderFaqAdmin(){
       '<span class="fq-idx">' + String(i + 1).padStart(2, '0') + '</span>' +
       '<div class="fq-q">' + esc(f.question) + unpub + cat + '</div>' +
       '<div class="fq-metrics">' +
-        '<span class="fq-metric"><b>' + faqNum(f.clicks) + '</b><span>Aperture</span></span>' +
-        '<span class="fq-metric"><b>' + faqAvg(f) + '</b><span>Lettura</span></span>' +
-        '<span class="fq-metric"><b>' + faqNum(f.shares) + '</b><span>Share</span></span>' +
+        '<span class="fq-metric"><b>' + faqNum(f.clicks) + '<span class="week-badge" data-weekly="faq_click:' + id + '">+0</span></b><span>Aperture</span></span>' +
+        '<span class="fq-metric"><b>' + faqAvg(f) + '<span class="week-badge" data-weekly="faq_read:' + id + '" data-weekly-format="duration-ms-avg" data-weekly-denominator="faq_click:' + id + '">+0s</span></b><span>Lettura</span></span>' +
+        '<span class="fq-metric"><b>' + faqNum(f.shares) + '<span class="week-badge" data-weekly="faq_share:' + id + '">+0</span></b><span>Share</span></span>' +
       '</div>' +
       '<div class="fq-actions">' +
         '<button class="btn-sm view" data-act="up" data-id="' + id + '" title="Sposta su">↑</button>' +
@@ -1942,6 +1968,10 @@ async function init(){
   initBlogSync();
   initQuizSync();
   initFaqAdminEvents();
+  if(window.WD_WEEKLY){
+    window.WD_WEEKLY.refresh();
+    setInterval(function(){ if(!document.hidden) window.WD_WEEKLY.refresh(); }, 60000);
+  }
 }
 
 function initCalendarSync(){
@@ -2000,6 +2030,7 @@ function renderAppointments(){
   const pending = appts.filter(a => a.status === 'pending').length;
   document.getElementById('s-appt-pending').textContent = pending;
   document.getElementById('s-appt-total').textContent = appts.length;
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
 function rowHTML(a){
@@ -2428,6 +2459,17 @@ function galleryCategories(){
   return list;
 }
 
+function trackNewGalleryCategories(before){
+  const added = galleryCategories().filter(function(c){ return !before.includes(c); });
+  if (added.length && window.supabaseIncrementWeeklyMetric){
+    window.supabaseIncrementWeeklyMetric('gallery_categories', added.length).then(function(){
+      if (window.WD_WEEKLY) return window.WD_WEEKLY.reload();
+    }).catch(function(){});
+  }
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
+  return added;
+}
+
 function renderGalleryCategoryHints(){
   const list = galleryCategories();
   ['gal-cat-list','edit-cat-list'].forEach(id => {
@@ -2477,6 +2519,7 @@ async function loadPhotos(){
   renderGalleryCategoryHints();
   renderCategoryFilters();
   renderPhotoGrid();
+  if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
 function renderCategoryFilters(){
@@ -2543,6 +2586,7 @@ function handleFiles(files){
   progress.classList.add('active');
 
   (async () => {
+    const beforeCategories = galleryCategories();
     let done = 0;
     for(const file of Array.from(files)){
       const pct = Math.round((done / files.length) * 100);
@@ -2571,6 +2615,7 @@ function handleFiles(files){
     }
     setTimeout(() => { progress.classList.remove('active'); bar.style.width = '0'; }, 2200);
     await loadPhotos();
+    trackNewGalleryCategories(beforeCategories);
     broadcastGallery();
   })();
 }
@@ -2593,6 +2638,7 @@ async function addPhotoByUrl(){
     return;
   }
   const btn = document.querySelector('#tab-photos .approve');
+  const beforeCategories = galleryCategories();
   if(btn) btn.disabled = true;
   try{
     await window.supabaseSaveGalleryPhoto({
@@ -2608,6 +2654,7 @@ async function addPhotoByUrl(){
     ['gal-url','gal-title','gal-desc'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
     toast('Foto aggiunta ✅');
     await loadPhotos();
+    trackNewGalleryCategories(beforeCategories);
     broadcastGallery();
   }catch(e){
     toast('Errore: ' + e.message, true);
@@ -2724,11 +2771,15 @@ async function savePhoto(){
     tags: editingPhoto.tags,
     featured: document.getElementById('edit-featured').checked,
   };
+  const beforeCategories = galleryCategories();
 
   try{
     if(window.supabaseSaveGalleryPhoto) await window.supabaseSaveGalleryPhoto(Object.assign({}, editingPhoto, data));
     else throw new Error('Supabase non disponibile');
     Object.assign(editingPhoto, data);
+    const stat = document.getElementById('s-categories');
+    if(stat) stat.textContent = galleryCategories().length;
+    trackNewGalleryCategories(beforeCategories);
     renderPhotoGrid();
     closeEditor();
     toast('Foto aggiornata ✅');
