@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="color-scheme" content="only light"/>
 <title>WooDreads Admin Panel</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -378,6 +383,7 @@ tr:hover{background:rgba(140,255,0,.02);}
                 <option value="">Non disponibile (rosso)</option>
                 <option value="09:00-15:00">Mezza giornata (09:00–15:00)</option>
                 <option value="16:00-20:00">Mezza giornata (16:00–20:00)</option>
+                <option value="16:00-20:30">Mezza giornata (16:00–20:30)</option>
                 <option value="09:00-20:00">Tutto il giorno (09:00–20:00)</option>
               </select>
             </div>
@@ -1224,7 +1230,7 @@ function blogListRow(a){
     ? '👁 ' + a.views.toLocaleString('it-IT') + ' · ⏱ ' + (avg ? window.WD_BLOG.formatDuration(avg) : '—') + ' medi'
     : 'Bozza non pubblicata';
   const preview = a.status === 'published'
-    ? '<a class="btn-sm" href="blog-post.html?slug=' + encodeURIComponent(a.slug) + '&preview=1" target="_blank" rel="noopener" style="padding:.35rem .6rem;">Apri</a>'
+    ? '<a class="btn-sm" href="/blog-post.html?slug=' + encodeURIComponent(a.slug) + '&preview=1" target="_blank" rel="noopener" style="padding:.35rem .6rem;">Apri</a>'
     : '';
   return '<div style="padding:1rem .5rem;border-bottom:1px solid rgba(245,245,247,.05);">' +
     '<div style="display:flex;justify-content:space-between;gap:1rem;align-items:center;">' +

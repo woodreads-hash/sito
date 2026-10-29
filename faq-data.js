@@ -32,3 +32,26 @@ window.WD_DEFAULT_FAQS = [
   { id: 'wd-faq-29', cat: 'Prima', q: 'Si possono fare i dreads in gravidanza?', a: 'In gravidanza si può, ma è meglio parlarne prima: la cute può essere più sensibile e la posizione seduta a lungo può pesare. Valutiamo insieme tempi, pause e tecnica. In caso di dubbi chiedi sempre anche al tuo medico.' },
   { id: 'wd-faq-30', cat: 'Stile', q: 'Si possono fare undercut, mohawk o mezze teste?', a: 'Sì, sono tra i lavori più richiesti. Undercut e mohawk richiedono meno dreads e tempi più brevi; le mezze teste si possono fare sia laterali sia posteriori. Il disegno va studiato sulla tua forma del viso e sulla ricrescita, così resta pulito nel tempo.' }
 ];
+
+window.WD_FAQ_SLUG = function (text, fallback) {
+  var slug = String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['’`]/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-');
+  return slug || String(fallback || 'faq');
+};
+
+window.WD_FAQ_PATH = function (faq) {
+  var source = faq && (faq.question || faq.q);
+  var fallback = faq && faq.id;
+  return '/faq/' + window.WD_FAQ_SLUG(source, fallback);
+};
+
+window.WD_FAQ_URL = function (faq) {
+  var origin = (typeof location !== 'undefined' && location.origin) ? location.origin : 'https://www.woodreads.com';
+  return origin + window.WD_FAQ_PATH(faq);
+};

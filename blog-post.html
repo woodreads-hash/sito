@@ -4,18 +4,33 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="color-scheme" content="only light"/>
+<base href="/"/>
 <title>Articolo — Blog WooDreads</title>
 <meta name="description" content="Leggi gli articoli del blog WooDreads su dreads, cyberdreads, manutenzione e tendenze."/>
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <meta property="og:type" content="article"/>
+<meta property="og:site_name" content="WooDreads"/>
 <meta property="og:title" content="Articolo — Blog WooDreads"/>
 <meta property="og:description" content="Articolo del blog WooDreads."/>
-<meta property="og:url" content="/blog-post.html"/>
+<meta property="og:url" content="https://www.woodreads.com/blog"/>
+<meta property="og:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta property="og:image:alt" content="WooDreads — Blog"/>
 <meta property="og:locale" content="it_IT"/>
 <meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Articolo — Blog WooDreads"/>
+<meta name="twitter:description" content="Articolo del blog WooDreads."/>
+<meta name="twitter:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta name="theme-color" content="#0D0D0F"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://yqksdpgkktgppxzdbbgc.supabase.co" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="cookie-consent.css"/>
-<link rel="canonical" href=""/>
+<link rel="canonical" href="https://www.woodreads.com/blog"/>
 <style>
 :root{color-scheme:only light;--green:#8CFF00;--purple:#B58CFF;--lime:#E6FF4D;--dark:#0D0D0F;--dark2:#111116;--mid:#1E1E24;--cream:#F7F4EE;--text-d:#F5F5F7;--text-l:#1A1A1E;--muted-d:rgba(245,245,247,.6);--fd:'Orbitron',sans-serif;--fb:'Exo 2',sans-serif;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -131,22 +146,22 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
   <a href="index.html" class="nlogo">WOO<em>DREADS</em></a>
   <ul>
     <li><a href="index.html">Home</a></li>
-    <li><a href="blog.html">Blog</a></li>
-    <li><a href="index.html#faq">FAQ</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/faq">FAQ</a></li>
   </ul>
   <div class="nav-cats" role="navigation" aria-label="Categorie del sito">
     <a href="index.html">Home</a>
     <a href="index.html#servizi">Servizi</a>
     <a href="index.html#chisiamo">Chi Siamo</a>
-    <a href="blog.html" aria-current="page">Blog</a>
-    <a href="index.html#faq">FAQ</a>
+    <a href="/blog" aria-current="page">Blog</a>
+    <a href="/faq">FAQ</a>
     <a href="index.html#quiz">Mini Game</a>
     <a href="index.html#stats">Canali</a>
   </div>
   <a href="index.html#appt" class="ncta">Prenota →</a>
 </nav>
 <div class="wrap">
-  <div class="breadcrumb"><a href="index.html">Home</a> / <a href="blog.html">Blog</a> / <span id="bc-title">Articolo</span></div>
+  <div class="breadcrumb"><a href="index.html">Home</a> / <a href="/blog">Blog</a> / <span id="bc-title">Articolo</span></div>
   <div id="wrap">
     <div class="loading">Caricamento articolo…</div>
   </div>
@@ -164,7 +179,9 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
 <script>
 const wrap = document.getElementById('wrap');
 const params = new URLSearchParams(location.search);
-const slug = params.get('slug');
+const blogPathMatch = location.pathname.match(/^\/blog\/([^/]+)\/?$/);
+let slug = (blogPathMatch ? blogPathMatch[1] : '') || params.get('slug') || '';
+try { slug = slug ? decodeURIComponent(slug) : ''; } catch (e) {}
 let blogTrack = { id: null, start: 0, sent: false };
 
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML.replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
@@ -174,6 +191,10 @@ function setMeta(name,content,attr='name'){
   let el = document.querySelector('meta['+attr+'="'+name+'"]');
   if(!el){el=document.createElement('meta');el.setAttribute(attr,name);document.head.appendChild(el);}
   el.setAttribute('content',content);
+}
+function socialImage(url){
+  const fallback = 'https://www.woodreads.com/og-default.jpg';
+  return /\.(jpe?g|png|gif)(\?|#|$)/i.test(url||'') ? url : fallback;
 }
 function injectJsonLd(obj){
   let s = document.getElementById('jsonld-article');
@@ -326,6 +347,8 @@ document.addEventListener('visibilitychange', function(){
 
 function renderPost(post, nextPost){
   if(!post){
+    document.title = 'Articolo non trovato — WooDreads';
+    setMeta('robots', 'noindex, follow');
     wrap.innerHTML='<div class="error">Articolo non trovato.</div>';return;
   }
   try{
@@ -336,7 +359,7 @@ function renderPost(post, nextPost){
     const tags = (post.tags||[]).map(function(t){ return t.name||t; }).filter(Boolean);
     const published = post.publishedAt || post.createdAt;
     const modified = post.updatedAt || published;
-    const url = location.origin + location.pathname + '?slug=' + encodeURIComponent(slug);
+    const url = location.origin + '/blog/' + encodeURIComponent(slug);
     const author = post.authorName || 'WooDreads';
 
     document.title = title + ' — Blog WooDreads';
@@ -344,7 +367,8 @@ function renderPost(post, nextPost){
     setMeta('og:title', title, 'property');
     setMeta('og:description', description, 'property');
     setMeta('og:url', url, 'property');
-    setMeta('og:image', cover, 'property');
+    setMeta('og:image', socialImage(cover), 'property');
+    setMeta('og:image:alt', title, 'property');
     setMeta('og:type', 'article', 'property');
     setMeta('article:published_time', published, 'property');
     setMeta('article:modified_time', modified, 'property');
@@ -352,7 +376,7 @@ function renderPost(post, nextPost){
     if(category) setMeta('article:section', category, 'property');
     setMeta('twitter:title', title);
     setMeta('twitter:description', description);
-    setMeta('twitter:image', cover);
+    setMeta('twitter:image', socialImage(cover));
     const canonical = document.querySelector('link[rel="canonical"]');
     if(canonical) canonical.setAttribute('href', url);
     document.getElementById('bc-title').textContent = post.title;
@@ -393,9 +417,9 @@ function renderPost(post, nextPost){
         '<button type="button" class="share-btn share-copy" data-share="copy">Copia link</button>'+
       '</div>'+
       '<nav class="article-nav" aria-label="Navigazione articoli">'+
-      '<a class="nav-btn" href="blog.html">← Torna al blog</a>'+
+      '<a class="nav-btn" href="/blog">← Torna al blog</a>'+
       '<a class="nav-btn game" href="index.html#quiz">🎮 Mini-Game</a>'+
-      (nextPost ? '<a class="nav-btn next" href="blog-post.html?slug='+encodeURIComponent(nextPost.slug)+'" aria-label="Prossimo articolo: '+esc(nextPost.title)+'">Prossimo articolo →</a>' : '')+
+      (nextPost ? '<a class="nav-btn next" href="/blog/'+encodeURIComponent(nextPost.slug)+'" aria-label="Prossimo articolo: '+esc(nextPost.title)+'">Prossimo articolo →</a>' : '')+
       '</nav>'+
       '</article>';
 
@@ -415,6 +439,8 @@ function findNextPublishedPost(rows, current){
 
 async function render(){
   if(!slug){
+    document.title = 'Articolo non trovato — WooDreads';
+    setMeta('robots', 'noindex, follow');
     wrap.innerHTML='<div class="error">Slug articolo mancante.</div>';return;
   }
   try{
@@ -424,7 +450,7 @@ async function render(){
       window.supabaseGetBlogPosts ? window.supabaseGetBlogPosts({ status:'published', limit:300 }).catch(function(){ return []; }) : Promise.resolve([])
     ]);
     const row = results[0];
-    if(!row){ wrap.innerHTML='<div class="error">Articolo non trovato.</div>'; return; }
+    if(!row){ renderPost(null); return; }
     const nextRow = findNextPublishedPost(results[1] || [], row);
     renderPost(mapSupabasePost(row), nextRow ? mapSupabasePost(nextRow) : null);
   }catch(e){

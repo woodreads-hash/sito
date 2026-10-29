@@ -80,12 +80,13 @@ node api/_lib/dev-server.js
 Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 
 ### Folder map
-- `api/` — Vercel functions: **10 file** (il limite Hobby è 12 Serverless Functions per
+- `api/` — Vercel functions: **11 file** (il limite Hobby è 12 Serverless Functions per
   deployment). Ogni file è un wrapper sottile che adatta l'handler condiviso alla
   firma Vercel `(req, res)`.
   - `api/blog.js` → `blog`, `blog/categories`, `blog/post`
   - `api/showroom.js` → `showroom/categories`, `showroom/photos`
   - `api/appointments.js` → `appointments`, `appointments/slots`
+  - `api/share.js` → HTML Open Graph per crawler social su `/faq/:slug` e `/blog/:slug`
   - `api/day-notes.js`, `api/day-bands.js`, `api/day-overrides.js`,
     `api/social-stats.js`, `api/youtube-stats.js`, `api/supabase-config.js`, `api/data.js`
   - la sotto-rotta viene ricavata dall'URL originale della richiesta

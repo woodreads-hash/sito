@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /wd-panel-x7q9
+Disallow: /admin.html
 
-Sitemap: /sitemap.xml
+Sitemap: https://www.woodreads.com/sitemap.xml

@@ -4,15 +4,31 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="color-scheme" content="only light"/>
+<base href="/"/>
 <title>Blog WooDreads — Dreads Roma</title>
 <meta name="description" content="Articoli, consigli e ispirazione sui dreads: naturali, cyberdreads, manutenzione, stili e trend. Blog ufficiale WooDreads, dreadmaker a Roma."/>
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1"/>
+<link rel="canonical" href="https://www.woodreads.com/blog"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="Blog WooDreads — Dreads Roma"/>
-<meta property="og:description" content="Articoli, consigli e ispirazione sui dreads."/>
-<meta property="og:url" content="/blog.html"/>
+<meta property="og:site_name" content="WooDreads"/>
 <meta property="og:locale" content="it_IT"/>
+<meta property="og:title" content="Blog WooDreads — Dreads Roma"/>
+<meta property="og:description" content="Articoli, consigli e ispirazione sui dreads: naturali, cyberdreads, manutenzione, stili e trend."/>
+<meta property="og:url" content="https://www.woodreads.com/blog"/>
+<meta property="og:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta property="og:image:alt" content="Blog WooDreads — Dreads Roma"/>
 <meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Blog WooDreads — Dreads Roma"/>
+<meta name="twitter:description" content="Articoli, consigli e ispirazione sui dreads: naturali, cyberdreads, manutenzione, stili e trend."/>
+<meta name="twitter:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta name="theme-color" content="#0D0D0F"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://yqksdpgkktgppxzdbbgc.supabase.co" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="cookie-consent.css"/>
 <style>
@@ -109,15 +125,15 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
   <a href="index.html" class="nlogo">WOO<em>DREADS</em></a>
   <ul>
     <li><a href="index.html">Home</a></li>
-    <li><a href="blog.html">Blog</a></li>
-    <li><a href="index.html#faq">FAQ</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/faq">FAQ</a></li>
   </ul>
   <div class="nav-cats" role="navigation" aria-label="Categorie del sito">
     <a href="index.html">Home</a>
     <a href="index.html#servizi">Servizi</a>
     <a href="index.html#chisiamo">Chi Siamo</a>
-    <a href="blog.html" aria-current="page">Blog</a>
-    <a href="index.html#faq">FAQ</a>
+    <a href="/blog" aria-current="page">Blog</a>
+    <a href="/faq">FAQ</a>
     <a href="index.html#quiz">Mini Game</a>
     <a href="index.html#stats">Canali</a>
   </div>
@@ -191,7 +207,7 @@ function renderPosts(){
     const cover = post.coverImage ? post.coverImage.url : '';
     const catName = post.category ? post.category.name : '';
     const published = formatDate(post.publishedAt);
-    const href = 'blog-post.html?slug=' + encodeURIComponent(post.slug);
+    const href = '/blog/' + encodeURIComponent(post.slug);
     return '<article class="card">' +
       (cover ? '<a href="' + href + '" class="thumb"><img src="' + esc(cover) + '" alt="' + esc(post.title) + '" loading="lazy" decoding="async"/></a>' : '') +
       '<div class="body">' +
@@ -209,7 +225,7 @@ async function loadPosts(silent){
   empty.style.display = 'none';
   try {
     if(!window.supabaseGetBlogPosts) throw new Error('Supabase non disponibile');
-    const rows = await window.supabaseGetBlogPosts({ status:'published', limit:100 });
+    const rows = await window.supabaseGetBlogPosts({ status:'published', limit:1000 });
     allPosts = (rows || []).map(mapSupabasePost);
     if(activeCategory && !allPosts.some(function(p){ return p.category && p.category.name === activeCategory; })) activeCategory = '';
     renderFilters();

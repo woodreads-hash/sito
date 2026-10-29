@@ -55,6 +55,44 @@
       "destination": "/api/showroom"
     },
     {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/faq/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(.*)(WhatsApp|whatsapp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|LinkedinBot|TelegramBot|Slackbot|Discordbot|Pinterestbot|SkypeUriPreview|vkShare|W3C_Validator)(.*)"
+        }
+      ],
+      "destination": "/api/share?type=faq&slug=:slug"
+    },
+    {
+      "source": "/faq/:slug",
+      "destination": "/faq.html?slug=:slug"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(.*)(WhatsApp|whatsapp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|LinkedinBot|TelegramBot|Slackbot|Discordbot|Pinterestbot|SkypeUriPreview|vkShare|W3C_Validator)(.*)"
+        }
+      ],
+      "destination": "/api/share?type=blog&slug=:slug"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog-post.html?slug=:slug"
+    },
+    {
       "source": "/wd-panel-x7q9",
       "destination": "/admin.html"
     },
