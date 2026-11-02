@@ -53,6 +53,70 @@ as $$
   order by wm.metric;
 $$;
 
+create or replace function public.reset_weekly_metrics()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_week date := date_trunc('week', (now() at time zone 'Europe/Rome'))::date;
+begin
+  delete from public.weekly_metrics where week_start = v_week;
+end;
+$$;
+
+create or replace function public.quiz_track_result(
+  p_result text,
+  p_consult boolean,
+  p_path text[],
+  p_created_at timestamptz default now()
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_id uuid;
+  v_week date := date_trunc('week', (now() at time zone 'Europe/Rome'))::date;
+begin
+  insert into public.quiz_results (result, consult, path, created_at)
+  values (coalesce(p_result, ''), coalesce(p_consult, false), coalesce(p_path, '{}'), coalesce(p_created_at, now()))
+  returning id into v_id;
+  insert into public.weekly_metrics (metric, week_start, count, updated_at)
+  values ('quiz_results', v_week, 1, now())
+  on conflict (metric, week_start) do update
+    set count = public.weekly_metrics.count + 1,
+        updated_at = now();
+  insert into public.weekly_metrics (metric, week_start, count, updated_at)
+  values (case when coalesce(p_consult, false) then 'quiz_consult' else 'quiz_booking' end, v_week, 1, now())
+  on conflict (metric, week_start) do update
+    set count = public.weekly_metrics.count + 1,
+        updated_at = now();
+  return v_id;
+end;
+$$;
+
+grant execute on function public.quiz_track_result(text, boolean, text[], timestamptz) to anon, authenticated;
+
+create or replace function public.get_quiz_stats()
+returns table(total bigint, consult bigint, booking bigint)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  select count(*)::bigint,
+         count(*) filter (where q.consult)::bigint,
+         count(*) filter (where not q.consult)::bigint
+  from public.quiz_results q;
+end;
+$$;
+
+grant execute on function public.get_quiz_stats() to anon, authenticated;
+
 create or replace function public.record_social_snapshots(p_metrics jsonb)
 returns void
 language plpgsql
@@ -81,7 +145,16 @@ begin
     where s.metric = v_key and s.captured_at >= v_week_ts
     order by s.captured_at desc
     limit 1;
-    if v_prev is not null and v_prev_at > now() - interval '30 minutes' then
+    if v_prev is null then
+      select s.value, s.captured_at into v_prev, v_prev_at
+      from public.social_stat_snapshots s
+      where s.metric = v_key
+        and s.captured_at < v_week_ts
+        and s.captured_at >= v_week_ts - interval '7 days'
+      order by s.captured_at desc
+      limit 1;
+    end if;
+    if v_prev is not null and v_prev_at >= v_week_ts and v_prev_at > now() - interval '30 minutes' then
       continue;
     end if;
     if v_prev is not null and v_value <> v_prev then
@@ -175,6 +248,7 @@ $$;
 
 grant execute on function public.increment_weekly_metric(text, bigint) to anon, authenticated;
 grant execute on function public.get_weekly_metrics() to anon, authenticated;
+grant execute on function public.reset_weekly_metrics() to anon, authenticated;
 grant execute on function public.record_social_snapshots(jsonb) to anon, authenticated;
 grant execute on function public.faq_track(text, integer, integer, integer, integer) to anon, authenticated;
 grant execute on function public.blog_track_view(uuid) to anon, authenticated;
@@ -337,6 +411,10 @@ grant execute on function public.search_hermes_chunks(text, integer) to anon, au
 
 alter table public.weekly_metrics enable row level security;
 alter table public.social_stat_snapshots enable row level security;
+
+grant select on public.weekly_metrics to anon, authenticated;
+drop policy if exists "Public can read weekly metrics" on public.weekly_metrics;
+create policy "Public can read weekly metrics" on public.weekly_metrics for select using (true);
 alter table public.hermes_settings enable row level security;
 alter table public.hermes_channels enable row level security;
 alter table public.hermes_conversations enable row level security;
@@ -387,6 +465,11 @@ do $$ begin
 exception when duplicate_object then null; when undefined_object then null; end $$;
 do $$ begin
   alter publication supabase_realtime add table public.hermes_settings;
+exception when duplicate_object then null; when undefined_object then null; end $$;
+do $$ begin
+  if to_regclass('public.weekly_metrics') is not null then
+    alter publication supabase_realtime add table public.weekly_metrics;
+  end if;
 exception when duplicate_object then null; when undefined_object then null; end $$;
 
 insert into public.hermes_settings (id, enabled, brand_prompt, first_message, fallback_message, model)

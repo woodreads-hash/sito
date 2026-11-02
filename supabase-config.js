@@ -65,6 +65,15 @@ window.WD_WEEKLY_METRICS = {};
 window.WD_WEEKLY_READY = false;
 window.WD_WEEKLY = (function () {
   var refreshPromise = null;
+  var refreshQueued = false;
+  var autoTimer = null;
+  var channel = null;
+  var started = false;
+  var version = 0;
+  var loadToken = 0;
+  var pending = {};
+  var pendingAt = {};
+  var expected = {};
   function formatValue(metric, mode, denominatorMetric) {
     var value = Math.max(0, Number(window.WD_WEEKLY_METRICS[metric] || 0));
     var average = mode === 'duration-avg' || mode === 'duration-ms-avg';
@@ -81,8 +90,10 @@ window.WD_WEEKLY = (function () {
     return '+' + value.toLocaleString('it-IT');
   }
   function apply(map) {
-    var values = map || window.WD_WEEKLY_METRICS;
+    var values = map || window.WD_WEEKLY_METRICS || {};
     window.WD_WEEKLY_METRICS = values;
+    if (typeof document === 'undefined' || !document.querySelectorAll) return;
+    var title = 'Incremento della settimana corrente (' + weekRange() + ', Europe/Rome)';
     document.querySelectorAll('[data-weekly]').forEach(function (el) {
       var metric = el.getAttribute('data-weekly');
       var mode = el.getAttribute('data-weekly-format') || '';
@@ -92,44 +103,172 @@ window.WD_WEEKLY = (function () {
       var denom = Number(values[denominator] || 0);
       el.textContent = formatValue(metric, mode, denominator);
       el.classList.toggle('is-zero', raw <= 0 || (average && denom <= 0));
-      el.setAttribute('title', 'Incremento della settimana corrente (da lunedì)');
+      el.setAttribute('title', title);
     });
   }
+  function mergePending(map) {
+    var merged = Object.assign({}, map || {});
+    Object.keys(pending).forEach(function (metric) {
+      var value = Number(merged[metric] || 0);
+      var target = Number(expected[metric] || 0);
+      if (Date.now() - Number(pendingAt[metric] || 0) > 30000) {
+        delete pending[metric];
+        delete pendingAt[metric];
+        delete expected[metric];
+        return;
+      }
+      if (value < target) {
+        merged[metric] = target;
+      } else {
+        delete pending[metric];
+        delete pendingAt[metric];
+        delete expected[metric];
+      }
+    });
+    return merged;
+  }
+  function bumpMany(metrics) {
+    if (!metrics || typeof metrics !== 'object') return;
+    var map = Object.assign({}, window.WD_WEEKLY_METRICS || {});
+    var changed = false;
+    Object.keys(metrics).forEach(function (metric) {
+      var delta = Number(metrics[metric]);
+      if (!metric || !isFinite(delta) || !delta) return;
+      map[metric] = Math.max(0, Number(map[metric] || 0) + delta);
+      pending[metric] = Number(pending[metric] || 0) + delta;
+      pendingAt[metric] = Date.now();
+      expected[metric] = map[metric];
+      changed = true;
+    });
+    if (changed) {
+      version += 1;
+      window.WD_WEEKLY_METRICS = map;
+      apply(map);
+    }
+  }
+  function bump(metric, amount) {
+    if (!metric) return;
+    var metrics = {};
+    metrics[metric] = amount;
+    bumpMany(metrics);
+  }
+  function rollback(metric, amount) {
+    if (!metric) return;
+    var delta = Number(amount);
+    if (!isFinite(delta) || !delta) return;
+    var map = Object.assign({}, window.WD_WEEKLY_METRICS || {});
+    map[metric] = Math.max(0, Number(map[metric] || 0) - delta);
+    pending[metric] = Math.max(0, Number(pending[metric] || 0) - delta);
+    expected[metric] = map[metric];
+    if (!pending[metric]) {
+      delete pending[metric];
+      delete pendingAt[metric];
+      delete expected[metric];
+    }
+    version += 1;
+    window.WD_WEEKLY_METRICS = map;
+    apply(map);
+  }
+  function getChannel() {
+    if (!channel) channel = new BroadcastChannel('woodreads-weekly');
+    return channel;
+  }
+  function publish(metrics, reset) {
+    var payload = {
+      type: 'weekly-update',
+      metrics: metrics || {},
+      reset: !!reset,
+      ts: Date.now()
+    };
+    try { getChannel().postMessage(payload); } catch (e) {}
+    try { localStorage.setItem('wd_weekly_ts', String(Date.now())); } catch (e) {}
+  }
   async function load() {
+    var token = ++loadToken;
     try {
       var rows = await window.supabaseFetch('/rest/v1/rpc/get_weekly_metrics', {
         method: 'POST',
+        cache: 'no-store',
         body: '{}'
       });
       var map = {};
       (rows || []).forEach(function (row) {
         if (row && row.metric) map[row.metric] = Number(row.count || 0);
       });
-      window.WD_WEEKLY_METRICS = map;
-      window.WD_WEEKLY_READY = true;
+      if (token === loadToken) window.WD_WEEKLY_READY = true;
       return map;
     } catch (e) {
-      window.WD_WEEKLY_READY = false;
+      if (token === loadToken) window.WD_WEEKLY_READY = false;
       return window.WD_WEEKLY_METRICS;
     }
   }
   function refresh() {
-    if (refreshPromise) return refreshPromise;
-    refreshPromise = load().then(function (map) {
-      apply(map);
+    if (refreshPromise) {
+      refreshQueued = true;
+      return refreshPromise.then(function () {
+        if (!refreshQueued) return window.WD_WEEKLY_METRICS;
+        refreshQueued = false;
+        return refresh();
+      });
+    }
+    var versionAtStart = version;
+    var request = load();
+    var token = loadToken;
+    refreshPromise = request.then(function (map) {
       refreshPromise = null;
+      if (version !== versionAtStart) refreshQueued = true;
+      if (refreshQueued) {
+        refreshQueued = false;
+        return refresh();
+      }
+      if (token === loadToken) apply(mergePending(map));
       return map;
     }, function (error) {
       refreshPromise = null;
+      refreshQueued = false;
       throw error;
     });
     return refreshPromise;
   }
   function reload() {
-    return load().then(function (map) {
-      apply(map);
+    var versionAtStart = version;
+    var request = load();
+    var token = loadToken;
+    return request.then(function (map) {
+      if (version === versionAtStart && token === loadToken) apply(mergePending(map));
       return map;
     });
+  }
+  async function reset() {
+    try {
+      await window.supabaseFetch('/rest/v1/rpc/reset_weekly_metrics', {
+        method: 'POST',
+        cache: 'no-store',
+        body: '{}'
+      });
+    } catch (error) {
+      const rows = await load();
+      if (!window.WD_WEEKLY_READY) throw error;
+      const entries = Object.keys(rows || {}).filter(function (metric) {
+        return Number(rows[metric] || 0) !== 0;
+      });
+      await Promise.all(entries.map(function (metric) {
+        return window.supabaseFetch('/rest/v1/rpc/increment_weekly_metric', {
+          method: 'POST',
+          keepalive: true,
+          cache: 'no-store',
+          body: JSON.stringify({ p_metric: metric, p_amount: -Number(rows[metric]) })
+        });
+      }));
+    }
+    pending = {};
+    pendingAt = {};
+    expected = {};
+    version += 1;
+    window.WD_WEEKLY_METRICS = {};
+    apply({});
+    publish({}, true);
+    return reload();
   }
   function get(metric) {
     return Number(window.WD_WEEKLY_METRICS[metric] || 0);
@@ -141,15 +280,91 @@ window.WD_WEEKLY = (function () {
     now.setDate(now.getDate() - day);
     return now;
   }
-  return { load: load, refresh: refresh, reload: reload, get: get, format: formatValue, apply: apply, weekStart: weekStart };
+  function weekRange() {
+    var start = weekStart();
+    var end = new Date(start.getTime());
+    end.setDate(end.getDate() + 6);
+    var format = new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short' });
+    return format.format(start) + ' – ' + format.format(end);
+  }
+  function onVisible() {
+    if (!document.hidden) refresh();
+  }
+  function start() {
+    if (started) return;
+    started = true;
+    try {
+      channel = getChannel();
+      channel.onmessage = function (event) {
+        var data = event && event.data;
+        if (!data || data.type !== 'weekly-update') return;
+        if (data.reset) {
+          pending = {};
+          pendingAt = {};
+          expected = {};
+          version += 1;
+          window.WD_WEEKLY_METRICS = {};
+          apply({});
+        } else {
+          bumpMany(data.metrics);
+        }
+        refresh();
+      };
+    } catch (e) {}
+    window.addEventListener('focus', onVisible);
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('storage', function (event) {
+      if (event.key === 'wd_weekly_ts') refresh();
+    });
+    autoTimer = setInterval(function () {
+      if (!document.hidden) refresh();
+    }, 15000);
+    window.__weeklyInterval = autoTimer;
+  }
+  return {
+    load: load,
+    refresh: refresh,
+    reload: reload,
+    reset: reset,
+    get: get,
+    format: formatValue,
+    apply: apply,
+    bump: bump,
+    bumpMany: bumpMany,
+    rollback: rollback,
+    publish: publish,
+    start: start,
+    weekStart: weekStart,
+    weekRange: weekRange
+  };
 })();
 
-window.supabaseIncrementWeeklyMetric = async function (metric, amount) {
+window.supabaseIncrementWeeklyMetric = async function (metric, amount, options) {
   if (!metric) return null;
-  return window.supabaseFetch('/rest/v1/rpc/increment_weekly_metric', {
-    method: 'POST',
-    body: JSON.stringify({ p_metric: metric, p_amount: amount === undefined || amount === null ? 1 : Number(amount) })
-  });
+  var delta = amount === undefined || amount === null ? 1 : Number(amount);
+  if (!isFinite(delta) || !delta) return null;
+  var optimistic = !options || options.optimistic !== false;
+  var weekly = window.WD_WEEKLY;
+  if (optimistic && weekly && weekly.bump) weekly.bump(metric, delta);
+  var body = JSON.stringify({ p_metric: metric, p_amount: delta });
+  try {
+    var result = await window.supabaseFetch('/rest/v1/rpc/increment_weekly_metric', {
+      method: 'POST',
+      keepalive: true,
+      cache: 'no-store',
+      body: body
+    });
+    if (weekly) {
+      var metrics = {};
+      metrics[metric] = delta;
+      weekly.publish(metrics);
+      weekly.refresh();
+    }
+    return result;
+  } catch (error) {
+    if (optimistic && weekly && weekly.rollback) weekly.rollback(metric, delta);
+    throw error;
+  }
 };
 
 window.supabaseRecordSocialSnapshots = async function (stats) {
@@ -173,7 +388,11 @@ window.supabaseRecordSocialSnapshots = async function (stats) {
   if (!Object.keys(metrics).length) return null;
   return window.supabaseFetch('/rest/v1/rpc/record_social_snapshots', {
     method: 'POST',
+    cache: 'no-store',
     body: JSON.stringify({ p_metrics: metrics })
+  }).then(function (result) {
+    if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
+    return result;
   });
 };
 
@@ -271,10 +490,19 @@ window.supabaseDeleteBlogPost = async function (id) {
 
 window.supabaseTrackBlogView = async function (id) {
   if (!id) return null;
-  return window.supabaseFetch('/rest/v1/rpc/blog_track_view', {
+  const result = await window.supabaseFetch('/rest/v1/rpc/blog_track_view', {
     method: 'POST',
+    keepalive: true,
     body: JSON.stringify({ p_post_id: id })
   });
+  if (window.WD_WEEKLY) {
+    const metrics = { blog_views: 1 };
+    metrics['blog_view:' + id] = 1;
+    window.WD_WEEKLY.bumpMany(metrics);
+    window.WD_WEEKLY.publish(metrics);
+    window.WD_WEEKLY.refresh();
+  }
+  return result;
 };
 
 window.supabaseTrackBlogTime = function (id, seconds) {
@@ -284,8 +512,15 @@ window.supabaseTrackBlogTime = function (id, seconds) {
     fetch(window.supabaseUrl('/rest/v1/rpc/blog_track_time'), {
       method: 'POST',
       keepalive: true,
+      cache: 'no-store',
       headers: window.supabaseHeaders(),
       body: JSON.stringify({ p_post_id: id, p_seconds: value })
+    }).then(function (response) {
+      if (!response || !response.ok || !window.WD_WEEKLY) return;
+      const metrics = { blog_time: value };
+      metrics['blog_time:' + id] = value;
+      window.WD_WEEKLY.bumpMany(metrics);
+      window.WD_WEEKLY.publish(metrics);
     }).catch(function () {});
   } catch (e) {}
 };
@@ -378,11 +613,44 @@ window.supabaseTrackFaq = async function (id, deltas) {
     p_read_ms: Math.max(0, Math.round(Number(deltas.read_ms || 0))),
     p_read_count: Math.max(0, Math.round(Number(deltas.read_count || 0)))
   };
+  const weekly = [];
+  if (payload.p_clicks > 0) {
+    weekly.push(['faq_clicks', payload.p_clicks]);
+    weekly.push(['faq_click:' + id, payload.p_clicks]);
+  }
+  if (payload.p_shares > 0) {
+    weekly.push(['faq_shares', payload.p_shares]);
+    weekly.push(['faq_share:' + id, payload.p_shares]);
+  }
+  if (payload.p_read_ms > 0) {
+    weekly.push(['faq_read_ms', payload.p_read_ms]);
+    weekly.push(['faq_read:' + id, payload.p_read_ms]);
+  }
+  if (payload.p_read_count > 0) weekly.push(['faq_reads', payload.p_read_count]);
+  function applyWeekly() {
+    if (!weekly.length || !window.WD_WEEKLY) return;
+    const metrics = {};
+    weekly.forEach(function (entry) {
+      metrics[entry[0]] = Number(metrics[entry[0]] || 0) + entry[1];
+    });
+    window.WD_WEEKLY.bumpMany(metrics);
+    window.WD_WEEKLY.publish(metrics);
+    window.WD_WEEKLY.refresh();
+  }
+  function persistWeekly() {
+    if (!weekly.length || !window.supabaseIncrementWeeklyMetric) return;
+    weekly.forEach(function (entry) {
+      window.supabaseIncrementWeeklyMetric(entry[0], entry[1], { optimistic: false }).catch(function () {});
+    });
+  }
   try {
-    return await window.supabaseFetch('/rest/v1/rpc/faq_track', {
+    const result = await window.supabaseFetch('/rest/v1/rpc/faq_track', {
       method: 'POST',
+      keepalive: true,
       body: JSON.stringify(payload)
     });
+    applyWeekly();
+    return result;
   } catch (rpcError) {
     const allowed = ['clicks', 'shares', 'read_ms', 'read_count'];
     const rows = await window.supabaseFetch(
@@ -397,8 +665,11 @@ window.supabaseTrackFaq = async function (id, deltas) {
       const inc = Number(deltas[key] || 0);
       if (inc) patch[key] = Number(row[key] || 0) + inc;
     });
-    if (Object.keys(patch).length === 1) return row;
-    return window.supabaseFetch(
+    if (Object.keys(patch).length === 1) {
+      persistWeekly();
+      return row;
+    }
+    const result = await window.supabaseFetch(
       '/rest/v1/' + window.FAQ_TABLE + '?id=eq.' + encodeURIComponent(id),
       {
         method: 'PATCH',
@@ -406,6 +677,8 @@ window.supabaseTrackFaq = async function (id, deltas) {
         body: JSON.stringify(patch),
       }
     );
+    persistWeekly();
+    return result;
   }
 };
 
@@ -416,12 +689,37 @@ window.supabaseSaveQuizResult = async function (result) {
     path: Array.isArray(result && result.path) ? result.path.map(String).slice(0, 30) : [],
     created_at: (result && result.ts) || new Date().toISOString()
   };
+  const metrics = ['quiz_results', row.consult ? 'quiz_consult' : 'quiz_booking'];
+  function bumpWeekly() {
+    if (!window.WD_WEEKLY) return;
+    const weekly = {};
+    metrics.forEach(function (metric) { weekly[metric] = 1; });
+    window.WD_WEEKLY.bumpMany(weekly);
+    window.WD_WEEKLY.publish(weekly);
+    window.WD_WEEKLY.refresh();
+  }
+  try {
+    const id = await window.supabaseFetch('/rest/v1/rpc/quiz_track_result', {
+      method: 'POST',
+      keepalive: true,
+      body: JSON.stringify({
+        p_result: row.result,
+        p_consult: row.consult,
+        p_path: row.path,
+        p_created_at: row.created_at
+      })
+    });
+    bumpWeekly();
+    return id ? Object.assign({ id: id }, row) : null;
+  } catch (rpcError) {
+    const msg = rpcError && rpcError.message ? rpcError.message : '';
+    if (!/PGRST202|Could not find the function|schema cache|does not exist|404/i.test(msg)) throw rpcError;
+  }
   const created = await window.supabaseFetch('/rest/v1/' + window.QUIZ_TABLE, {
     method: 'POST',
     headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
     body: JSON.stringify(row)
   });
-  const metrics = ['quiz_results', row.consult ? 'quiz_consult' : 'quiz_booking'];
   await Promise.all(metrics.map(function (metric) {
     return window.supabaseIncrementWeeklyMetric(metric, 1).catch(function () {});
   }));
@@ -434,6 +732,25 @@ window.supabaseGetQuizResults = async function (limit) {
     '?select=id,result,consult,path,created_at&order=created_at.desc&limit=' + Number(limit || 300)
   );
   return rows || [];
+};
+
+window.supabaseGetQuizStats = async function () {
+  try {
+    const rows = await window.supabaseFetch('/rest/v1/rpc/get_quiz_stats', {
+      method: 'POST',
+      cache: 'no-store',
+      body: '{}'
+    });
+    const row = rows && rows[0];
+    if (!row) return null;
+    return {
+      total: Number(row.total || 0),
+      consult: Number(row.consult || 0),
+      booking: Number(row.booking || 0)
+    };
+  } catch (e) {
+    return null;
+  }
 };
 
 window.supabaseDeleteQuizResults = async function () {

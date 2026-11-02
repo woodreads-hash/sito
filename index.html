@@ -2522,10 +2522,8 @@ async function loadSiteData(){
     // Load social stats with local cache and fresh fetch fallback
     loadSocialStats();
     if (window.WD_WEEKLY) {
+      window.WD_WEEKLY.start();
       window.WD_WEEKLY.refresh();
-      if (!window.__weeklyInterval) {
-        window.__weeklyInterval = setInterval(function(){ if(!document.hidden) window.WD_WEEKLY.refresh(); }, 60000);
-      }
     }
 
     // Periodic refresh while the section/page stays open
@@ -3006,6 +3004,9 @@ function openLightbox(ph, url){
   c.textContent = '';
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if (window.supabaseIncrementWeeklyMetric) {
+    window.supabaseIncrementWeeklyMetric('gallery_opens', 1).catch(function(){});
+  }
 }
 
 function closeLightbox(e){

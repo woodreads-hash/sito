@@ -118,6 +118,9 @@ tr:hover{background:rgba(140,255,0,.02);}
 .dash-card-head h3{font-family:var(--fd);font-size:1rem;letter-spacing:1.5px;text-transform:uppercase;margin-top:.15rem;}
 .dash-open{border:1px solid rgba(140,255,0,.22);background:rgba(140,255,0,.06);color:var(--green);border-radius:999px;padding:.35rem .7rem;font-family:var(--fb);font-size:.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .dash-open:hover{background:var(--green);color:var(--dark);}
+.dash-actions{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end;}
+.dash-open.danger{border-color:rgba(255,71,87,.28);background:rgba(255,71,87,.08);color:var(--red);}
+.dash-open.danger:hover{background:var(--red);color:#fff;}
 .dash-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem;}
 .dash-metric{background:rgba(245,245,247,.03);border:1px solid rgba(245,245,247,.05);border-radius:10px;padding:.75rem .7rem;min-width:0;}
 .dash-val{font-family:var(--fd);font-size:1.45rem;line-height:1;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -548,9 +551,12 @@ tr:hover{background:rgba(140,255,0,.02);}
           <div class="dash-kicker">Settimana corrente</div>
           <h3>Riepilogo variazioni</h3>
         </div>
-        <button class="dash-open" type="button" onclick="refreshDashboardAnalytics(true)">Aggiorna ↻</button>
+        <div class="dash-actions">
+          <button class="dash-open" type="button" onclick="refreshDashboardAnalytics(true)">Aggiorna ↻</button>
+          <button class="dash-open danger" type="button" onclick="resetWeeklyCounters()">Azzera settimana</button>
+        </div>
       </div>
-      <p class="dash-note">Incrementi da lunedì a domenica (Europe/Rome). I valori si azzerano automaticamente all'inizio di ogni nuova settimana.</p>
+      <p class="dash-note" id="dash-week-note">Incrementi da lunedì a domenica (Europe/Rome). I valori si azzerano automaticamente all'inizio di ogni nuova settimana.</p>
       <div class="dash-summary-groups">
         <div class="dash-group">
           <h4>Appuntamenti</h4>
@@ -561,6 +567,7 @@ tr:hover{background:rgba(140,255,0,.02);}
           <h4>Gallery</h4>
           <div class="dash-var"><span>Foto caricate</span><span class="week-badge" data-weekly="gallery_uploads">+0</span></div>
           <div class="dash-var"><span>Nuove categorie</span><span class="week-badge" data-weekly="gallery_categories">+0</span></div>
+          <div class="dash-var"><span>Aperture gallery</span><span class="week-badge" data-weekly="gallery_opens">+0</span></div>
         </div>
         <div class="dash-group">
           <h4>Blog</h4>
@@ -944,6 +951,7 @@ tr:hover{background:rgba(140,255,0,.02);}
 /* ── Config ── */
 const API = '/.netlify/functions';
 let appts = [];
+let appointmentTotal = null;
 let apptFilter = 'all';
 let photos = [];
 let categories = [];
@@ -1051,6 +1059,7 @@ function toast(msg, isErr){
 /* ── Quiz Results (Supabase) ── */
 let quizCloudOk = false;
 let quizResultsData = [];
+let quizStats = null;
 
 function setQuizCloudState(text, ok){
   const el = document.getElementById('quiz-cloud-state');
@@ -1071,9 +1080,9 @@ function mapQuizRow(row){
 
 function renderQuizResults(data){
   quizResultsData = Array.isArray(data) ? data : [];
-  const total = quizResultsData.length;
-  const consult = quizResultsData.filter(function(d){ return d.consult; }).length;
-  const booking = total - consult;
+  const total = quizStats ? quizStats.total : quizResultsData.length;
+  const consult = quizStats ? quizStats.consult : quizResultsData.filter(function(d){ return d.consult; }).length;
+  const booking = quizStats ? quizStats.booking : total - consult;
   const t = document.getElementById('qz-total');
   const c = document.getElementById('qz-consult');
   const b = document.getElementById('qz-booking');
@@ -1122,10 +1131,12 @@ async function loadQuizResults(silent){
     if (!window.supabaseGetQuizResults) throw new Error('helper Supabase non caricato');
     const rows = await window.supabaseGetQuizResults(300);
     data = (rows || []).map(mapQuizRow);
+    quizStats = window.supabaseGetQuizStats ? await window.supabaseGetQuizStats() : null;
     quizCloudOk = true;
     setQuizCloudState('● Supabase attivo', true);
   } catch(e){
     quizCloudOk = false;
+    quizStats = null;
     setQuizCloudState('⚠ ' + (e.message || 'Supabase non raggiungibile'), false);
     try { data = JSON.parse(localStorage.getItem('wd_quiz_results') || '[]').map(function(d){ return { result:d.result, consult:!!d.consult, path:d.path || [], ts:d.ts }; }); } catch(_) { data = []; }
   }
@@ -1137,6 +1148,7 @@ async function clearQuizResults(){
   try {
     if (quizCloudOk && window.supabaseDeleteQuizResults) await window.supabaseDeleteQuizResults();
     localStorage.removeItem('wd_quiz_results');
+    quizStats = null;
     await loadQuizResults();
     broadcastQuiz();
     toast('Storico quiz cancellato');
@@ -2139,10 +2151,51 @@ async function init(){
   initBlogSync();
   initQuizSync();
   initFaqAdminEvents();
+  initDashboardSync();
+  initLiveDataSync();
   if(window.WD_WEEKLY){
+    window.WD_WEEKLY.start();
     window.WD_WEEKLY.refresh();
-    setInterval(function(){ if(!document.hidden) window.WD_WEEKLY.refresh(); }, 60000);
   }
+}
+
+function initDashboardSync(){
+  if (window.__dashboardSyncInit) return;
+  window.__dashboardSyncInit = true;
+  setInterval(function(){
+    if (document.hidden) return;
+    const tab = document.getElementById('tab-dashboard');
+    if (!tab || tab.style.display === 'none') return;
+    refreshDashboardAnalytics(true).catch(function(){});
+  }, 30000);
+  window.addEventListener('focus', function(){
+    if (document.hidden) return;
+    const tab = document.getElementById('tab-dashboard');
+    if (tab && tab.style.display !== 'none') refreshDashboardAnalytics(true).catch(function(){});
+  });
+}
+
+async function initLiveDataSync(){
+  if (window.__liveDataSyncInit) return;
+  window.__liveDataSyncInit = true;
+  try { if (window.supabaseConfigReady) await window.supabaseConfigReady; } catch(e) {}
+  const lib = window.supabase;
+  if (!lib || typeof lib.createClient !== 'function' || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) return;
+  try {
+    const client = lib.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    window.__wdLiveClient = client;
+    let weeklyTimer = null;
+    function scheduleWeekly(){
+      if (weeklyTimer) clearTimeout(weeklyTimer);
+      weeklyTimer = setTimeout(function(){
+        weeklyTimer = null;
+        if (window.WD_WEEKLY) window.WD_WEEKLY.reload();
+      }, 150);
+    }
+    window.__wdLiveChannel = client.channel('wd-live-data')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_metrics' }, scheduleWeekly)
+      .subscribe();
+  } catch(e) {}
 }
 
 function initCalendarSync(){
@@ -2177,6 +2230,8 @@ async function loadAppointments(){
     if(r.ok){
       const d = await r.json();
       appts = (d.data||[]).map(a => ({ id: a.id, ...a.attributes }));
+      const total = d.meta && d.meta.pagination ? Number(d.meta.pagination.total) : NaN;
+      appointmentTotal = isFinite(total) ? total : null;
     }
   } catch(e) {}
 
@@ -2201,8 +2256,9 @@ function renderAppointments(){
   }
 
   const pending = appts.filter(a => a.status === 'pending').length;
+  const total = appointmentTotal != null ? appointmentTotal : appts.length;
   document.getElementById('s-appt-pending').textContent = pending;
-  document.getElementById('s-appt-total').textContent = appts.length;
+  document.getElementById('s-appt-total').textContent = total;
   if (window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
@@ -2272,6 +2328,11 @@ function dashboardDuration(seconds){
 function renderDashboardAnalytics(){
   if (!document.getElementById('dash-blog-views')) return;
 
+  const weekNote = document.getElementById('dash-week-note');
+  if (weekNote && window.WD_WEEKLY && window.WD_WEEKLY.weekRange){
+    weekNote.textContent = 'Settimana ' + window.WD_WEEKLY.weekRange() + " · incrementi da lunedì a domenica (Europe/Rome). I valori si azzerano automaticamente all'inizio di ogni nuova settimana.";
+  }
+
   const published = blogPosts.filter(function(a){ return a.status === 'published'; });
   const drafts = blogPosts.filter(function(a){ return a.status === 'draft'; });
   const blogViews = published.reduce(function(total, a){ return total + Number(a.views || 0); }, 0);
@@ -2312,9 +2373,9 @@ function renderDashboardAnalytics(){
       : '<div class="dash-empty">Nessuna visualizzazione registrata.</div>';
   }
 
-  const quizTotal = quizResultsData.length;
-  const quizConsult = quizResultsData.filter(function(d){ return d.consult; }).length;
-  const quizBooking = quizTotal - quizConsult;
+  const quizTotal = quizStats ? quizStats.total : quizResultsData.length;
+  const quizConsult = quizStats ? quizStats.consult : quizResultsData.filter(function(d){ return d.consult; }).length;
+  const quizBooking = quizStats ? quizStats.booking : quizTotal - quizConsult;
   set('dash-quiz-total', quizTotal.toLocaleString('it-IT'));
   set('dash-quiz-consult', quizConsult.toLocaleString('it-IT'));
   set('dash-quiz-booking', quizBooking.toLocaleString('it-IT'));
@@ -2345,12 +2406,30 @@ async function refreshDashboardAnalytics(force){
       loadPhotos().catch(function(){ return null; }),
       loadBlogPosts(true),
       loadFaqsAdmin(),
-      loadQuizResults(true)
+      loadQuizResults(true),
+      loadAppointments().catch(function(){ return null; })
     ]);
   }
   renderDashboardAnalytics();
   if (window.WD_WEEKLY && window.WD_WEEKLY.reload){
     try { await window.WD_WEEKLY.reload(); } catch(e){}
+  }
+}
+
+async function resetWeeklyCounters(){
+  if (!confirm('Azzerare solo i contatori settimanali? I totali restano invariati.')) return;
+  if (!window.WD_WEEKLY || !window.WD_WEEKLY.reset){
+    toast('Reset settimanale non disponibile', true);
+    return;
+  }
+  try{
+    await window.WD_WEEKLY.reset();
+    renderDashboardAnalytics();
+    toast('Contatori settimanali azzerati');
+  }catch(e){
+    let msg = e && e.message ? e.message : String(e);
+    if (/Could not find the function|schema cache|404/i.test(msg)) msg = 'funzione reset non trovata: esegui supabase/hermes.sql';
+    toast('Errore reset settimanale: ' + msg, true);
   }
 }
 

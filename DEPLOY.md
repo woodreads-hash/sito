@@ -75,13 +75,24 @@ exactly the Netlify layout this site already had.
 
 ### Weekly counters
 - `supabase/hermes.sql` adds `weekly_metrics`, `social_stat_snapshots`, the
-  `increment_weekly_metric` / `get_weekly_metrics` RPCs and the tracking hooks used by
-  blog, FAQ, quiz, gallery, appointments and social stats.
+  `increment_weekly_metric` / `get_weekly_metrics` / `reset_weekly_metrics` RPCs and
+  the tracking hooks used by blog, FAQ, quiz, gallery, appointments and social stats.
 - The week is calculated in `Europe/Rome` and starts on Monday. Every counter can show
   a `+X` badge for the current week; the value resets automatically at the next Monday
-  without deleting history.
-- Social `+X` values are calculated from the difference between the first and latest
-  snapshot of the week. Negative differences are shown as `+0` in the UI.
+  without deleting history or touching totals.
+- The dashboard button **Azzera settimana** calls `reset_weekly_metrics()` and clears
+  only the current week's rows. It never changes blog views, FAQ counters, quiz history,
+  gallery photos or appointment records.
+- Quiz submissions use `quiz_track_result`, so the result row and the weekly increments
+  commit in the same transaction. `get_quiz_stats` keeps the large total exact even
+  when the admin table only loads the most recent rows.
+- Social `+X` values are calculated from the difference against the latest snapshot of
+  the week, or against the last snapshot of the previous week when the current week has
+  no baseline yet. Negative differences are shown as `+0` in the UI.
+- Tracking calls update the badge immediately in the browser, broadcast the increment
+  to other open tabs, and reconcile with Supabase in the background. The admin
+  subscribes to Supabase Realtime for `weekly_metrics`; polling remains as a fallback
+  for totals and for browsers where Realtime is unavailable.
 - The badges are rendered by `window.WD_WEEKLY` in `supabase-config.js`; any dynamic
   admin render can call `WD_WEEKLY.refresh()` after updating the DOM.
 
@@ -198,6 +209,9 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 - Replace hardcoded admin credentials with hashed server-side credentials before production.
   The current login is client-side, so Hermes RLS is permissive for this prototype; do
   not treat it as a hardened multi-user admin.
+- `reset_weekly_metrics` is callable with the publishable key, like the tracking RPCs.
+  It deletes only the current week's rows and never touches totals, but it should still
+  be moved behind server-side admin auth before hardening the panel.
 
 ## Data persistence
 - Production data is stored in Supabase: `blog_posts`, `day_configs`, `faqs`,
@@ -214,8 +228,9 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
   posts; BroadcastChannel, storage events and polling keep open tabs in sync.
 - Blog views and reading time are updated through the two RPC functions; the admin
   shows total views, average time and per-article counters.
-- Quiz results are inserted directly into `quiz_results`; the admin reads them from
-  Supabase and refreshes every 15 seconds while the tab is open.
+- Quiz results are inserted through `quiz_track_result` (result row plus weekly
+  counters in one transaction); the admin reads recent rows from Supabase and refreshes
+  every 15 seconds while the tab is open.
 - Calendar availability, FAQ content and gallery photos are also managed from the
   admin panel and stored in Supabase.
 - LocalStorage remains a fallback/cache layer only (FAQ, calendar, gallery, quiz).
