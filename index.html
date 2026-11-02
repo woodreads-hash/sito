@@ -545,9 +545,17 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .showroom-grid .gi-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;}
 .showroom-grid .gi-tag{font-size:.55rem;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);background:rgba(0,0,0,.35);padding:.15rem .6rem;border-radius:3px;}
 .showroom-grid img{width:100%;height:100%;object-fit:cover;display:block;}
-.showroom-grid .gi-inner canvas.px-canvas{width:100%;height:100%;display:block;object-fit:cover;image-rendering:pixelated;filter:saturate(1.12) contrast(1.05) brightness(1.02);}
-.showroom-grid .gi-inner .px-scan{position:absolute;inset:0;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,rgba(140,255,0,.14) 0 1px,transparent 1px 3px);mix-blend-mode:screen;transition:opacity .25s;}
-.showroom-grid .gi:hover .px-scan{opacity:1;animation:px-scan 3s linear infinite;}
+.showroom-grid .gi{--px-reveal:0;}
+.showroom-grid .gi-inner .px-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:var(--px-reveal,0);filter:saturate(1.12) contrast(1.05) brightness(1.02);transition:opacity .38s ease;will-change:opacity;z-index:0;pointer-events:none;}
+.showroom-grid .gi-inner canvas.px-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;image-rendering:pixelated;filter:saturate(1.12) contrast(1.05) brightness(1.02);opacity:calc(1 - var(--px-reveal,0));transition:opacity .38s ease;will-change:opacity;z-index:1;pointer-events:none;}
+.showroom-grid .gi-inner .px-scan{position:absolute;inset:0;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,rgba(140,255,0,.14) 0 1px,transparent 1px 3px);mix-blend-mode:screen;transition:opacity .25s;z-index:2;}
+@media (hover:hover) and (pointer:fine){
+  .showroom-grid .gi:hover{--px-reveal:1;}
+  .showroom-grid .gi:hover .px-scan{opacity:1;animation:px-scan 3s linear infinite;}
+}
+@media (prefers-reduced-motion:reduce){
+  .showroom-grid .gi-inner .px-img,.showroom-grid .gi-inner canvas.px-canvas{transition:none;}
+}
 .showroom-grid .gi{transition:box-shadow .35s ease,transform .35s ease;}
 .showroom-grid .gi:hover{box-shadow:0 0 0 1px rgba(181,140,255,.5),0 16px 46px rgba(140,255,0,.13);}
 .showroom-grid canvas.px-broken{background:linear-gradient(135deg,var(--warm) 25%,var(--cream) 50%,var(--warm) 75%);background-size:200% 200%;animation:shimmer-bg 1.5s ease-in-out infinite;}
@@ -2568,115 +2576,205 @@ function flatPhoto(p){
   };
 }
 
-/* ── Effetto pixel: canvas a bassa risoluzione, upscalato in pixelated ── */
+/* ── Effetto pixel: canvas pixelato + immagine nitida in crossfade ── */
 const PX = (function(){
+  const states = [];
+  const mobileQuery = window.matchMedia
+    ? window.matchMedia('(hover: none), (pointer: coarse)')
+    : { matches: (window.innerWidth || 0) <= 900 };
+  const raf = window.requestAnimationFrame
+    ? window.requestAnimationFrame.bind(window)
+    : function(cb){ return setTimeout(cb, 16); };
+  const caf = window.cancelAnimationFrame
+    ? window.cancelAnimationFrame.bind(window)
+    : clearTimeout;
   let io = null;
+  let scrollRaf = 0;
+  let resizeRaf = 0;
+  let modeBound = false;
+
+  function isMobile(){
+    return !!(mobileQuery && mobileQuery.matches);
+  }
+
   function observer(){
     if(io) return io;
+    if(typeof IntersectionObserver === 'undefined') return null;
     io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(!en.isIntersecting) return;
-        const state = en.target._px;
-        if(!state || state.revealed) return;
-        state.revealed = true;
-        animate(state, 48, 6, 950, false);
+      entries.forEach(function(entry){
+        const state = entry.target._pxState;
+        if(!state) return;
+        state.inView = entry.isIntersecting;
+        if(entry.isIntersecting && isMobile()) updateMobile(state);
       });
-    }, { threshold: 0.12 });
+    }, { rootMargin: '25% 0px', threshold: [0, 0.01, 0.25, 0.5, 0.75, 1] });
     return io;
   }
 
   function size(state){
-    const rect = state.canvas.getBoundingClientRect();
-    const parent = state.canvas.parentElement;
-    const pw = parent ? parent.clientWidth : rect.width;
-    const ph = parent ? parent.clientHeight : rect.height;
-    const w = Math.max(40, Math.round(pw || rect.width || 260));
-    const h = Math.max(40, Math.round(ph || rect.height || 260));
-    const cols = Math.max(2, Math.round(w / Math.max(2, state.block)));
-    const rows = Math.max(2, Math.round(h / Math.max(2, state.block)));
-    if(state.canvas.width !== cols) state.canvas.width = cols;
-    if(state.canvas.height !== rows) state.canvas.height = rows;
+    const canvas = state.canvas;
+    const parent = canvas.parentElement;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(40, Math.round((parent && parent.clientWidth) || rect.width || 260));
+    const h = Math.max(40, Math.round((parent && parent.clientHeight) || rect.height || 260));
+    const block = Math.max(8, state.block);
+    const cols = Math.max(2, Math.round(w / block));
+    const rows = Math.max(2, Math.round(h / block));
+    if(canvas.width !== cols) canvas.width = cols;
+    if(canvas.height !== rows) canvas.height = rows;
   }
 
   function draw(state){
-    if(!state.img) return;
-    if(state.img.naturalWidth === 0 && state.img.complete) {
-      try { state.img.src = state.img.src; } catch(e){}
-      return;
-    }
-    if(!state.img.naturalWidth) return;
+    const img = state.img;
+    if(!img || !img.naturalWidth) return;
     size(state);
     const ctx = state.ctx;
-    const cw = state.canvas.width, ch = state.canvas.height;
-    ctx.clearRect(0,0,cw,ch);
+    if(!ctx) return;
+    const cw = state.canvas.width;
+    const ch = state.canvas.height;
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+    const scale = Math.max(cw / iw, ch / ih);
+    const sw = cw / scale;
+    const sh = ch / scale;
+    const sx = (iw - sw) / 2;
+    const sy = (ih - sh) / 2;
+    ctx.clearRect(0, 0, cw, ch);
     ctx.imageSmoothingEnabled = false;
-    if(state.glitch){
-      const iw = state.img.naturalWidth, ih = state.img.naturalHeight;
-      const bands = 7;
-      for(let i=0;i<bands;i++){
-        const sy = ih / bands * i;
-        const sh = ih / bands;
-        const shift = (Math.random()-0.5) * iw * 0.07;
-        const dx = (shift / iw) * cw;
-        try { ctx.drawImage(state.img, 0, sy, iw, sh, dx, (sy/ih)*ch, cw, ch/bands); } catch(e){}
-        ctx.fillStyle = (i % 2) ? 'rgba(181,140,255,.28)' : 'rgba(140,255,0,.20)';
-        ctx.fillRect(0, (sy/ih)*ch, cw, ch/bands);
-      }
+    try { ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch); } catch(e){}
+  }
+
+  function setMobileReveal(state, value){
+    const reveal = Math.max(0, Math.min(1, value));
+    if(Math.abs(reveal - state.reveal) < 0.008) return;
+    state.reveal = reveal;
+    if(state.host) state.host.style.setProperty('--px-reveal', reveal.toFixed(3));
+  }
+
+  function updateMobile(state){
+    if(!state || !state.host || !isMobile()) return;
+    const rect = state.host.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    if(!vh || !rect.height) return;
+    const center = rect.top + rect.height / 2;
+    const distance = Math.abs(center - vh / 2);
+    const range = Math.max(180, Math.min(vh * 0.45, Math.max(rect.height * 0.75, 240)));
+    let progress = 1 - distance / range;
+    progress = Math.max(0, Math.min(1, progress));
+    progress = progress * progress * (3 - 2 * progress);
+    setMobileReveal(state, progress);
+  }
+
+  function updateMobileAll(){
+    scrollRaf = 0;
+    if(!isMobile()) return;
+    states.forEach(function(state){
+      if(state.inView) updateMobile(state);
+    });
+  }
+
+  function requestUpdate(){
+    if(!isMobile() || scrollRaf) return;
+    scrollRaf = raf(updateMobileAll);
+  }
+
+  function syncMode(){
+    if(isMobile()){
+      states.forEach(function(state){
+        updateMobile(state);
+        if(state.inView) requestUpdate();
+      });
     } else {
-      try { ctx.drawImage(state.img, 0, 0, cw, ch); } catch(e){}
+      states.forEach(function(state){
+        if(state.host) state.host.style.removeProperty('--px-reveal');
+      });
     }
   }
 
-  function animate(state, from, to, duration, glitch){
-    const t0 = performance.now();
-    state.glitch = !!glitch;
-    function step(now){
-      const p = Math.min(1, (now - t0) / duration);
-      const e = 1 - Math.pow(1 - p, 3);
-      state.block = Math.max(2, from + (to - from) * e);
-      draw(state);
-      if(p < 1) requestAnimationFrame(step);
-      else if(state.glitch){ state.glitch = false; draw(state); }
-    }
-    requestAnimationFrame(step);
+  function scheduleRefresh(){
+    if(resizeRaf) return;
+    resizeRaf = raf(function(){ resizeRaf = 0; refresh(); });
   }
 
-  function create(canvas, src){
-    const state = { canvas: canvas, ctx: canvas.getContext('2d'), img: null, block: 48, revealed: false, glitch: false };
+  function bindMode(){
+    if(modeBound) return;
+    modeBound = true;
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', scheduleRefresh, { passive: true });
+    window.addEventListener('orientationchange', function(){ setTimeout(scheduleRefresh, 150); });
+    if(mobileQuery.addEventListener) mobileQuery.addEventListener('change', syncMode);
+    else if(mobileQuery.addListener) mobileQuery.addListener(syncMode);
+  }
+
+  function create(canvas, host, imgEl){
+    bindMode();
+    const state = {
+      canvas: canvas,
+      ctx: canvas.getContext('2d'),
+      host: host,
+      img: imgEl || null,
+      block: 34,
+      reveal: 0,
+      inView: false
+    };
     canvas._px = state;
-    const img = new Image();
-    try { img.crossOrigin = 'anonymous'; } catch(e){}
-    img.decoding = 'async';
-    img.onload = function(){
-      state.img = img;
-      if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
-      draw(state);
-      try { observer().observe(canvas); } catch(e){}
-      setTimeout(function(){
-        if(!state.revealed){ state.revealed = true; animate(state, state.block, 6, 700, false); }
-      }, 600);
-      setTimeout(function(){ draw(state); }, 1200);
-    };
-    img.onerror = function(){
-      if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
-      canvas.classList.add('px-broken');
-    };
-    img.src = src;
+    if(host){
+      host._pxState = state;
+      host.addEventListener('mouseenter', function(){
+        if(!isMobile()) host.style.setProperty('--px-reveal', '1');
+      });
+      host.addEventListener('mouseleave', function(){
+        if(!isMobile()) host.style.removeProperty('--px-reveal');
+      });
+    }
+    states.push(state);
+    if(imgEl){
+      imgEl.addEventListener('load', function(){
+        if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
+        draw(state);
+        updateMobile(state);
+      });
+      imgEl.addEventListener('error', function(){
+        if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
+        canvas.classList.add('px-broken');
+      });
+      if(imgEl.complete && imgEl.naturalWidth){
+        if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
+        draw(state);
+      } else if(imgEl.complete){
+        if(canvas.parentElement) canvas.parentElement.classList.remove('skeleton');
+        canvas.classList.add('px-broken');
+      }
+    }
+    const obs = observer();
+    if(obs && host){
+      try { obs.observe(host); } catch(e){}
+    } else {
+      state.inView = true;
+    }
+    if(isMobile()) updateMobile(state);
+    requestUpdate();
     return state;
   }
 
-  function hover(state, host){
-    host.addEventListener('mouseenter', function(){
-      if(!state.img) return;
-      animate(state, state.block, 17, 240, true);
-    });
-    host.addEventListener('mouseleave', function(){
-      if(!state.img) return;
-      animate(state, state.block, 6, 420, false);
+  function refresh(){
+    states.forEach(function(state){
+      draw(state);
+      if(isMobile()) updateMobile(state);
+      else if(state.host) state.host.style.removeProperty('--px-reveal');
     });
   }
 
-  return { create: create, hover: hover, draw: draw };
+  function clear(){
+    if(scrollRaf){ caf(scrollRaf); scrollRaf = 0; }
+    if(resizeRaf){ caf(resizeRaf); resizeRaf = 0; }
+    states.forEach(function(state){
+      if(io && state.host){ try { io.unobserve(state.host); } catch(e){} }
+    });
+    states.length = 0;
+  }
+
+  return { create: create, refresh: refresh, clear: clear };
 })();
 
 /* ── Dati galleria: Supabase (tabella gallery_photos) con fallback API ── */
@@ -2836,20 +2934,27 @@ function applyFilter(){
 function renderPhotos(list, append){
   const el = document.getElementById('showroom-grid');
   if(!el) return;
-  if(!append) el.innerHTML = '';
+  if(!append){
+    PX.clear();
+    el.innerHTML = '';
+  }
   if(!list.length){
     el.innerHTML = '<div class="showroom-empty"><span class="icon">🔍</span>Nessuna foto in questa categoria</div>';
     return;
   }
   list.forEach(ph=>{
     const thumb = imgUrl(ph.image, 'thumbnail') || imgUrl(ph.image) || ph.url || '';
+    const preview = imgUrl(ph.image, 'medium') || thumb;
     const full = imgUrl(ph.image, 'large') || imgUrl(ph.image, 'medium') || thumb;
     const tags = (ph.tags||[]).slice(0,3).map(t => t.name||t);
     const div = document.createElement('div');
     div.className = 'gi'+(ph.featured?' featured':'');
-    div.innerHTML = '<div class="gi-inner skeleton">' +
-      '<canvas class="px-canvas"></canvas>' +
-      '<span class="px-scan"></span>' +
+    const media = preview
+      ? '<img class="px-img" src="'+escHtml(preview)+'" alt="'+escHtml(ph.title || 'WooDreads gallery')+'" loading="lazy" decoding="async">' +
+        '<canvas class="px-canvas"></canvas>' +
+        '<span class="px-scan"></span>'
+      : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted-d);">📸</div>';
+    div.innerHTML = '<div class="gi-inner skeleton">' + media +
       '</div><div class="gi-overlay"></div>' +
       '<div class="gi-info">' +
       (ph.title?'<div class="gi-title">'+escHtml(ph.title)+'</div>':'') +
@@ -2864,12 +2969,11 @@ function renderPhotos(list, append){
     el.appendChild(div);
     const canvas = div.querySelector('canvas.px-canvas');
     const inner = div.querySelector('.gi-inner');
-    if(thumb && canvas){
-      const state = PX.create(canvas, thumb);
-      PX.hover(state, div);
+    const imgEl = div.querySelector('img.px-img');
+    if(preview && canvas && imgEl){
+      PX.create(canvas, div, imgEl);
     } else if(inner){
       inner.classList.remove('skeleton');
-      inner.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted-d);">📸</div>';
     }
   });
 }
@@ -2905,7 +3009,7 @@ function openLightbox(ph, url){
 }
 
 function closeLightbox(e){
-  if(e && e.target !== e.currentTarget) return;
+  if(e && e.target && e.target.closest && e.target.closest('.sl-close,.sl-arrow')) return;
   const lb = document.getElementById('showroom-lb');
   if(!lb) return;
   lb.classList.remove('open');
