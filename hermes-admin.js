@@ -27,6 +27,7 @@
     activePanel: 'overview',
     selectedMessage: null,
     answerId: null,
+    docPreviewId: null,
     settingsPopulated: false,
     messagesToday: 0,
     training: false,
@@ -130,7 +131,8 @@
       contactsTemplate(),
       channelsTemplate(),
       settingsTemplate(),
-      modalTemplate()
+      modalTemplate(),
+      docModalTemplate()
     ].join('');
     host.querySelectorAll('[data-hsub]').forEach(function (button) {
       button.addEventListener('click', function () {
@@ -158,6 +160,18 @@
         if (event.target === modal) closeAnswerModal();
       });
     }
+    var docModal = document.getElementById('h-doc-modal');
+    if (docModal) {
+      docModal.addEventListener('click', function (event) {
+        if (event.target === docModal) closeDocModal();
+      });
+    }
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeAnswerModal();
+        closeDocModal();
+      }
+    });
     state.built = true;
   }
 
@@ -404,11 +418,42 @@
     </div>`;
   }
 
+  function docModalTemplate() {
+    return `<div class="h-modal" id="h-doc-modal">
+      <div class="h-modal-box h-doc-modal-box">
+        <div class="h-doc-modal-head">
+          <div>
+            <h3 id="h-doc-modal-title">Documento</h3>
+            <p id="h-doc-modal-meta"></p>
+          </div>
+          <button class="h-btn small" onclick="WDHermes.closeDocModal()">Chiudi</button>
+        </div>
+        <pre id="h-doc-modal-content" class="h-doc-preview" tabindex="0"></pre>
+        <div class="h-modal-actions">
+          <button class="h-btn" onclick="WDHermes.copyDoc()">Copia testo</button>
+          <button class="h-btn primary" onclick="WDHermes.closeDocModal()">Chiudi</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
   function missingSchema(result) {
     return result.status === 'rejected' && result.reason && (
       result.reason.status === 404 ||
       /does not exist|schema cache|PGRST205|42P01|could not find/i.test(String(result.reason.message || ''))
     );
+  }
+
+  async function loadAllDocs() {
+    var all = [];
+    var pageSize = 500;
+    for (var page = 0; page < 20; page += 1) {
+      var rows = await sb('/rest/v1/hermes_training_documents?select=id,title,source_type,char_count,status,created_at&order=created_at.desc&limit=' + pageSize + '&offset=' + (page * pageSize));
+      if (!Array.isArray(rows) || !rows.length) break;
+      all = all.concat(rows);
+      if (rows.length < pageSize) break;
+    }
+    return all;
   }
 
   async function loadAll() {
@@ -421,7 +466,7 @@
       sb('/rest/v1/hermes_channels?select=*&order=channel.asc'),
       sb('/rest/v1/hermes_conversations?select=*&order=last_message_at.desc&limit=80'),
       sb('/rest/v1/hermes_unanswered?select=*&resolved=eq.false&order=created_at.desc&limit=60'),
-      sb('/rest/v1/hermes_training_documents?select=*&order=created_at.desc&limit=60'),
+      loadAllDocs(),
       sb('/rest/v1/hermes_contact_rules?select=*&order=created_at.desc'),
       sb('/rest/v1/hermes_corrections?select=*&order=created_at.desc&limit=12'),
       sb('/rest/v1/hermes_messages?select=id&created_at=gte.' + encodeURIComponent(today.toISOString()) + '&limit=1000')
@@ -614,6 +659,13 @@
     }).join('');
   }
 
+  function docMeta(row, full) {
+    var date = full
+      ? hDate(row.created_at, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+      : hAgo(row.created_at);
+    return (row.source_type || 'text') + ' · ' + Number(row.char_count || 0).toLocaleString('it-IT') + ' caratteri · ' + date;
+  }
+
   function renderDocs() {
     var host = document.getElementById('h-docs');
     if (!host) return;
@@ -622,9 +674,10 @@
       return;
     }
     host.innerHTML = state.docs.map(function (row) {
-      return '<div class="h-doc"><div class="h-doc-top"><div><div class="h-doc-title">' + hEsc(row.title || 'Senza titolo') + '</div>' +
-        '<div class="h-doc-meta">' + hEsc(row.source_type || 'text') + ' · ' + Number(row.char_count || 0).toLocaleString('it-IT') + ' caratteri · ' + hAgo(row.created_at) + '</div></div>' +
-        '<div class="h-list-actions"><button class="h-btn small danger" onclick="WDHermes.deleteDoc(\'' + hEsc(row.id) + '\')">Elimina</button></div></div></div>';
+      return '<div class="h-doc"><div class="h-doc-top"><div><div class="h-doc-title" onclick="WDHermes.openDoc(\'' + hEsc(row.id) + '\')">' + hEsc(row.title || 'Senza titolo') + '</div>' +
+        '<div class="h-doc-meta">' + hEsc(docMeta(row)) + '</div></div>' +
+        '<div class="h-list-actions"><button class="h-btn small primary" onclick="WDHermes.openDoc(\'' + hEsc(row.id) + '\')">Apri</button>' +
+        '<button class="h-btn small danger" onclick="WDHermes.deleteDoc(\'' + hEsc(row.id) + '\')">Elimina</button></div></div></div>';
     }).join('');
   }
 
@@ -1396,8 +1449,20 @@
         if (titleInput) titleInput.value = '';
         if (textarea) textarea.value = '';
       }
-      var docs = await sb('/rest/v1/hermes_training_documents?select=*&order=created_at.desc&limit=60');
-      state.docs = Array.isArray(docs) ? docs : [];
+      var docs = null;
+      docId = null;
+      try {
+        docs = await loadAllDocs();
+      } catch (refreshError) {
+        if (!opts.silent) hToast('Documento salvato; elenco non aggiornato: ' + refreshError.message, true);
+      }
+      if (Array.isArray(docs)) {
+        var present = docs.some(function (row) { return row.id === document.id; });
+        if (!present) docs = [document].concat(docs);
+      } else {
+        docs = [document].concat(state.docs);
+      }
+      state.docs = docs;
       renderDocs();
       renderStats();
       return document;
@@ -1447,6 +1512,7 @@
         headers: { Prefer: 'return=minimal' }
       });
       state.docs = state.docs.filter(function (row) { return row.id !== id; });
+      if (state.docPreviewId === id) closeDocModal();
       renderDocs();
       renderStats();
       hToast('Documento eliminato');
@@ -1471,6 +1537,59 @@
     state.answerId = null;
     var modal = document.getElementById('h-answer-modal');
     if (modal) modal.classList.remove('open');
+  }
+
+  async function openDoc(id) {
+    var row = state.docs.find(function (item) { return item.id === id; });
+    if (!row) return;
+    var modal = document.getElementById('h-doc-modal');
+    var title = document.getElementById('h-doc-modal-title');
+    var meta = document.getElementById('h-doc-modal-meta');
+    var content = document.getElementById('h-doc-modal-content');
+    if (!modal || !title || !meta || !content) return;
+    var cached = row.content != null;
+    state.docPreviewId = id;
+    title.textContent = row.title || 'Senza titolo';
+    meta.textContent = docMeta(row, true);
+    content.textContent = cached ? (String(row.content) || 'Documento senza testo.') : 'Caricamento anteprima…';
+    modal.classList.add('open');
+    content.scrollTop = 0;
+    if (cached) return;
+    try {
+      var rows = await sb('/rest/v1/hermes_training_documents?id=eq.' + encodeURIComponent(id) + '&select=id,title,source_type,char_count,status,created_at,content&limit=1');
+      var full = rows && rows[0];
+      if (!full) throw new Error('Documento non trovato');
+      Object.assign(row, full);
+      if (state.docPreviewId !== id) return;
+      title.textContent = row.title || 'Senza titolo';
+      meta.textContent = docMeta(row, true);
+      content.textContent = full.content ? String(full.content) : 'Documento senza testo.';
+      content.scrollTop = 0;
+    } catch (error) {
+      if (state.docPreviewId !== id) return;
+      content.textContent = 'Anteprima non disponibile: ' + error.message;
+    }
+  }
+
+  function closeDocModal() {
+    state.docPreviewId = null;
+    var modal = document.getElementById('h-doc-modal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  function copyDoc() {
+    var content = document.getElementById('h-doc-modal-content');
+    if (!content) return;
+    var text = content.textContent || '';
+    if (!text || /^Caricamento anteprima/.test(text)) {
+      hToast('Anteprima ancora in caricamento', true);
+      return;
+    }
+    if (/^Anteprima non disponibile/.test(text)) {
+      hToast('Anteprima non disponibile', true);
+      return;
+    }
+    copy(text);
   }
 
   async function saveAnswer() {
@@ -1519,6 +1638,9 @@
     handleTrainFile: handleTrainFile,
     importFaqs: importFaqs,
     deleteDoc: deleteDoc,
+    openDoc: openDoc,
+    closeDocModal: closeDocModal,
+    copyDoc: copyDoc,
     openConversation: openConversation,
     filterConversations: filterConversations,
     setChannelFilter: setChannelFilter,

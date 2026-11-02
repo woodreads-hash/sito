@@ -545,7 +545,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .showroom-grid .gi-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;}
 .showroom-grid .gi-tag{font-size:.55rem;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);background:rgba(0,0,0,.35);padding:.15rem .6rem;border-radius:3px;}
 .showroom-grid img{width:100%;height:100%;object-fit:cover;display:block;}
-.showroom-grid .gi{--px-reveal:0;}
+.showroom-grid .gi{--px-reveal:.75;}
 .showroom-grid .gi-inner .px-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:var(--px-reveal,0);filter:saturate(1.12) contrast(1.05) brightness(1.02);transition:opacity .38s ease;will-change:opacity;z-index:0;pointer-events:none;}
 .showroom-grid .gi-inner canvas.px-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;image-rendering:pixelated;filter:saturate(1.12) contrast(1.05) brightness(1.02);opacity:calc(1 - var(--px-reveal,0));transition:opacity .38s ease;will-change:opacity;z-index:1;pointer-events:none;}
 .showroom-grid .gi-inner .px-scan{position:absolute;inset:0;pointer-events:none;opacity:0;background:repeating-linear-gradient(0deg,rgba(140,255,0,.14) 0 1px,transparent 1px 3px);mix-blend-mode:screen;transition:opacity .25s;z-index:2;}
@@ -559,6 +559,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .showroom-grid .gi{transition:box-shadow .35s ease,transform .35s ease;}
 .showroom-grid .gi:hover{box-shadow:0 0 0 1px rgba(181,140,255,.5),0 16px 46px rgba(140,255,0,.13);}
 .showroom-grid canvas.px-broken{background:linear-gradient(135deg,var(--warm) 25%,var(--cream) 50%,var(--warm) 75%);background-size:200% 200%;animation:shimmer-bg 1.5s ease-in-out infinite;}
+.showroom-grid .gi-inner canvas.px-broken{opacity:1;}
 @keyframes px-scan{from{transform:translateY(0)}to{transform:translateY(3px)}}
 .showroom-grid .gi-inner.skeleton{background:linear-gradient(135deg,var(--warm) 25%,var(--cream) 50%,var(--warm) 75%);background-size:200% 200%;animation:shimmer-bg 1.5s ease-in-out infinite;}
 @keyframes shimmer-bg{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
@@ -2577,6 +2578,7 @@ function flatPhoto(p){
 /* ── Effetto pixel: canvas pixelato + immagine nitida in crossfade ── */
 const PX = (function(){
   const states = [];
+  const baseReveal = 0.75;
   const mobileQuery = window.matchMedia
     ? window.matchMedia('(hover: none), (pointer: coarse)')
     : { matches: (window.innerWidth || 0) <= 900 };
@@ -2660,7 +2662,7 @@ const PX = (function(){
     let progress = 1 - distance / range;
     progress = Math.max(0, Math.min(1, progress));
     progress = progress * progress * (3 - 2 * progress);
-    setMobileReveal(state, progress);
+    setMobileReveal(state, baseReveal + progress * (1 - baseReveal));
   }
 
   function updateMobileAll(){
@@ -2711,8 +2713,8 @@ const PX = (function(){
       ctx: canvas.getContext('2d'),
       host: host,
       img: imgEl || null,
-      block: 34,
-      reveal: 0,
+      block: 26,
+      reveal: baseReveal,
       inView: false
     };
     canvas._px = state;

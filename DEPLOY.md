@@ -100,6 +100,9 @@ exactly the Netlify layout this site already had.
 - The admin section is inside the existing secret panel `/wd-panel-x7q9` → **Hermes**.
   It contains the global kill switch, RAG training, unresolved questions, live chat
   monitor, RLHF corrections, contact rules, channel setup guides and the runtime prompt.
+- The training list loads every document's metadata; **Apri** fetches the full source
+  on demand and opens a scrollable preview with **Copia testo**. This keeps the list
+  light even when the vector memory contains many large files.
 - **Run `supabase/hermes.sql` once in the Supabase SQL Editor** before opening the
   Hermes tab. It is idempotent and is also included at the end of `supabase/schema.sql`.
   It creates the Hermes tables, `pgvector` knowledge base, RLS policies, Realtime
@@ -233,6 +236,9 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
   every 15 seconds while the tab is open.
 - Calendar availability, FAQ content and gallery photos are also managed from the
   admin panel and stored in Supabase.
+- Gallery photos keep a light 25% pixel canvas over the sharp image. Desktop hover
+  removes it, while mobile reveals the last 25% progressively as the card reaches the
+  viewport center. A click or tap opens the lightbox.
 - LocalStorage remains a fallback/cache layer only (FAQ, calendar, gallery, quiz).
   It is not the source of truth for published blog content.
 
