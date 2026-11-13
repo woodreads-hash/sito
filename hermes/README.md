@@ -8,3 +8,7 @@ This folder tracks the configuration and prompts for the Hermes agent running lo
 - `config.yaml` - Hermes configuration
 - `skills/` - Available skills
 - `.skills_prompt_snapshot.json` - Skills prompt snapshot
+
+## Security
+
+Do not commit real payment credentials or private contact data. Keep them in local, untracked files or a secret manager. If they were committed, rotate them and consider rewriting the repository history.
