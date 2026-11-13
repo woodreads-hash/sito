@@ -96,6 +96,8 @@ exactly the Netlify layout this site already had.
 - Per attivare la tabella dedicata eseguire `supabase/site-settings.sql` (oppure
   `supabase/hermes.sql`, che la include). Finché la tabella non esiste, il salvataggio
   usa come fallback la riga `site` di `hermes_settings`, così il campo funziona subito.
+  Dopo la migrazione la tabella dedicata diventa autoritativa: se la P.IVA era stata
+  salvata nel fallback, reinserirla dalla dashboard.
 - Il valore viene sincronizzato tra le schede con BroadcastChannel/localStorage e
   aggiornato anche nel JSON-LD `vatID`.
 
