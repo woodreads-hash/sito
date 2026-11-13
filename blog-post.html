@@ -24,7 +24,58 @@
 <meta name="twitter:title" content="Articolo — Blog WooDreads"/>
 <meta name="twitter:description" content="Articolo del blog WooDreads."/>
 <meta name="twitter:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta name="twitter:image:alt" content="WooDreads — Blog"/>
+<meta property="og:image:type" content="image/jpeg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
 <meta name="theme-color" content="#0D0D0F"/>
+<script type="application/ld+json" id="wd-jsonld-business">
+{
+  "@context": "https://schema.org",
+  "@type": ["HairSalon", "LocalBusiness"],
+  "@id": "https://www.woodreads.com/#business",
+  "name": "WooDreads",
+  "alternateName": "WooDreads Dreadmaker Roma",
+  "url": "https://www.woodreads.com/",
+  "image": "https://www.woodreads.com/og-default.jpg",
+  "logo": "https://www.woodreads.com/logo.svg",
+  "description": "Dreadmaker a Roma dal 2012. Creazione, manutenzione e restauro di dreads naturali e cyberdread con tecnica ad uncinetto, senza cera.",
+  "telephone": "+39 348 539 3826",
+  "priceRange": "€€",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Palazzo Giallo, Civico 9",
+    "addressLocality": "Roma",
+    "addressRegion": "Lazio",
+    "addressCountry": "IT"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "Roma"
+  },
+  "hasMap": "https://maps.app.goo.gl/zLgQGe6T22wvX7LL9",
+  "sameAs": [
+    "https://www.instagram.com/woodreads/",
+    "https://www.facebook.com/WooDreads/",
+    "https://www.tiktok.com/@woodreads",
+    "https://www.youtube.com/@woodreads"
+  ]
+}
+</script>
+<script type="application/ld+json" id="wd-jsonld-website">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://www.woodreads.com/#website",
+  "url": "https://www.woodreads.com/",
+  "name": "WooDreads",
+  "alternateName": "WooDreads Dreadmaker Roma",
+  "inLanguage": "it-IT",
+  "publisher": {
+    "@id": "https://www.woodreads.com/#business"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preconnect" href="https://yqksdpgkktgppxzdbbgc.supabase.co" crossorigin/>
@@ -172,9 +223,11 @@ nav,main,.wrap,footer,.article-nav,.article-header{position:relative;z-index:2;}
     <a href="privacy.html">Privacy Policy</a>
     <a href="cookie-policy.html">Cookie Policy</a>
   </div>
+  <div class="site-vat" data-site-vat hidden>P. IVA <span data-site-vat-value></span></div>
 </footer>
 
 <script src="supabase-config.js"></script>
+<script src="site-settings.js"></script>
 <script src="blog-utils.js"></script>
 <script>
 const wrap = document.getElementById('wrap');
@@ -377,6 +430,7 @@ function renderPost(post, nextPost){
     setMeta('twitter:title', title);
     setMeta('twitter:description', description);
     setMeta('twitter:image', socialImage(cover));
+    setMeta('twitter:image:alt', title);
     const canonical = document.querySelector('link[rel="canonical"]');
     if(canonical) canonical.setAttribute('href', url);
     document.getElementById('bc-title').textContent = post.title;

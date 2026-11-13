@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /wd-panel-x7q9
 Disallow: /admin.html
+Disallow: /api/
 
 Sitemap: https://www.woodreads.com/sitemap.xml

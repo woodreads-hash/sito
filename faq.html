@@ -25,7 +25,58 @@
 <meta name="twitter:title" content="FAQ — WooDreads | Domande frequenti sui dreads"/>
 <meta name="twitter:description" content="Le risposte alle domande più frequenti su dreads, manutenzione, cyberdread, prezzi e cura."/>
 <meta name="twitter:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta name="twitter:image:alt" content="FAQ WooDreads — Domande frequenti sui dreads"/>
+<meta property="og:image:type" content="image/jpeg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
 <meta name="theme-color" content="#0D0D0F"/>
+<script type="application/ld+json" id="wd-jsonld-business">
+{
+  "@context": "https://schema.org",
+  "@type": ["HairSalon", "LocalBusiness"],
+  "@id": "https://www.woodreads.com/#business",
+  "name": "WooDreads",
+  "alternateName": "WooDreads Dreadmaker Roma",
+  "url": "https://www.woodreads.com/",
+  "image": "https://www.woodreads.com/og-default.jpg",
+  "logo": "https://www.woodreads.com/logo.svg",
+  "description": "Dreadmaker a Roma dal 2012. Creazione, manutenzione e restauro di dreads naturali e cyberdread con tecnica ad uncinetto, senza cera.",
+  "telephone": "+39 348 539 3826",
+  "priceRange": "€€",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Palazzo Giallo, Civico 9",
+    "addressLocality": "Roma",
+    "addressRegion": "Lazio",
+    "addressCountry": "IT"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "Roma"
+  },
+  "hasMap": "https://maps.app.goo.gl/zLgQGe6T22wvX7LL9",
+  "sameAs": [
+    "https://www.instagram.com/woodreads/",
+    "https://www.facebook.com/WooDreads/",
+    "https://www.tiktok.com/@woodreads",
+    "https://www.youtube.com/@woodreads"
+  ]
+}
+</script>
+<script type="application/ld+json" id="wd-jsonld-website">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://www.woodreads.com/#website",
+  "url": "https://www.woodreads.com/",
+  "name": "WooDreads",
+  "alternateName": "WooDreads Dreadmaker Roma",
+  "inLanguage": "it-IT",
+  "publisher": {
+    "@id": "https://www.woodreads.com/#business"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preconnect" href="https://yqksdpgkktgppxzdbbgc.supabase.co" crossorigin/>
@@ -139,10 +190,12 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
     <a href="/privacy.html">Privacy Policy</a>
     <a href="/cookie-policy.html">Cookie Policy</a>
   </div>
+  <div class="site-vat" data-site-vat hidden>P. IVA <span data-site-vat-value></span></div>
 </footer>
 
 <script src="faq-data.js"></script>
 <script src="supabase-config.js"></script>
+<script src="site-settings.js"></script>
 <script>
 (function(){
   const DEFAULT_IMAGE = 'https://www.woodreads.com/og-default.jpg';
@@ -289,6 +342,7 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
     setMeta('twitter:title', 'FAQ — WooDreads | Domande frequenti sui dreads');
     setMeta('twitter:description', 'Le risposte alle domande più frequenti su dreads, manutenzione, cyberdread, prezzi e cura.');
     setMeta('twitter:image', DEFAULT_IMAGE);
+    setMeta('twitter:image:alt', 'FAQ WooDreads — Domande frequenti sui dreads');
     setCanonical('https://www.woodreads.com/faq');
     injectJsonLd(faqs);
     breadcrumb.innerHTML = '<a href="/index.html">Home</a><span class="sep">/</span><a href="/faq">FAQ</a>';
@@ -319,6 +373,7 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
     setMeta('twitter:title', faq.question);
     setMeta('twitter:description', description);
     setMeta('twitter:image', DEFAULT_IMAGE);
+    setMeta('twitter:image:alt', faq.question);
     setCanonical(url);
     injectJsonLd([faq]);
     breadcrumb.innerHTML = '<a href="/index.html">Home</a><span class="sep">/</span><a href="/faq">FAQ</a><span class="sep">/</span><span>' + escapeHtml(faq.question) + '</span>';

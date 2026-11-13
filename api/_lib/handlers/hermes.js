@@ -272,7 +272,7 @@ function buildMessages(settings, chunks, corrections, text) {
     'Rispondi in italiano, in modo breve e concreto. Non inventare prezzi, disponibilità o dettagli tecnici. Per creazioni, restauri o casi dubbi chiedi foto o un breve video e proponi una consulenza. Se non sai rispondere, scrivi [[UNRESOLVED]] alla fine e chiedi aiuto al team. Non ripetere il messaggio dell’utente e non usare più di 4 frasi.',
     context ? 'CONTESTO DALLA KNOWLEDGE BASE:\n' + context : 'CONTESTO DALLA KNOWLEDGE BASE: nessun documento pertinente trovato.',
     feedback ? 'CORREZIONI RECENTI DEL TEAM:\n' + feedback : '',
-    'REGOLE FISSE: studio a Roma, Palazzo Giallo, Civico 9. Metodo senza cera. Caparra 20 euro. Riprogrammazione gratuita fino a 24 ore prima. Non fornire mai dati di pagamento in chat.'
+    'REGOLE FISSE: studio a Roma, Palazzo Giallo, Civico 9. Metodo senza cera. Caparra 30 euro. La quota è rimborsabile con almeno 24 ore di preavviso per modifiche o disdetta; superato il termine non è rimborsabile. Non fornire mai dati di pagamento in chat.'
   ].filter(Boolean).join('\n\n');
   return [
     { role: 'system', content: system },

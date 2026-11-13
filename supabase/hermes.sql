@@ -264,6 +264,12 @@ create table if not exists public.hermes_settings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.site_settings (
+  id text primary key default 'global',
+  vat_number text not null default '',
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.hermes_channels (
   channel text primary key,
   enabled boolean not null default false,
@@ -415,6 +421,7 @@ alter table public.social_stat_snapshots enable row level security;
 grant select on public.weekly_metrics to anon, authenticated;
 drop policy if exists "Public can read weekly metrics" on public.weekly_metrics;
 create policy "Public can read weekly metrics" on public.weekly_metrics for select using (true);
+alter table public.site_settings enable row level security;
 alter table public.hermes_settings enable row level security;
 alter table public.hermes_channels enable row level security;
 alter table public.hermes_conversations enable row level security;
@@ -425,6 +432,7 @@ alter table public.hermes_contact_rules enable row level security;
 alter table public.hermes_training_documents enable row level security;
 alter table public.hermes_training_chunks enable row level security;
 
+grant select, insert, update, delete on public.site_settings to anon, authenticated;
 grant select, insert, update, delete on public.hermes_settings to anon, authenticated;
 grant select, insert, update, delete on public.hermes_channels to anon, authenticated;
 grant select, insert, update, delete on public.hermes_conversations to anon, authenticated;
@@ -435,6 +443,10 @@ grant select, insert, update, delete on public.hermes_contact_rules to anon, aut
 grant select, insert, update, delete on public.hermes_training_documents to anon, authenticated;
 grant select, insert, update, delete on public.hermes_training_chunks to anon, authenticated;
 
+drop policy if exists "Public can read site settings" on public.site_settings;
+create policy "Public can read site settings" on public.site_settings for select using (true);
+drop policy if exists "Public can manage site settings" on public.site_settings;
+create policy "Public can manage site settings" on public.site_settings for all using (true) with check (true);
 drop policy if exists "Public can manage hermes settings" on public.hermes_settings;
 create policy "Public can manage hermes settings" on public.hermes_settings for all using (true) with check (true);
 drop policy if exists "Public can manage hermes channels" on public.hermes_channels;
@@ -472,6 +484,10 @@ do $$ begin
   end if;
 exception when duplicate_object then null; when undefined_object then null; end $$;
 
+insert into public.site_settings (id, vat_number)
+values ('global', '')
+on conflict (id) do nothing;
+
 insert into public.hermes_settings (id, enabled, brand_prompt, first_message, fallback_message, model)
 values (
   'global',
@@ -499,8 +515,8 @@ values (
   '00000000-0000-4000-8000-000000000001',
   'Brand voice WooDreads',
   'brand',
-  'WooDreads è uno studio di dreadmaker a Roma. Il metodo usa l''uncinetto, senza cera. I dreads si lavano con uno shampoo delicato, senza siliconi, balsami o oli pesanti. La manutenzione si fa in media ogni 2-3 mesi. Per un preventivo servono foto o un video panoramico dei capelli. La creazione di un full set richiede in media dalle 5 alle 10 ore, a volte su due appuntamenti. Il prezzo dipende da lunghezza, spessore e densità: non dare un prezzo finale senza la conferma di Andriy. Lo studio si trova a Roma, Palazzo Giallo, Civico 9. La caparra per una prenotazione è di 20 euro, scalabile dal totale. La riprogrammazione è gratuita fino a 24 ore prima. I capelli vanno lavati e asciugati due giorni prima della seduta.',
-  680,
+  'WooDreads è uno studio di dreadmaker a Roma. Il metodo usa l''uncinetto, senza cera. I dreads si lavano con uno shampoo delicato, senza siliconi, balsami o oli pesanti. La manutenzione si fa in media ogni 2-3 mesi. Per un preventivo servono foto o un video panoramico dei capelli. La creazione di un full set richiede in media dalle 5 alle 10 ore, a volte su due appuntamenti. Il prezzo dipende da lunghezza, spessore e densità: non dare un prezzo finale senza la conferma di Andriy. Lo studio si trova a Roma, Palazzo Giallo, Civico 9. La caparra per una prenotazione è di 30 euro, scalabile dal totale. La quota è interamente rimborsabile se il cliente avvisa di qualsiasi modifica o disdetta con almeno 24 ore di anticipo; superato questo termine non è rimborsabile. I capelli vanno lavati e asciugati due giorni prima della seduta.',
+  834,
   'ready'
 )
 on conflict (id) do nothing;
@@ -509,7 +525,7 @@ insert into public.hermes_training_chunks (id, document_id, content, embedding, 
 values (
   '00000000-0000-4000-8000-000000000002',
   '00000000-0000-4000-8000-000000000001',
-  'WooDreads è uno studio di dreadmaker a Roma. Il metodo usa l''uncinetto, senza cera. I dreads si lavano con uno shampoo delicato, senza siliconi, balsami o oli pesanti. La manutenzione si fa in media ogni 2-3 mesi. Per un preventivo servono foto o un video panoramico dei capelli. La creazione di un full set richiede in media dalle 5 alle 10 ore, a volte su due appuntamenti. Il prezzo dipende da lunghezza, spessore e densità: non dare un prezzo finale senza la conferma di Andriy. Lo studio si trova a Roma, Palazzo Giallo, Civico 9. La caparra per una prenotazione è di 20 euro, scalabile dal totale. La riprogrammazione è gratuita fino a 24 ore prima. I capelli vanno lavati e asciugati due giorni prima della seduta.',
+  'WooDreads è uno studio di dreadmaker a Roma. Il metodo usa l''uncinetto, senza cera. I dreads si lavano con uno shampoo delicato, senza siliconi, balsami o oli pesanti. La manutenzione si fa in media ogni 2-3 mesi. Per un preventivo servono foto o un video panoramico dei capelli. La creazione di un full set richiede in media dalle 5 alle 10 ore, a volte su due appuntamenti. Il prezzo dipende da lunghezza, spessore e densità: non dare un prezzo finale senza la conferma di Andriy. Lo studio si trova a Roma, Palazzo Giallo, Civico 9. La caparra per una prenotazione è di 30 euro, scalabile dal totale. La quota è interamente rimborsabile se il cliente avvisa di qualsiasi modifica o disdetta con almeno 24 ore di anticipo; superato questo termine non è rimborsabile. I capelli vanno lavati e asciugati due giorni prima della seduta.',
   null,
   '{"source":"brand"}'::jsonb
 )

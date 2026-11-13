@@ -15,6 +15,8 @@ The classic model builds `api/**/*.js` as Vercel Functions out of the box, which
 exactly the Netlify layout this site already had.
 
 ### Routing (top level of `vercel.json`)
+- `/sitemap.xml` → `/api/data?type=sitemap` e `/robots.txt` → `/api/data?type=robots`
+  (SEO dinamico da Supabase, con fallback statici nel repository)
 - `/.netlify/functions/*` → `/api/*` (the frontend keeps calling the old Netlify paths,
   so no frontend code changes are needed)
 - `/.netlify/functions/<domain>/<sub-rotta>` → `/api/<domain>` for the grouped
@@ -56,8 +58,9 @@ exactly the Netlify layout this site already had.
 ### Backend attuale
 - **Supabase è il backend principale** (il browser interroga direttamente l'API REST):
   `blog_posts` (articoli, media e contatori), `day_configs` (fasce orarie, chiusure,
-  note del giorno), `faqs` (domande + statistiche), `gallery_photos` (galleria) e
-  `quiz_results` (percorsi anonimi del mini quiz).
+  note del giorno), `faqs` (domande + statistiche), `gallery_photos` (galleria),
+  `quiz_results` (percorsi anonimi del mini quiz) e `site_settings` (Partita IVA
+  mostrata nel footer).
 - Eseguire `supabase/schema.sql` nella SQL editor di Supabase per creare/aggiornare
   tabelle, policy RLS, bucket `gallery` e funzioni RPC `blog_track_view` /
   `blog_track_time`. Lo script è idempotente e include un articolo dimostrativo
@@ -72,6 +75,34 @@ exactly the Netlify layout this site already had.
   `/.netlify/functions/supabase-config`, che legge `NEXT_PUBLIC_SUPABASE_URL` e
   `NEXT_PUBLIC_SUPABASE_ANON_KEY` dall'ambiente. `supabase-config.js` applica i valori
   prima di ogni chiamata Supabase (con timeout di 4 s e fallback statici).
+
+### SEO dinamico
+- `/sitemap.xml` e `/robots.txt` sono riscritti in `vercel.json` verso
+  `api/data.js`, che genera la sitemap da Supabase (`blog_posts` pubblicati e
+  `faqs` pubblicate) e restituisce le regole di crawl aggiornate.
+- I file statici `sitemap.xml` e `robots.txt` restano come fallback per il deploy
+  Netlify e per l'anteprima locale. Per rigenerarli usare
+  `node scripts/generate-seo.js`.
+- Le pagine pubbliche hanno title, description, canonical, Open Graph/Twitter Card
+  completi e JSON-LD `HairSalon`/`LocalBusiness` + `WebSite`. Gli articoli e le FAQ
+  aggiornano il proprio JSON-LD (`BlogPosting` / `FAQPage`) via JavaScript.
+
+### Partita IVA e footer globale
+- La Partita IVA si gestisce dalla dashboard admin (`Dati aziendali` → `Partita IVA`).
+  Il valore viene salvato in `site_settings` e mostrato dal componente
+  `site-settings.js` nel footer di tutte le pagine pubbliche.
+- Per attivare la tabella dedicata eseguire `supabase/site-settings.sql` (oppure
+  `supabase/hermes.sql`, che la include). Finché la tabella non esiste, il salvataggio
+  usa come fallback la riga `site` di `hermes_settings`, così il campo funziona subito.
+- Il valore viene sincronizzato tra le schede con BroadcastChannel/localStorage e
+  aggiornato anche nel JSON-LD `vatID`.
+
+### Prenotazioni
+- Il banner del calendario mostra la policy di prenotazione con acconto di 30,00 € e
+  rimborso con almeno 24 ore di preavviso, prima della CTA WhatsApp.
+- Non è presente alcun gateway di pagamento automatico: la conferma e l'eventuale
+  acconto restano gestiti tramite WhatsApp. La chiusura del banner cliccando fuori
+  dal pulsante di contatto è invariata.
 
 ### Weekly counters
 - `supabase/hermes.sql` adds `weekly_metrics`, `social_stat_snapshots`, the
@@ -107,6 +138,8 @@ exactly the Netlify layout this site already had.
   Hermes tab. It is idempotent and is also included at the end of `supabase/schema.sql`.
   It creates the Hermes tables, `pgvector` knowledge base, RLS policies, Realtime
   publication entries and the initial brand/blacklist seeds.
+- The Hermes fixed rules use the same 30,00 € deposit and 24-hour cancellation policy
+  shown in the public calendar banner, so AI replies stay aligned with the booking UI.
 - `api/hermes.js` is the **12th and last** top-level Vercel Function. It handles:
   - `GET /api/hermes?hub.mode=subscribe&hub.verify_token=…&hub.challenge=…` (Meta verification)
   - `GET /api/hermes?action=status` (booleans/config state only, no secrets)
@@ -170,7 +203,8 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
   - `api/share.js` → HTML Open Graph per crawler social su `/faq/:slug` e `/blog/:slug`
   - `api/hermes.js` → webhook multi-canale Hermes, verifica Meta/TikTok, stato e AI
   - `api/day-notes.js`, `api/day-bands.js`, `api/day-overrides.js`,
-    `api/social-stats.js`, `api/youtube-stats.js`, `api/supabase-config.js`, `api/data.js`
+    `api/social-stats.js`, `api/youtube-stats.js`, `api/supabase-config.js`,
+    `api/data.js` (health + sitemap/robots dinamici)
   - la sotto-rotta viene ricavata dall'URL originale della richiesta
     (`api/_lib/route.js`), quindi il frontend continua a chiamare
     `/.netlify/functions/<dominio>/<sotto-rotta>` senza modifiche
@@ -179,6 +213,9 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 - `api/_lib/vercel-adapter.js` — converts a Vercel `(req, res)` call into the Netlify
   `event` shape, so the handlers stay unchanged.
 - `api/_lib/route.js` — mapping tra rotta pubblica e sotto-rotta del dominio.
+- `api/_lib/seo.js` — generatore condiviso di `sitemap.xml` e `robots.txt`.
+- `scripts/generate-seo.js` — rigenera i fallback statici SEO (`node scripts/generate-seo.js`).
+- `site-settings.js` — legge/salva la Partita IVA e aggiorna il footer pubblico.
 - `api/_lib/dev-server.js` — local dev server (static + API).
 - `api/_lib/strapi.js` — optional-backend helper (`hasBackend`, `apiUrl`, `isBackendError`).
 - `blog-utils.js` — sanitizzazione HTML, conversione Markdown/plain text, slug, reading time
@@ -209,6 +246,8 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 - Public link to `/admin` is removed from the site (`/admin` answers 404).
 - Reserved admin URL: `/wd-panel-x7q9`.
 - The Hermes tab is inside this panel and is reachable from the top admin navigation.
+- The dashboard also contains the **Dati aziendali → Partita IVA** field; the saved
+  value is rendered in the public footer and in the `vatID` JSON-LD property.
 - Replace hardcoded admin credentials with hashed server-side credentials before production.
   The current login is client-side, so Hermes RLS is permissive for this prototype; do
   not treat it as a hardened multi-user admin.
@@ -218,9 +257,9 @@ Both serve the site, the `/.netlify/functions/*` API paths and the admin panel.
 
 ## Data persistence
 - Production data is stored in Supabase: `blog_posts`, `day_configs`, `faqs`,
-  `gallery_photos`, `quiz_results`, `weekly_metrics`, `social_stat_snapshots` and the
-  Hermes tables (`hermes_settings`, `hermes_channels`, `hermes_conversations`,
-  `hermes_messages`, `hermes_unanswered`, `hermes_corrections`,
+  `gallery_photos`, `quiz_results`, `site_settings`, `weekly_metrics`,
+  `social_stat_snapshots` and the Hermes tables (`hermes_settings`, `hermes_channels`,
+  `hermes_conversations`, `hermes_messages`, `hermes_unanswered`, `hermes_corrections`,
   `hermes_contact_rules`, `hermes_training_documents`, `hermes_training_chunks`).
 - Run `supabase/schema.sql` in the Supabase SQL editor to create/refresh tables, RLS
   policies, the public `gallery` bucket, the `blog_track_view` / `blog_track_time`

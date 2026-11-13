@@ -139,6 +139,12 @@ tr:hover{background:rgba(140,255,0,.02);}
 .dash-empty{font-size:.72rem;color:var(--muted-d);padding:.5rem 0;}
 .dash-summary{padding:1.35rem 1.4rem;}
 .dash-note{font-size:.72rem;color:var(--muted-d);line-height:1.55;margin:-.2rem 0 1rem;max-width:70ch;}
+.site-vat-form{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;}
+.site-vat-form > div{flex:1 1 220px;min-width:0;}
+.site-vat-form label{display:block;font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted-d);margin-bottom:.35rem;}
+.site-vat-form .lock-input{width:min(320px,100%);text-align:left;margin:0;}
+.site-vat-form .dash-open{padding:.55rem .9rem;}
+.site-vat-form-note{font-size:.7rem;color:var(--muted-d);line-height:1.55;margin:.8rem 0 0;max-width:70ch;}
 .dash-summary-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.75rem;}
 .dash-group{background:rgba(245,245,247,.025);border:1px solid rgba(245,245,247,.05);border-radius:10px;padding:.8rem .85rem;}
 .dash-group h4{font-family:var(--fd);font-size:.66rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-d);margin-bottom:.4rem;}
@@ -402,6 +408,24 @@ tr:hover{background:rgba(140,255,0,.02);}
       <div class="stat-card"><div class="num l" id="s-photos">–</div><div class="lbl">Foto in gallery <span class="week-badge" data-weekly="gallery_uploads">+0</span></div></div>
       <div class="stat-card"><div class="num" id="s-categories">–</div><div class="lbl">Categorie <span class="week-badge" data-weekly="gallery_categories">+0</span></div></div>
     </div>
+
+    <section class="dash-card" style="margin-bottom:1.5rem;">
+      <div class="dash-card-head">
+        <div>
+          <div class="dash-kicker">Dati aziendali</div>
+          <h3>Partita IVA</h3>
+        </div>
+        <span class="week-badge" id="site-vat-status">Non configurata</span>
+      </div>
+      <div class="site-vat-form">
+        <div>
+          <label for="site-vat-input">Partita IVA</label>
+          <input class="lock-input" type="text" id="site-vat-input" inputmode="numeric" maxlength="16" placeholder="Es. 12345678901"/>
+        </div>
+        <button class="dash-open" type="button" onclick="saveSiteVat()">Salva P. IVA</button>
+      </div>
+      <p class="site-vat-form-note">Il valore viene mostrato nel footer di tutte le pagine pubbliche del sito. Lascia vuoto per nasconderlo.</p>
+    </section>
 
     <!-- CALENDAR AVAILABILITY -->
     <div class="sec-card" style="margin-bottom:1.5rem;">
@@ -943,6 +967,7 @@ tr:hover{background:rgba(140,255,0,.02);}
 
 <script src="/faq-data.js"></script>
 <script src="/supabase-config.js"></script>
+<script src="/site-settings.js"></script>
 <script src="/blog-utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/hermes-embed.js"></script>
@@ -1044,7 +1069,10 @@ function showTab(name, el){
   if(name==='quiz') loadQuizResults();
   if(name==='faq') loadFaqsAdmin();
   if(name==='hermes' && window.WDHermes) window.WDHermes.show();
-  if(name==='dashboard') renderDashboardAnalytics();
+  if(name==='dashboard'){
+    renderDashboardAnalytics();
+    loadSiteVat().catch(function(){});
+  }
   if(window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
 
@@ -2144,6 +2172,7 @@ async function init(){
     loadQuizResults(),
     loadBlogPosts(),
     loadFaqsAdmin(),
+    loadSiteVat(),
   ]);
   renderCalendar();
   renderDashboardAnalytics();
@@ -2430,6 +2459,46 @@ async function resetWeeklyCounters(){
     let msg = e && e.message ? e.message : String(e);
     if (/Could not find the function|schema cache|404/i.test(msg)) msg = 'funzione reset non trovata: esegui supabase/hermes.sql';
     toast('Errore reset settimanale: ' + msg, true);
+  }
+}
+
+async function loadSiteVat(){
+  const input = document.getElementById('site-vat-input');
+  const status = document.getElementById('site-vat-status');
+  if (!window.WD_SITE_SETTINGS){
+    if (status) status.textContent = 'Modulo non disponibile';
+    return;
+  }
+  try {
+    const data = await window.WD_SITE_SETTINGS.load();
+    const vat = data && data.vatNumber ? data.vatNumber : '';
+    if (input && document.activeElement !== input) input.value = vat;
+    if (status){
+      status.textContent = vat ? 'Configurata' : 'Non configurata';
+      status.classList.toggle('is-zero', !vat);
+    }
+  } catch(e) {
+    if (status) status.textContent = 'Errore caricamento';
+  }
+}
+
+async function saveSiteVat(){
+  const input = document.getElementById('site-vat-input');
+  const status = document.getElementById('site-vat-status');
+  if (!window.WD_SITE_SETTINGS){
+    toast('Modulo Partita IVA non disponibile', true);
+    return;
+  }
+  try {
+    const data = await window.WD_SITE_SETTINGS.save(input ? input.value : '');
+    if (input) input.value = data.vatNumber || '';
+    if (status){
+      status.textContent = data.vatNumber ? 'Configurata' : 'Non configurata';
+      status.classList.toggle('is-zero', !data.vatNumber);
+    }
+    toast(data.vatNumber ? 'Partita IVA aggiornata' : 'Partita IVA rimossa');
+  } catch(e) {
+    toast(e && e.message ? e.message : 'Salvataggio non riuscito', true);
   }
 }
 

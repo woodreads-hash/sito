@@ -1,4 +1,6 @@
 .nav-cats{display:none;}
+.site-vat{font-size:.68rem;color:rgba(245,245,247,.42);letter-spacing:.45px;line-height:1.5;}
+.site-vat[hidden]{display:none!important;}
 .ncta{display:inline-flex;align-items:center;justify-content:center;background:var(--green);color:var(--dark);padding:.48rem 1rem;border-radius:5px;font-weight:700;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;line-height:1.2;transition:background .2s,color .2s;}
 .ncta:hover{background:var(--lime);color:var(--dark);}
 

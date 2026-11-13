@@ -24,7 +24,58 @@
 <meta name="twitter:title" content="WooDreads – Dreadmaker Roma"/>
 <meta name="twitter:description" content="Dreadmaker a Roma dal 2012. Creazione, manutenzione e restauro di dreads naturali e cyberdread con tecnica ad uncinetto, senza cera."/>
 <meta name="twitter:image" content="https://www.woodreads.com/og-default.jpg"/>
+<meta name="twitter:image:alt" content="WooDreads – Dreadmaker Roma"/>
+<meta property="og:image:type" content="image/jpeg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
 <meta name="theme-color" content="#0D0D0F"/>
+<script type="application/ld+json" id="wd-jsonld-business">
+{
+  "@context": "https://schema.org",
+  "@type": ["HairSalon", "LocalBusiness"],
+  "@id": "https://www.woodreads.com/#business",
+  "name": "WooDreads",
+  "alternateName": "WooDreads Dreadmaker Roma",
+  "url": "https://www.woodreads.com/",
+  "image": "https://www.woodreads.com/og-default.jpg",
+  "logo": "https://www.woodreads.com/logo.svg",
+  "description": "Dreadmaker a Roma dal 2012. Creazione, manutenzione e restauro di dreads naturali e cyberdread con tecnica ad uncinetto, senza cera.",
+  "telephone": "+39 348 539 3826",
+  "priceRange": "€€",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Palazzo Giallo, Civico 9",
+    "addressLocality": "Roma",
+    "addressRegion": "Lazio",
+    "addressCountry": "IT"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "Roma"
+  },
+  "hasMap": "https://maps.app.goo.gl/zLgQGe6T22wvX7LL9",
+  "sameAs": [
+    "https://www.instagram.com/woodreads/",
+    "https://www.facebook.com/WooDreads/",
+    "https://www.tiktok.com/@woodreads",
+    "https://www.youtube.com/@woodreads"
+  ]
+}
+</script>
+<script type="application/ld+json" id="wd-jsonld-website">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://www.woodreads.com/#website",
+  "url": "https://www.woodreads.com/",
+  "name": "WooDreads",
+  "alternateName": "WooDreads Dreadmaker Roma",
+  "inLanguage": "it-IT",
+  "publisher": {
+    "@id": "https://www.woodreads.com/#business"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preconnect" href="https://yqksdpgkktgppxzdbbgc.supabase.co" crossorigin/>
@@ -655,6 +706,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 .cdb-list{position:relative;z-index:1;list-style:none;display:grid;gap:.35rem;margin:0 0 1.1rem;padding:0;}
 .cdb-list li{position:relative;padding-left:1rem;font-size:.78rem;line-height:1.55;color:rgba(245,245,247,.66);}
 .cdb-list li::before{content:"✦";position:absolute;left:0;top:0;color:var(--green);font-size:.65rem;text-shadow:0 0 8px rgba(140,255,0,.55);}
+.cdb-policy{position:relative;z-index:1;margin:0 0 1rem;padding:.85rem .9rem;border:1px solid rgba(181,140,255,.34);border-radius:10px;background:rgba(181,140,255,.08);color:rgba(245,245,247,.84);font-size:.76rem;line-height:1.65;}
 .cdb-wa{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;background:var(--green);color:var(--dark);border-radius:8px;padding:.8rem 1rem;font-family:var(--fb);font-weight:800;font-size:.76rem;letter-spacing:1.8px;text-transform:uppercase;text-decoration:none;box-shadow:0 0 26px rgba(140,255,0,.28);transition:background .2s,box-shadow .2s,transform .2s;cursor:var(--cur-pointer,none);}
 .cdb-wa:hover{background:var(--lime);box-shadow:0 0 38px rgba(140,255,0,.5);transform:translateY(-1px);}
 .cdb-hint{position:relative;z-index:1;margin-top:.7rem;text-align:center;font-size:.58rem;letter-spacing:1.4px;text-transform:uppercase;color:rgba(245,245,247,.35);}
@@ -1494,7 +1546,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   </div>
 
   <div id="cal-day-banner" class="cal-day-banner" aria-hidden="true">
-    <div class="cdb-card" role="dialog" aria-modal="true" aria-labelledby="cdb-date" aria-describedby="cdb-desc">
+    <div class="cdb-card" role="dialog" aria-modal="true" aria-labelledby="cdb-date" aria-describedby="cdb-desc cdb-policy">
       <button type="button" class="cdb-close" data-cdb-close aria-label="Chiudi il banner">✕</button>
       <span class="cdb-kicker">Fascia disponibile</span>
       <h3 class="cdb-date" id="cdb-date">—</h3>
@@ -1502,6 +1554,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
       <p class="cdb-title" id="cdb-title">Prenota la tua seduta</p>
       <p class="cdb-desc" id="cdb-desc"></p>
       <ul class="cdb-list" id="cdb-list"></ul>
+      <p class="cdb-policy" id="cdb-policy">Prendersi cura dei propri dreadlocks richiede tempo, dedizione e rispetto reciproco. Per confermare il tuo appuntamento e riservare lo spazio ideale dedicato interamente alla tua consulenza, è richiesto un acconto di 30,00 €. Sappiamo che gli imprevisti possono accadere: per questo motivo la quota è interamente rimborsabile se ci avvisi di qualsiasi modifica o disdetta con almeno 24 ore di anticipo rispetto all'orario fissato. Superato questo termine, l'importo non potrà essere rimborsato, permettendoci di tutelare il lavoro e la disponibilità dedicata.</p>
       <a class="cdb-wa" id="cdb-wa" href="https://wa.me/393485393826" target="_blank" rel="noopener">💬 Prenota su WhatsApp</a>
       <p class="cdb-hint">Clicca fuori dal pulsante WhatsApp per tornare al calendario</p>
     </div>
@@ -1727,6 +1780,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
       <a href="privacy.html">Privacy Policy</a>
       <a href="cookie-policy.html">Cookie Policy</a>
     </div>
+    <p class="site-vat" data-site-vat hidden>P. IVA <span data-site-vat-value></span></p>
     <p>© 2025 WooDreads – Tutti i diritti riservati</p>
   </div>
 </footer>
@@ -1749,6 +1803,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 
 <script src="faq-data.js"></script>
 <script src="supabase-config.js"></script>
+<script src="site-settings.js"></script>
 <script>
 /* ── DUAL CURSOR con inerzia ── */
 const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');

@@ -7,6 +7,14 @@
   },
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/data?type=sitemap"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/api/data?type=robots"
+    },
+    {
       "source": "/.netlify/functions/appointments/slots",
       "destination": "/api/appointments"
     },
@@ -155,6 +163,24 @@
         {
           "key": "Cache-Control",
           "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=3600, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=86400, stale-while-revalidate=86400"
         }
       ]
     }
