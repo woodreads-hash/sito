@@ -86,8 +86,9 @@ exactly the Netlify layout this site already had.
 - Le pagine pubbliche hanno title, description, canonical, Open Graph/Twitter Card
   completi e JSON-LD `HairSalon`/`LocalBusiness` + `WebSite`. Gli articoli e le FAQ
   aggiornano il proprio JSON-LD (`BlogPosting` / `FAQPage`) via JavaScript.
-- Gallery, Quiz e Contatti sono sezioni/anchor della home (`/#gallery`, `/#quiz`,
-  WhatsApp); la home nel sitemap le copre senza creare URL duplicati.
+- Gallery e Contatti sono sezioni/anchor della home (`/#gallery`, WhatsApp); la
+  home nel sitemap le copre senza creare URL duplicati. Il mini gioco è una app
+  statica autonoma su `/gioco/`, con URL indicizzato a sé nel sitemap.
 
 ### Partita IVA e footer globale
 - La Partita IVA si gestisce dalla dashboard admin (`Dati aziendali` → `Partita IVA`).
