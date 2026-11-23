@@ -32,7 +32,7 @@
 3. **Ticker** - Scrolling marquee with keywords
 4. **Servizi** - 4 service cards (Naturali, Cyberdreads, Restauro, Estensioni)
 5. **Stats** - Social media stats (Instagram, TikTok, YouTube)
-6. **Quiz** - Interactive "Che dread sei?" quiz
+6. **Mini Game** - Launch panel linking to the playable `/gioco/` static app
 7. **Chi Siamo** - About section with animated logo ring
 8. **Gallery** - 5 placeholder image slots
 9. **Prenota** - Booking form with steps
@@ -86,7 +86,7 @@ Replace gallery placeholders:
 ## Tech Stack (Detailed)
 - Plain HTML5 + CSS3
 - Google Fonts (Orbitron, Exo 2)
-- Vanilla JavaScript (animations, quiz, form)
+- Vanilla JavaScript (animations, form) plus a static-exported Next.js minigame in `/gioco/`
 - Single file, no build required
 - SVG graphics inline
 - CSS custom properties for theming

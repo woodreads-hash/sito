@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+opencode<html lang="it">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -353,51 +353,36 @@ nav a:hover{color:var(--green);}
 .api-connect{display:inline-flex;align-items:center;gap:.5rem;margin-top:.8rem;background:var(--green);color:var(--dark);padding:.5rem 1.4rem;border-radius:5px;font-size:.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;cursor:none;transition:background .2s;}
 .api-connect:hover{background:var(--lime);}
 
-/* ════════════════════════════════════════════════════
-   QUIZ – WARM
-════════════════════════════════════════════════════ */
-.quiz-inner{max-width:700px;margin:0 auto;text-align:center;position:relative;z-index:2;}
-.quiz-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(181,140,255,.15);color:#7c54cc;border-radius:999px;padding:.4rem 1.2rem;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:1.5rem;}
-.quiz-title{font-family:var(--fd);font-size:clamp(1.8rem,4vw,3rem);color:var(--text-d);margin-bottom:.8rem;}
+.quiz-inner{max-width:1180px;margin:0 auto;text-align:left;position:relative;z-index:2;}
+.quiz-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(181,140,255,.14);color:#c9a8ff;border:1px solid rgba(181,140,255,.3);border-radius:999px;padding:.45rem 1.2rem;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;font-weight:700;margin-bottom:1.5rem;}
+.quiz-title{font-family:var(--fd);font-size:clamp(2rem,4.4vw,3.4rem);line-height:1.02;color:var(--text-d);margin-bottom:.9rem;}
 .quiz-title .g{color:var(--green);}
-.quiz-intro{font-size:.9rem;color:var(--muted-d);line-height:1.7;max-width:460px;margin:0 auto 2.5rem;}
-.qprog{display:flex;gap:.5rem;justify-content:center;margin-bottom:2rem;}
-.qpd{width:30px;height:4px;border-radius:2px;background:rgba(26,26,30,.15);transition:background .3s,width .3s;}
-.qpd.a{background:var(--leaf1);width:50px;}
-.qstep{display:none;animation:fadeQ .45s steps(8,end);}
-.qstep.active{display:block;}
-
-.qopt:active,.qopt.qp-selected,.qopt.selected{background:var(--lime);color:#1A1A1E;border-color:var(--green);box-shadow:0 0 24px rgba(140,255,0,.5);z-index:2;}
-.qopts.qp-running{position:relative;overflow:hidden;}
-.qopts.qp-running .qopt{animation:qpShred .39s steps(6,end) forwards;}
-
-.qopts.qp-running .qopt.qp-selected{z-index:4;animation:qpEvolve .39s steps(6,end) forwards;box-shadow:0 0 30px rgba(140,255,0,.7);}
-@keyframes qpEvolve{0%{transform:scale(1) translate(0,0);filter:saturate(2);clip-path:inset(0 0 0 0);}20%{transform:scale(1.08) skewX(10deg);background:var(--lime);clip-path:inset(5% 5% 5% 5%);}40%{transform:scale(1.2) skewX(-18deg) translate(8px,-6px);filter:blur(1px);clip-path:inset(15% 15% 15% 15%);}70%{transform:scale(1.4) skewX(12deg) translate(-10px,8px);opacity:.7;filter:hue-rotate(90deg);clip-path:inset(35% 25% 35% 25%);}100%{transform:scale(1.8);opacity:.06;clip-path:inset(50% 50% 50% 50%);}}
-.qp-overlay{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:6;}
-.qp-overlay span{position:absolute;font-family:var(--fd);font-size:clamp(.7rem,2vw,1.2rem);font-weight:700;color:var(--green);text-shadow:0 0 8px var(--green);opacity:0;animation:qpChars .39s steps(3,end) forwards;}
-@keyframes qpShred{0%{opacity:1;transform:translate(0,0) scale(1);filter:saturate(2);}25%{opacity:1;transform:translate(8px,-3px) scale(1.01);clip-path:inset(0 35% 25% 20%);}50%{opacity:.85;transform:translate(-12px,6px) scale(.97);filter:blur(1px);clip-path:inset(20% 15% 35% 20%);}75%{opacity:.35;transform:translate(6px,-8px) scale(.93);clip-path:inset(35% 25% 45% 20%);}100%{opacity:0;transform:translate(-4px,10px) scale(.88);clip-path:inset(50% 50% 50% 50%);}}
-@keyframes qpChars{0%{opacity:0;transform:scale(0) rotate(0deg);}15%{opacity:1;transform:scale(1.5) rotate(90deg);}45%{opacity:.9;transform:translate(14px,-10px) scale(1.1) rotate(-45deg);}80%{opacity:.4;transform:translate(-12px,12px) scale(.85);}100%{opacity:0;transform:scale(0);}}
-@keyframes fadeQ{0%{opacity:0;transform:translateY(8px) scale(.96) skewX(2deg);filter:blur(2px);clip-path:inset(0 100% 0 0);}25%{opacity:.6;transform:translateY(3px);clip-path:inset(0 10% 0 30%);}50%{opacity:.85;clip-path:inset(0 2% 0 2%);}75%{opacity:.96;clip-path:inset(0 0 0 3%);}100%{opacity:1;transform:none;filter:none;clip-path:inset(0 0 0 0);}}
-.qq{font-size:1.05rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-d);line-height:1.5;}
-.qopts{display:flex;flex-direction:column;gap:.75rem;}
-.qopt{background:#fff;border:1.5px solid rgba(26,26,30,.15);border-radius:12px;padding:.95rem 1.5rem;font-size:.9rem;cursor:none;transition:all .2s;text-align:left;color:#1A1A1E;box-shadow:0 0 8px rgba(140,255,0,.12);}
-.qopt:hover{border-color:var(--purple);color:var(--text-l);background:#fff;transform:translateX(6px);box-shadow:0 0 16px rgba(181,140,255,.35);}
-.qopt .qpt{mix-blend-mode:normal;}
-
-.qopt{position:relative;overflow:hidden;}
-.qopt-text{position:relative;z-index:2;display:block;pointer-events:none;}
-.qpt{position:absolute;width:7px;height:7px;border-radius:50%;opacity:1;pointer-events:none;z-index:1;animation:qptFloat 3.2s ease-in-out infinite;border:1px solid rgba(255,255,255,.85);}
-@keyframes qptFloat{0%{opacity:.7;transform:translate(0,0) scale(.75);}12%{opacity:1;}50%{transform:translate(var(--qx,10px),var(--qy,-18px)) scale(1.2);opacity:.95;}88%{opacity:.75;}100%{opacity:.7;transform:translate(calc(var(--qx,10px)*1.6),calc(var(--qy,-18px)*-1.2)) scale(.65);}}
-.qres{padding:2rem;background:#fff;border-radius:18px;border:2px solid var(--leaf1);position:relative;overflow:hidden;}
-.qres .qres-gold{position:absolute;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:0;background:#FFD700;box-shadow:0 0 12px #FFD700;animation:goldFloat 5s ease-in-out infinite;}
-@keyframes goldFloat{0%{opacity:.6;transform:translate(0,0) scale(.7);}12%{opacity:.95;}50%{transform:translate(var(--gx,14px),var(--gy,-18px)) scale(1.15);opacity:.85;}88%{opacity:.55;}100%{opacity:.6;transform:translate(calc(var(--gx,14px)*1.5),calc(var(--gy,-18px)*-1.2)) scale(.6);}}
-.qres-emoji{font-size:4rem;margin-bottom:1rem;animation:bouncein .6s cubic-bezier(.34,1.56,.64,1) forwards;}
-@keyframes bouncein{from{transform:scale(0);}to{transform:scale(1);}}
-.qres h3{font-family:var(--fd);font-size:1.4rem;color:var(--leaf1);margin-bottom:.8rem;letter-spacing:2px;}
-.qres p{font-size:.9rem;color:var(--muted-l);line-height:1.7;}
-.qres-btns{display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap;}
-.btn-restart{background:transparent;border:1.5px solid var(--purple);color:var(--text-l);border-radius:5px;padding:.6rem 1.4rem;font-family:var(--fb);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;font-weight:700;cursor:none;transition:all .2s;}
-.btn-restart:hover{background:var(--purple);color:var(--dark);}
+.quiz-intro,.gp-intro{font-size:.95rem;color:rgba(245,245,247,.68);line-height:1.8;max-width:520px;margin-bottom:2rem;}
+.gp-grid{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:clamp(2rem,5vw,5rem);align-items:center;}
+.gp-copy{max-width:540px;}
+.gp-features{display:flex;flex-wrap:wrap;gap:.65rem;margin:0 0 2rem;padding:0;list-style:none;}
+.gp-feature{display:flex;align-items:center;gap:.55rem;border:1px solid rgba(140,255,0,.18);background:rgba(140,255,0,.045);border-radius:999px;padding:.5rem .9rem;font-size:.74rem;font-weight:600;letter-spacing:.6px;color:rgba(245,245,247,.82);}
+.gp-feature b{font-family:var(--fd);font-size:.68rem;color:var(--green);}
+.gp-actions{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;}
+.gp-link{font-size:.75rem;font-weight:700;letter-spacing:1px;color:var(--purple);text-decoration:none;border-bottom:1px solid rgba(181,140,255,.35);padding-bottom:.2rem;}
+.gp-link:hover{color:var(--lime);border-color:var(--lime);}
+.gp-note{margin:1.1rem 0 0;font-size:.7rem;color:rgba(245,245,247,.4);letter-spacing:.4px;}
+.gp-stage{position:relative;padding:clamp(12px,2vw,20px);border:1px solid rgba(181,140,255,.28);border-radius:18px;background:linear-gradient(145deg,rgba(181,140,255,.1),rgba(140,255,0,.03) 45%,rgba(13,13,15,.7));box-shadow:0 30px 70px rgba(0,0,0,.45),0 0 50px rgba(181,140,255,.08);}
+.gp-stage::before{content:'';position:absolute;inset:-20%;background:radial-gradient(ellipse at 60% 40%,rgba(140,255,0,.08),transparent 65%);pointer-events:none;}
+.gp-screen{position:relative;display:block;overflow:hidden;border:1px solid rgba(245,245,247,.1);border-radius:10px;background:#07100b;aspect-ratio:1200/750;}
+.gp-screen img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(1.06) contrast(1.02);transition:transform .6s ease,filter .6s ease;}
+.gp-screen::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px),linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35));pointer-events:none;}
+.gp-screen:hover img{transform:scale(1.03);filter:saturate(1.14) contrast(1.04);}
+.gp-screen__play{position:absolute;z-index:2;top:50%;left:50%;display:grid;width:78px;height:78px;place-items:center;border:1px solid rgba(140,255,0,.65);border-radius:50%;background:rgba(8,16,11,.78);color:var(--green);font-size:1.5rem;transform:translate(-50%,-50%);box-shadow:0 0 34px rgba(140,255,0,.32);transition:transform .2s,background .2s;}
+.gp-screen:hover .gp-screen__play{transform:translate(-50%,-50%) scale(1.08);background:rgba(140,255,0,.9);color:var(--dark);}
+.gp-phone{position:absolute;right:-18px;bottom:-28px;width:clamp(96px,11vw,150px);aspect-ratio:280/606;overflow:hidden;border:5px solid #1a1a20;border-radius:18px;background:#07100b;box-shadow:0 18px 30px rgba(0,0,0,.65);transform:rotate(4deg);}
+.gp-phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;}
+.gp-tag{position:absolute;z-index:3;border:1px solid rgba(140,255,0,.35);background:rgba(13,13,15,.86);border-radius:4px;padding:.3rem .6rem;color:var(--green);font-family:var(--fd);font-size:.58rem;letter-spacing:1.4px;box-shadow:0 0 16px rgba(140,255,0,.12);}
+.gp-tag--1{top:-12px;left:24px;}
+.gp-tag--2{bottom:-14px;left:38%;}
+.gp-tag--3{top:22%;right:-16px;color:var(--purple);border-color:rgba(181,140,255,.4);}
+@media (max-width:900px){.gp-grid{grid-template-columns:1fr;gap:3rem;}.gp-copy{max-width:640px;}.gp-stage{max-width:640px;width:100%;margin:0 auto;}.gp-phone{right:4px;width:104px;}}
+@media (max-width:640px){.quiz-title{font-size:clamp(1.8rem,9vw,2.6rem);}.gp-feature{font-size:.7rem;padding:.5rem .7rem;}.gp-actions .btn{width:100%;justify-content:center;}.gp-stage{padding:10px;border-radius:12px;}.gp-phone{display:none;}.gp-tag{display:none;}.gp-screen__play{width:64px;height:64px;font-size:1.2rem;}}
 
 /* ════════════════════════════════════════════════════
    CHI SIAMO – DARK
@@ -1022,7 +1007,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     <li><a href="#chisiamo">Chi Siamo</a></li>
     <li><a href="/blog">Blog</a></li>
     <li><a href="#faq">FAQ</a></li>
-    <li><a href="#quiz">Mini Game</a></li>
+    <li><a href="/gioco/">Mini Game</a></li>
     <li><a href="#stats">Canali</a></li>
   </ul>
   <div class="nav-cats" role="navigation" aria-label="Categorie del sito">
@@ -1030,7 +1015,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     <a href="#chisiamo">Chi Siamo</a>
     <a href="/blog">Blog</a>
     <a href="#faq">FAQ</a>
-    <a href="#quiz">Mini Game</a>
+    <a href="/gioco/">Mini Game</a>
     <a href="#stats">Canali</a>
   </div>
   <a href="#appt" class="btn btn-g ncta" style="padding:.48rem 1.1rem;font-size:.7rem;">Prenota →</a>
@@ -1091,7 +1076,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   </p>
   <div class="hero-btns">
     <a href="#appt" class="btn btn-g">📅 Prenota ora</a>
-    <a href="#quiz" class="btn btn-od">🎮 IL GIOCO DEI DREADS</a>
+    <a href="/gioco/" class="btn btn-od">🎮 IL GIOCO DEI DREADS</a>
   </div>
   <div class="scrollhint"><span class="scrollhint-line"></span>Scroll per esplorare</div>
 </section>
@@ -1303,8 +1288,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
 ═══════════════════════════════════ -->
 
 
-<section id="quiz" class="sec-dark2">
-  <!-- Piante extra quiz -->
+<section id="quiz" class="sec-dark2 game-promo">
   <svg class="plant" width="150" height="240" style="top:-20px;right:-30px;opacity:.55;animation:swayr 9s ease-in-out infinite;transform-origin:bottom center;">
     <use href="#lf-fern"/>
   </svg>
@@ -1320,19 +1304,36 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   <svg class="plant" width="80" height="130" style="top:15%;right:35%;opacity:.25;animation:sway 11s ease-in-out infinite;">
     <use href="#lf-trop"/>
   </svg>
-
-
-
   <div class="quiz-inner">
-    <span class="quiz-badge rev">🎮 Mini gioco</span>
-    <h2 class="quiz-title rev">Come ti possiamo <span class="g">aiutare?</span></h2>
-    <p class="quiz-intro rev">Rispondi e scopri il tipo di lavoro consigliato, le tempistiche e come contattarci! Rifai il test tutte le volte che vuoi per trovare il servizio perfetto per te 🚀✨</p>
-
-    <div class="qstep active" id="qs">
-      <p class="qq" id="qq">—</p>
-      <div class="qopts" id="qopts"></div>
+    <div class="gp-grid">
+      <div class="gp-copy rev">
+        <span class="quiz-badge">🎮 Nuovo mini gioco</span>
+        <h2 class="quiz-title">Entra nella casa. <span class="g">Trova il tuo rituale.</span></h2>
+        <p class="gp-intro">Crea il tuo avatar cyber-nature, esplora la casa diorama e scopri la routine di cura più adatta ai tuoi dreads. Una storia giocabile, pensata anche per il telefono.</p>
+        <ul class="gp-features">
+          <li class="gp-feature"><b>01</b> Crea l'avatar</li>
+          <li class="gp-feature"><b>02</b> Esplora la casa</li>
+          <li class="gp-feature"><b>03</b> Trova la tua cura</li>
+        </ul>
+        <div class="gp-actions">
+          <a href="/gioco/" class="btn btn-g">🎮 Gioca ora</a>
+          <a href="#appt" class="gp-link">Oppure prenota una consulenza →</a>
+        </div>
+        <p class="gp-note">Nessun account richiesto · i progressi restano nel browser</p>
+      </div>
+      <div class="gp-stage rev-l">
+        <span class="gp-tag gp-tag--1">CYBER</span>
+        <span class="gp-tag gp-tag--2">CASA DIORAMA</span>
+        <span class="gp-tag gp-tag--3">NATURE</span>
+        <a href="/gioco/" class="gp-screen" aria-label="Apri il mini gioco WooDreads">
+          <img src="/assets/minigame-preview.webp" width="1200" height="750" alt="Schermata del mini gioco WooDreads: avatar cyber-nature nella casa diorama" loading="lazy">
+          <span class="gp-screen__play" aria-hidden="true">▶</span>
+        </a>
+        <div class="gp-phone" aria-hidden="true">
+          <img src="/assets/minigame-mobile.webp" width="280" height="606" alt="" loading="lazy">
+        </div>
+      </div>
     </div>
-    <div class="qstep" id="qsr"><div class="qres" id="qres-box"></div></div>
   </div>
 </section>
 
@@ -1959,204 +1960,6 @@ window.addEventListener('scroll', ()=>{
   setInterval(spawn, 420);
 })();
 
-/* ── QUIZ INTERATTIVO (diramazioni) ── */
-let quizPath=[];
-const quizFlow={
-  root:{q:'Cosa ti serve oggi?', options:[
-    {label:'Voglio farmi i dread con le estensioni 🌿', next:'extThickness'},
-    {label:'Voglio farmi i dread solo con i miei capelli naturali 🍃', next:'natThickness'},
-    {label:'Ho già i dread e ho bisogno di sistemarli o ripararli 🔧', next:'repairCount'},
-    {label:'Ho i dread da un sacco di tempo e mi serve un intervento importante / straordinario 🌪️', next:'heavyCount'},
-    {label:'Desidero o voglio applicare dei Cyber Dread 🔌', next:'cyberOwn'},
-  ]},
-  extType:{q:'Che tipo di capelli hai?', options:[
-    {label:'Ho i capelli lisci 📏', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli lisci', text:'Capelli lisci + estensioni: risultato pieno e uniforme. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
-    {label:'Ho i capelli mossi 🌊', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli mossi', text:'Capelli mossi + estensioni: volume naturale già presente. Ottimo per estensioni leggere e result morbido. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
-    {label:'Ho i capelli ricci 🌀', result:{emoji:'🌿',title:'Nuovi dread con estensioni — capelli ricci', text:'Capelli ricci + estensioni: texture perfetta, dread scenici e resistenti. Consigliata una consulenza per valutare lunghezza e texture, si consiglia una giornata intera.'}},
-    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Nessun problema: prenota una consulenza. Valutiamo lunghezza, texture e stile e scegliamo insieme la mezza giornata più adatta.'}},
-  ]},
-  natType:{q:'Che tipo di capelli hai?', options:[
-    {label:'Ho i capelli lisci 📏', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli lisci', text:'Nuovi dread naturali su capelli lisci: lavorazione a uncinetto, durata media-lunga. Meglio prenotare una giornata intera.'}},
-    {label:'Ho i capelli mossi 🌊', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli mossi', text:'Nuovi dread naturali su capelli mossi: presa naturale, lavoro più rapido. Prenotazione anche in mezza giornata.'}},
-    {label:'Ho i capelli ricci 🌀', result:{emoji:'🍃',title:'Nuovi dread naturali — capelli ricci', text:'Nuovi dread naturali su capelli ricci: texture ideale, dread compatti e resistenti. Buone per seduta intera o mezza giornata.'}},
-    {label:'Voglio più info / non sono sicuro 🤔', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Prenota una consulenza: misuriamo lunghezza e volume per stimare il tempo e la mezza giornata migliore.'}},
-  ]},
-  extThickness:{q:'Quale spessore desideri per i nuovi dread?', options:[
-    {label:'Fini, leggeri ed eleganti 🪶', next:'extType'},
-    {label:'Medi, equilibrio perfetto ⚖️', next:'extType'},
-    {label:'Spessi, voluminosi e presenti 💪', next:'extType'},
-  ]},
-  natThickness:{q:'Quale spessore desideri per i nuovi dread?', options:[
-    {label:'Fini, discreti ed eleganti 🪶', next:'natType'},
-    {label:'Medi, equilibrio perfetto ⚖️', next:'natType'},
-    {label:'Spessi, voluminosi e presenti 💪', next:'natType'},
-  ]},
-  repairCount:{q:'Quanti dread attualmente possiedi?', options:[
-    {label:'30 o meno (≤ 30) 🔢', next:'repairTimeUnder70'},
-    {label:'Più o meno 50 🔢', next:'repairTimeUnder70'},
-    {label:'Da 50 a 70 (50-70) 🔢', next:'repairTimeUnder70'},
-    {label:'70 o più (≥ 70) 🔢', next:'repairTimeOver70'},
-  ]},
-  repairTimeUnder70:{q:'Da quanto non ripari i dread?', options:[
-    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairQualityEarly'},
-    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairQualityLate'},
-    {label:'Non li riparo da più di un anno 🕰️', next:'repairQualityLate'},
-  ]},
-  repairQualityEarly:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', next:'repairWashEarly'},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', next:'repairWashEarly'},
-    {label:'Sono un disastro, aiuto! 🆘', next:'repairWashEarly'},
-  ]},
-  repairQualityLate:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', next:'repairWashLate'},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', next:'repairWashLate'},
-    {label:'Sono un disastro, aiuto! 🆘', next:'repairWashLate'},
-  ]},
-  repairTimeOver70:{q:'Da quanto non ripari i dread?', options:[
-    {label:'Non li riparo da almeno 3 mesi ⏳', next:'repairQualityOver'},
-    {label:'Non li riparo da almeno 6 mesi 🗓️', next:'repairQualityOver'},
-    {label:'Non li riparo da più di un anno 🕰️', next:'repairQualityOver'},
-  ]},
-  repairQualityOver:{q:'In che stato sono?', options:[
-    {label:'Sono messi bene, semplice riparazione ✨', next:'repairWashOver'},
-    {label:'Sono messi più o meno bene, un po\' incollati 🧩', next:'repairWashOver'},
-    {label:'Sono un disastro, aiuto! 🆘', next:'repairWashOver'},
-  ]},
-  repairWashEarly:{q:'Vuoi aggiungere anche il lavaggio?', options:[
-    {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per i dread selezionati, fino a 70 dread senza lavaggio richiede mezza giornata con slot 09:00–15:00 oppure 16:00–20:00. Prenota una mezza giornata.'}},
-    {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
-  ]},
-  repairWashLate:{q:'Vuoi aggiungere anche il lavaggio?', options:[
-    {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Dread da più di 6 mesi senza lavaggio: intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-    {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede una giornata intera (09:00–20:00), indipendentemente dal conteggio. Prenota una giornata intera.'}},
-  ]},
-  repairWashOver:{q:'Vuoi aggiungere anche il lavaggio?', options:[
-    {label:'🔧 Solo riparazione', result:{emoji:'✨',title:'Riparazione selezionata', text:'Per 70 o più dread, il volume dell\'intervento di riparazione richiede mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-    {label:'🧼 Riparazione + Lavaggio', result:{emoji:'🧼',title:'Riparazione selezionata con lavaggio', text:'Con lavaggio incluso, il servizio richiede comunque una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
-  ]},
-  cyberOwn:{q:'Hai già i Cyber Dread o vuoi che li realizziamo noi?', options:[
-    {label:'Li ho già, voglio che li applichino 🤝', next:'cyberQty'},
-    {label:'Voglio che li realizziate voi, personalizzati 🛠️', next:'cyberMake'},
-  ]},
-  cyberQty:{q:'Quanti Cyber Dread hai già a disposizione?', options:[
-    {label:'30 Cyber Dread 🤏', result:{emoji:'🔌',title:'Applicazione Cyber Dread — 30 unità', text:'Hai già 30 Cyber Dread: applicazione e posizionamento richiedono una mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-    {label:'50 Cyber Dread ⚖️', result:{emoji:'🔌',title:'Applicazione Cyber Dread — 50 unità', text:'Hai già 50 Cyber Dread: posizionamento e rifinitura richiedono una mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-    {label:'Più di 50 Cyber Dread 💪', result:{emoji:'🔌',title:'Applicazione Cyber Dread — 50+ unità', text:'Hai già più di 50 Cyber Dread: posizionamento e rifinitura richiedono una mezza giornata (09:00–15:00 o 16:00–20:00). Prenota una mezza giornata.'}},
-  ]},
-  cyberMake:{q:'Vuoi progettare e realizzare i tuoi Cyber Dread personalizzati?', options:[
-    {label:'Sì, sentiamoci su WhatsApp per dettagli 📲', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Realizzazione custom dei Cyber Dread: contattaci su WhatsApp per definire tipo, colore, lunghezza e quantità. Ti aiutiamo a personalizzare il design.'}},
-    {label:'Voglio solo informazioni generali 📋', result:{emoji:'🤝',title:'Consulenza gratuita', consult:true, text:'Nessun problema: prenota una consulenza o scrivici su WhatsApp per scoprire dimensioni, colori e tempi disponibili.'}},
-  ]},
-  heavyCount:{q:'Quanti dread ha il tuo lavoro da un sacco di tempo?', options:[
-    {label:'30 o meno (≤ 30) 🔢', next:'heavyType'},
-    {label:'Più o meno 50 🔢', next:'heavyType'},
-    {label:'Da 50 a 70 (50-70) 🔢', next:'heavyType'},
-    {label:'70 o più (≥ 70) 🔢', next:'heavyType'},
-  ]},
-  heavyType:{q:'Quale intervento ti serve?', options:[
-    {label:'Devo solo riprendere le basi, li curo bene 🏗️', result:{emoji:'🏗️',title:'Ripresa basi mirata', text:'Ripresa basi mirata. Per la quantità selezionata si stima mezza giornata per recupero leggero, oppure giornata intera per recupero più esteso.'}},
-    {label:'Voglio riprenderli, sono incollati e ho qualche problema 🧶', result:{emoji:'🧶',title:'Sblocco + ripresa', text:'Sblocco delle incrostazioni e ripresa generale. Per la quantità selezionata: mezza giornata per recupero contenuto o giornata intera per quantità maggiori.'}},
-    {label:'Aiuto, sono un disastro totale, devo riprenderli e lavarli 🧼', result:{emoji:'🧼',title:'Recupero totale + lavaggio', text:'Recupero totale + lavaggio: da più di 6 mesi richiede una giornata intera (09:00–20:00). Prenota una giornata intera.'}},
-  ]},
-};
-function renderQuizNow(id){
-  const node=quizFlow[id];
-  if(!node) return;
-  document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
-  document.getElementById('qs').classList.add('active');
-  document.getElementById('qq').textContent=node.q;
-  const opts=document.getElementById('qopts');
-  opts.classList.remove('qp-running');
-  opts.querySelectorAll('.qp-overlay').forEach(function(x){x.remove();});
-  opts.querySelectorAll('.qp-selected,.qp-active').forEach(function(x){x.classList.remove('qp-selected','qp-active');});
-  opts.innerHTML='';
-  node.options.forEach(o=>{
-    const el=document.createElement('div');
-    el.className='qopt';
-    const _txt=document.createElement('span');
-    _txt.className='qopt-text';
-    _txt.textContent=o.label;
-    el.appendChild(_txt);
-    // Light internal neon particle stream (green/purple, low opacity)
-    for(let _i=0;_i<6;_i++){
-      const pp=document.createElement('span');
-      pp.className='qpt';
-      const pc=Math.random() < 0.5 ? '#8CFF00' : '#B58CFF';
-      const qx=(Math.random()*24-12).toFixed(1);
-      const qy=(Math.random()*-30-6).toFixed(1);
-      pp.style.cssText='left:'+(Math.random()*96).toFixed(1)+'%;top:'+(Math.random()*86).toFixed(1)+'%;background:'+pc+';box-shadow:0 0 12px '+pc+';--qx:'+qx+'px;--qy:'+qy+'px;animation-delay:'+(Math.random()*3).toFixed(2)+'s;animation-duration:'+(4+Math.random()*2).toFixed(2)+'s;';
-      el.appendChild(pp);
-    }
-    el.addEventListener('click',()=>{
-      const qoptsEl=document.getElementById('qopts');
-      if(qoptsEl.classList.contains('qp-running')) return;
-      el.classList.add('qp-selected');
-      const nx=o.next, res=o.result;
-      startQuizGlitch(()=>{
-        quizPath.push(o.label);
-        if(nx) renderQuizNow(nx);
-        else finishQuiz(res||{});
-      });
-    });
-    opts.appendChild(el);
-  });
-}
-function renderQuiz(id){ renderQuizNow(id); }
-function finishQuiz(result){
-  document.querySelectorAll('.qstep').forEach(s=>s.classList.remove('active'));
-  document.getElementById('qsr').classList.add('active');
-  if(!Array.isArray(quizPath)) quizPath=[];
-  const safeResult = result || {};
-  const consult = !!safeResult.consult || /consulenza/i.test(safeResult.title||'');
-  const path=quizPath.map(x=>x.replace(/</g,'&lt;')).join(' → ');
-  const cta = consult
-    ? '<a href="https://wa.me/393485393826" target="_blank" rel="noopener" class="btn btn-g">💬 Contattaci su WhatsApp</a>'
-    : '<a href="#appt" class="btn btn-gl">Prenota ora →</a>';
-  const quizPayload = { result: (safeResult.title||'Risultato'), consult, path: quizPath.slice(), ts:new Date().toISOString() };
-  try{
-    const key='wd_quiz_results';
-    const arr=JSON.parse(localStorage.getItem(key)||'[]');
-    arr.push(quizPayload);
-    if(arr.length>300) arr.splice(0, arr.length-300);
-    localStorage.setItem(key, JSON.stringify(arr));
-  }catch(e){}
-  if(window.supabaseSaveQuizResult){
-    Promise.resolve(window.supabaseSaveQuizResult(quizPayload)).then(function(){
-      try { localStorage.setItem('wd_quiz_ts', String(Date.now())); } catch(e){}
-      try { new BroadcastChannel('woodreads-quiz').postMessage({ type:'quiz-updated' }); } catch(e){}
-    }).catch(function(){});
-  }
-  document.getElementById('qres-box').innerHTML=
-    '<div class="qres-emoji">'+(safeResult.emoji||'🌀')+'</div>'+
-    '<h3>'+ (safeResult.title||'Risultato') +'</h3>'+
-    '<p>'+ (safeResult.text||'') +'</p>'+
-    '<p style="font-size:.72rem;color:var(--muted-l);margin-top:.6rem;">Percorso: '+path+'</p>'+
-    '<div class="qres-btns">'+cta+'<button class="btn-restart" onclick="qreset()">↩ Rifai il quiz</button></div>';
-  (function(){var box=document.getElementById('qres-box'); if(!box) return; for(var i=0;i<8;i++){var pp=document.createElement('span'); pp.className='qres-gold'; var gx=(Math.random()*22-11).toFixed(1); var gy=(Math.random()*-26-6).toFixed(1); pp.style.cssText='left:'+(Math.random()*94).toFixed(1)+'%;top:'+(Math.random()*88).toFixed(1)+'%;--gx:'+gx+'px;--gy:'+gy+'px;animation-delay:'+(Math.random()*4).toFixed(2)+'s;animation-duration:'+(5+Math.random()*3).toFixed(2)+'s;'; box.appendChild(pp);}})();
-}
-function startQuizGlitch(cb){
-  const qoptsEl=document.getElementById('qopts');
-  if(qoptsEl.classList.contains('qp-running')) return;
-  qoptsEl.classList.add('qp-running');
-  // selected option is marked separately during click
-  const ov=document.createElement('div');
-  ov.className='qp-overlay';
-  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*';
-  let html='';
-  for(let i=0;i<36;i++){
-    const c=chars[Math.floor(Math.random()*chars.length)];
-    html+='<span style="left:'+ (Math.random()*100).toFixed(1)+'%;top:'+ (Math.random()*100).toFixed(1)+'%;">'+c+'</span>';
-  }
-  ov.innerHTML=html;
-  qoptsEl.appendChild(ov);
-  setTimeout(()=>{
-    ov.remove();
-    qoptsEl.classList.remove('qp-running');
-    cb();
-  },390);
-}
-function qreset(){ quizPath=[]; const qo=document.getElementById('qopts'); if(qo){qo.classList.remove('qp-running'); qo.querySelectorAll('.qp-overlay').forEach(function(x){x.remove();});} renderQuiz('root'); }
-renderQuiz('root');
 
 /* ══════════════════════════════════════════
    APPOINTMENT CALENDAR & FORM

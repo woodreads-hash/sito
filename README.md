@@ -9,7 +9,7 @@ Single-page business website for WooDreads, a dreadlock artist in Rome, Italy.
 
 - Dark theme with neon accents
 - Portfolio, services, booking form
-- Interactive quiz: "Che dread sei?"
+- Playable WooDreads minigame at `/gioco/` (static export, saved locally)
 
 ### Hermes Agent (`hermes/`)
 Configuration for the Hermes AI agent running locally at `~/.hermes/`.

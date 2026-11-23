@@ -6,6 +6,7 @@ const STATIC_PAGES = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/blog', changefreq: 'daily', priority: '0.9' },
   { path: '/faq', changefreq: 'weekly', priority: '0.9' },
+  { path: '/gioco/', changefreq: 'weekly', priority: '0.8' },
   { path: '/privacy.html', changefreq: 'yearly', priority: '0.3' },
   { path: '/cookie-policy.html', changefreq: 'yearly', priority: '0.3' },
 ];
