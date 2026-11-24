@@ -1702,18 +1702,21 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <div class="faq-live rev" aria-hidden="true">
           <div class="faq-stat"><strong id="faq-stat-count">30</strong><span>Risposte</span></div>
         </div>
-        <!-- Box "Fai una domanda" -->
-        <div class="faq-ask" id="faq-ask-box" style="background:rgba(30,30,36,.8);border:1px solid rgba(140,255,0,.2);border-radius:10px;padding:1rem;margin-top:.5rem;">
-          <div class="faq-ask-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
-            <span class="faq-ask-title" style="font-family:var(--fd);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--green);">Fai una domanda</span>
-            <button type="button" class="faq-ask-close" style="background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;" aria-label="Chiudi">&times;</button>
+        <div class="faq-ask" id="faq-ask-box">
+          <div class="faq-ask-header">
+            <div class="faq-ask-heading">
+              <span class="faq-ask-title"><span class="faq-ask-dot" aria-hidden="true"></span>Fai una domanda</span>
+              <span class="faq-ask-tag">// canale aperto</span>
+            </div>
+            <button type="button" class="faq-ask-close" aria-label="Chiudi">&times;</button>
           </div>
-          <div class="faq-ask-body" style="margin-bottom:.5rem;">
-            <input type="text" id="user-question-input" placeholder="Scrivi la tua domanda sui dreads..." style="width:100%;padding:.5rem;border:1px solid rgba(245,245,247,.22);border-radius:6px;margin-bottom:.5rem;background:rgba(245,245,247,.03);color:var(--text-d);font-size:.8rem;" maxlength="200" />
-            <button type="button" class="faq-ask-submit" style="width:100%;padding:.5rem;border:none;border-radius:6px;background:var(--green);color:var(--dark);font-family:var(--fd);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;font-weight:700;cursor:pointer;">Invia</button>
+          <div class="faq-ask-body">
+            <input type="text" class="faq-ask-input" id="user-question-input" placeholder="Scrivi la tua domanda sui dreads..." maxlength="200" />
+            <button type="button" class="faq-ask-submit"><span>INVIA DOMANDA</span><span class="faq-ask-arrow" aria-hidden="true">↗</span></button>
+            <span class="faq-ask-hint">&gt; segnale diretto al dreadmaker</span>
           </div>
-          <div class="faq-ask-confirm" style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.05);display:none;">
-            <span class="faq-ask-msg" style="color:var(--green);font-size:.8rem;">Domanda inviata! Comparirà tra le FAQ non appena il Dreadmaker avrà risposto.</span>
+          <div class="faq-ask-confirm">
+            <span class="faq-ask-msg">Domanda inviata! Comparirà tra le FAQ non appena il Dreadmaker avrà risposto.</span>
           </div>
         </div>
         <div class="faq-global rev" aria-label="Condividi le FAQ">

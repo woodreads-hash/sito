@@ -392,11 +392,21 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
       '<span class="eyebrow">— Domande frequenti</span>' +
       '<h1>Tutto sui <em>dreads</em></h1>' +
       '<p class="lead">Le ' + faqs.length + ' domande che ci fate più spesso, con risposte vere e senza giri di parole. Apri una domanda per leggere la pagina dedicata e condividerla con chi ne ha bisogno.</p>' +
-      '<div class="user-question-form" id="user-question-form" style="margin-top:1.5rem;padding:1rem;border:1px solid rgba(140,255,0,.22);border-radius:10px;background:rgba(181,140,255,.05);">' +
-      '<h3 style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;">Fai una domanda</h3>' +
-      '<input type="text" id="user-question-input" placeholder="Scrivi la tua domanda sui dreads..." style="width:100%;padding:.5rem;border:1px solid rgba(245,245,247,.22);border-radius:6px;margin-bottom:.5rem;background:rgba(245,245,247,.03);color:var(--text-d);font-size:.8rem;" maxlength="200" />' +
-      '<button type="button" class="ncta" style="width:100%;padding:.5rem;font-size:.65rem;" onclick="submitUserQuestion()">Invia</button>' +
-      '<p style="font-size:.65rem;color:var(--muted-d);margin-top:.3rem;">La tua domanda verrà esaminata e, se appropriata, pubblicata tra le FAQ. Non saranno accettate domande spam o già poste.</p>' +
+      '<div class="faq-ask user-question-form" id="user-question-form">' +
+      '<div class="faq-ask-header">' +
+      '<div class="faq-ask-heading">' +
+      '<span class="faq-ask-title"><span class="faq-ask-dot" aria-hidden="true"></span>Fai una domanda</span>' +
+      '<span class="faq-ask-tag">// canale aperto</span>' +
+      '</div>' +
+      '</div>' +
+      '<div class="faq-ask-body">' +
+      '<input type="text" class="faq-ask-input" id="user-question-input" placeholder="Scrivi la tua domanda sui dreads..." maxlength="200" />' +
+      '<button type="button" class="faq-ask-submit" onclick="submitUserQuestion()"><span>INVIA DOMANDA</span><span class="faq-ask-arrow" aria-hidden="true">↗</span></button>' +
+      '<span class="faq-ask-hint">&gt; domanda moderata dal dreadmaker</span>' +
+      '</div>' +
+      '<div class="faq-ask-confirm">' +
+      '<span class="faq-ask-msg">Domanda inviata! Comparirà tra le FAQ non appena il Dreadmaker avrà risposto.</span>' +
+      '</div>' +
       '</div>' +
       '</header>' +
       '<div class="faq-index">' + faqs.map(function(faq){
