@@ -775,6 +775,8 @@ tr:hover{background:rgba(140,255,0,.02);}
       <div class="stat-card"><div class="num" id="faq-admin-opens">0</div><div class="lbl">Aperture totali <span class="week-badge" data-weekly="faq_clicks">+0</span></div><div class="sub">Click sulle domande</div></div>
       <div class="stat-card"><div class="num p" id="faq-admin-avg">0s</div><div class="lbl">Tempo medio di lettura <span class="week-badge" data-weekly="faq_read_ms" data-weekly-format="duration-ms-avg" data-weekly-denominator="faq_clicks">+0s</span></div><div class="sub">Per domanda aperta</div></div>
       <div class="stat-card"><div class="num l" id="faq-admin-shares">0</div><div class="lbl">Condivisioni totali <span class="week-badge" data-weekly="faq_shares">+0</span></div><div class="sub">WhatsApp, social e link</div></div>
+    <div class="stat-card"><div class="num" id="faq-admin-likes">0</div><div class="lbl">Like totali <span class="week-badge" data-weekly="faq_likes">+0</span></div><div class="sub">Da tutti gli utenti</div></div>
+    <div class="stat-card"><div class="num" id="faq-admin-pending">0</div><div class="lbl">Domande in attesa <span class="week-badge" data-weekly="faq_pending">+0</span></div><div class="sub">Da inviare risposta</div></div>
     </div>
 
     <div class="sec-card">
@@ -808,6 +810,17 @@ tr:hover{background:rgba(140,255,0,.02);}
     <div class="sec-card">
       <div class="sec-hdr"><h3>📋 Domande e statistiche</h3><span class="count" id="faq-admin-total">0</span></div>
       <div class="sec-body" id="faq-admin-list" style="padding:0;overflow-x:auto;"></div>
+    </div>
+
+    <!-- Domande Utenti in Attesa -->
+    <div class="sec-card" style="margin-top:1.5rem;">
+      <div class="sec-hdr">
+        <h3>⏳ Domande Utenti in Attesa</h3>
+        <span class="count" id="faq-pending-total">0</span>
+      </div>
+      <div class="sec-body" style="padding:0;overflow-x:auto;max-height:400px;overflow-y:auto;">
+        <div id="faq-pending-list" style="padding:1rem;"></div>
+      </div>
     </div>
   </div>
 
@@ -2180,6 +2193,7 @@ async function init(){
   renderDashboardAnalytics();
   // Initialize pending questions UI
   if (window.renderPendingQuestionsUI) renderPendingQuestionsUI();
+  initFaqAdminPending();
   initCalendarSync();
   initBlogSync();
   initQuizSync();
@@ -3257,6 +3271,94 @@ document.addEventListener('keydown', (e) => {
 });
 
 initFaqAdminEvents();
+
+  // Render pending questions in admin
+  async function renderFaqPendingQuestions(){
+    try {
+      if (!window.supabaseGetFaqs) return;
+      const rows = await window.supabaseGetFaqs('faqs', { event: 'select', filter: { status: { eq: 'pending' } }, options: { order: 'sort_order.asc' } });
+      const pending = Array.isArray(rows) ? rows : [];
+      const totalEl = document.getElementById('faq-pending-total');
+      const listEl = document.getElementById('faq-pending-list');
+      if (totalEl) totalEl.textContent = pending.length;
+      if (listEl) {
+        if (!pending.length) {
+          listEl.innerHTML = '<p style="color:rgba(26,26,30,.62);padding:1rem 0;">Nessuna domanda in attesa.</p>';
+        } else {
+          listEl.innerHTML = pending.map(function(f, i){
+            const n = String(i + 1).padStart(2, '0');
+            const badge = f.is_user_submitted ? '<span class="pixel-badge-small">DOMANDA UTENTE</span>' : '';
+            return '<div class="pending-question-item">' +
+              '<div class="q-title" style="font-weight:600;color:var(--text-d);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">' + escapeHtml(f.question) + '</div>' +
+              '<div class="q-actions" style="display:flex;gap:.5rem;margin-top:.5rem;">' +
+                '<button class="btn-approve" style="background:var(--green);color:var(--dark);border:none;border-radius:5px;padding:.3rem .5rem;font-size:.6rem;font-weight:600;cursor:pointer;" onclick="approveFaq(' + JSON.stringify(f.id) + ')">Rispondi e Pubblica</button>' +
+                '<button class="btn-reject" style="background:rgba(255,71,87,.05);color:var(--red);border:none;border-radius:5px;padding:.3rem .5rem;font-size:.6rem;font-weight:600;cursor:pointer;">Rifiuta</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+      }
+    } catch (e) {
+      console.error('[admin] Errore caricamento domande pending:', e);
+    }
+  }
+
+  // Approve a FAQ (change status to published and add answer)
+  function approveFaq(faqId){
+    if (!confirm('Vuoi rispondere e pubblicare questa domanda?')) return;
+    if (!window.supabaseUpdateFaq) return;
+    const answer = prompt('Inserisci la risposta da mostrare con la domanda:');
+    if (answer === null || answer.trim() === '') return;
+    try {
+      await window.supabaseUpdateFaq(faqId, { status: 'published', answer: answer });
+      // Refresh the pending list and FAQ list
+      renderFaqPendingQuestions();
+      if (window.initFaqAdminEvents) window.initFaqAdminEvents();
+      toast('Domanda pubblicata ✅', false);
+    } catch (e) {
+      toast('Errore: ' + e.message, true);
+    }
+  }
+
+  // Update dashboard FAQ stats
+  function updateDashboardFaqStats(){
+    try {
+      if (!window.supabaseGetFaqs) return;
+      const rows = await window.supabaseGetFaqs('faqs', { event: 'select' });
+      const allFaqs = Array.isArray(rows) ? rows : [];
+      const published = allFaqs.filter(function(f){ return f.status === 'published'; });
+      const pending = allFaqs.filter(function(f){ return f.status === 'pending'; });
+      const totalLikes = published.reduce(function(sum, f){ return sum + (f.likes_count || 0); }, 0);
+      
+      const likesEl = document.getElementById('faq-admin-likes');
+      const pendingEl = document.getElementById('faq-admin-pending');
+      const totalEl = document.getElementById('faq-admin-total');
+      
+      if (likesEl) likesEl.textContent = totalLikes;
+      if (pendingEl) pendingEl.textContent = pending.length;
+      if (totalEl) totalEl.textContent = published.length;
+    } catch (e) {
+      console.error('[admin] Errore aggiornamento stats FAQ:', e);
+    }
+  }
+
+  // Initialize pending questions on tab show
+  window.renderPendingQuestionsUI = function(){
+    renderFaqPendingQuestions();
+    updateDashboardFaqStats();
+  };
+
+  // Initialize on load
+  (function(){
+    const obs = new MutationObserver(function(mutations){
+      if (document.getElementById('tab-dashboard') || document.getElementById('tab-faq')) {
+        window.renderPendingQuestionsUI();
+        obs.disconnect();
+      }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  })();
+
 </script>
 </body>
 </html>
