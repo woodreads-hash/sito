@@ -1072,6 +1072,8 @@ function showTab(name, el){
   if(name==='dashboard'){
     renderDashboardAnalytics();
     loadSiteVat().catch(function(){});
+    // Show pending questions count in dashboard header
+    if (window.renderPendingQuestionsCount) renderPendingQuestionsCount();
   }
   if(window.WD_WEEKLY) window.WD_WEEKLY.refresh();
 }
@@ -2176,6 +2178,8 @@ async function init(){
   ]);
   renderCalendar();
   renderDashboardAnalytics();
+  // Initialize pending questions UI
+  if (window.renderPendingQuestionsUI) renderPendingQuestionsUI();
   initCalendarSync();
   initBlogSync();
   initQuizSync();
