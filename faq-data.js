@@ -127,7 +127,11 @@ window.initFaqLikes = function (faqs) {
     const faq = list.find(function (f) { return String(f.id) === String(id); });
     const base = faq ? Number(faq.likes_count || 0) : 0;
     countEl.textContent = Math.max(0, Number(counts[id] != null ? counts[id] : base));
-    btn.classList.toggle('like-active', liked.indexOf(id) !== -1);
+    const wasLiked = liked.indexOf(id) !== -1;
+    btn.classList.toggle('like-active', wasLiked);
+    btn.setAttribute('aria-pressed', wasLiked ? 'true' : 'false');
+    const labelEl = btn.querySelector('.faq-like-label');
+    if (labelEl) labelEl.textContent = wasLiked ? 'Liked' : 'Like';
     btn.dataset.faqBound = '1';
     btn.addEventListener('click', function (ev) {
       ev.preventDefault();
@@ -141,7 +145,14 @@ window.initFaqLikes = function (faqs) {
       counts[id] = nextCount;
       localStorage.setItem('wd_faq_like_counts', JSON.stringify(counts));
       countEl.textContent = nextCount;
-      btn.classList.toggle('like-active', index === -1);
+      const nowLiked = index === -1;
+      btn.classList.toggle('like-active', nowLiked);
+      btn.setAttribute('aria-pressed', nowLiked ? 'true' : 'false');
+      const labelEl = btn.querySelector('.faq-like-label');
+      if (labelEl) labelEl.textContent = nowLiked ? 'Liked' : 'Like';
+      btn.classList.remove('like-pop');
+      void btn.offsetWidth;
+      btn.classList.add('like-pop');
     });
   });
 };
