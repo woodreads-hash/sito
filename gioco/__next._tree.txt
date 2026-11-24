@@ -1,4 +1,4 @@
-:HL["/gioco/_next/static/chunks/0nnnf3a30r218.css","style"]
-:HL["/gioco/_next/static/chunks/312jw9e9ovsrp.css","style"]
+:HL["/gioco/_next/static/chunks/1y14qtvw73yc-.css","style"]
+:HL["/gioco/_next/static/chunks/0zj_d6enka921.css","style"]
 1:[["children",{"s":"__PAGE__","h":160}]]
-0:{"b":"8vx1h-_WE6R5HMJ7ehp_Q","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"6Pb69J5W2JspvrZ1IZn_i","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
