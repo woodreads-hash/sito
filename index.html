@@ -369,7 +369,7 @@ nav a:hover{color:var(--green);}
 .gp-note{margin:1.1rem 0 0;font-size:.7rem;color:rgba(245,245,247,.4);letter-spacing:.4px;}
 .gp-stage{position:relative;padding:clamp(12px,2vw,20px);border:1px solid rgba(181,140,255,.28);border-radius:18px;background:linear-gradient(145deg,rgba(181,140,255,.1),rgba(140,255,0,.03) 45%,rgba(13,13,15,.7));box-shadow:0 30px 70px rgba(0,0,0,.45),0 0 50px rgba(181,140,255,.08);}
 .gp-stage::before{content:'';position:absolute;inset:-20%;background:radial-gradient(ellipse at 60% 40%,rgba(140,255,0,.08),transparent 65%);pointer-events:none;}
-.gp-screen{position:relative;display:block;overflow:hidden;border:1px solid rgba(245,245,247,.1);border-radius:10px;background:#07100b;aspect-ratio:1200/750;}
+.gp-screen{position:relative;display:block;width:min(100%,460px);margin-inline:auto;overflow:hidden;border:1px solid rgba(245,245,247,.1);border-radius:10px;background:#07100b;aspect-ratio:600/800;}
 .gp-screen img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(1.06) contrast(1.02);transition:transform .6s ease,filter .6s ease;}
 .gp-screen::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px),linear-gradient(180deg,transparent 55%,rgba(0,0,0,.35));pointer-events:none;}
 .gp-screen:hover img{transform:scale(1.03);filter:saturate(1.14) contrast(1.04);}
@@ -1326,7 +1326,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
         <span class="gp-tag gp-tag--2">CASA DIORAMA</span>
         <span class="gp-tag gp-tag--3">NATURE</span>
         <a href="/gioco/" class="gp-screen" aria-label="Apri il mini gioco WooDreads">
-          <img src="/assets/minigame-preview.webp" width="1200" height="750" alt="Schermata del mini gioco WooDreads: avatar cyber-nature nella casa diorama" loading="lazy">
+          <img src="/assets/minigame-preview.webp" width="600" height="800" alt="Schermata verticale del mini gioco WooDreads: avatar cyber-nature nella casa diorama" loading="lazy">
           <span class="gp-screen__play" aria-hidden="true">▶</span>
         </a>
         <div class="gp-phone" aria-hidden="true">
