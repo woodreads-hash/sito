@@ -748,6 +748,20 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   .bp-card p{font-size:.76rem;-webkit-line-clamp:3;}
 }
 
+.rvh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.1rem;position:relative;z-index:2;}
+.rvh-card{position:relative;background:linear-gradient(155deg,var(--dark2),var(--mid));border:1px solid rgba(181,140,255,.22);border-radius:14px;padding:1rem 1rem 1.05rem;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s;}
+.rvh-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--purple));}
+.rvh-card:hover{transform:translateY(-4px);border-color:rgba(140,255,0,.5);box-shadow:0 16px 34px rgba(0,0,0,.4),0 0 20px rgba(140,255,0,.1);}
+.rvh-score{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+.rvh-num{font-family:var(--fd);font-size:1.5rem;line-height:1;color:var(--lime);text-shadow:0 0 18px rgba(230,255,77,.3);}
+.rvh-stars{color:var(--lime);font-size:.68rem;letter-spacing:2px;text-shadow:0 0 10px rgba(230,255,77,.5);}
+.rvh-count{font-size:.6rem;color:var(--muted-d);text-transform:uppercase;letter-spacing:1px;}
+.rvh-text{color:rgba(245,245,247,.78);font-size:.78rem;line-height:1.55;margin:.6rem 0 .85rem;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.rvh-who{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;}
+.rvh-name{font-family:var(--fd);font-size:.68rem;letter-spacing:.4px;color:var(--text-d);}
+.rvh-date{font-size:.6rem;color:var(--muted-d);text-transform:uppercase;letter-spacing:1px;}
+@media(max-width:768px){.rvh-grid{grid-template-columns:1fr;gap:.85rem;}}
+
 
 @keyframes neon-pulse{0%,100%{box-shadow:0 0 6px 0 rgba(140,255,0,.4),inset 0 0 0 1px rgba(140,255,0,.25);}50%{box-shadow:0 0 20px 2px rgba(140,255,0,.8),inset 0 0 10px rgba(140,255,0,.35);}}
 @keyframes purple-sparkle{0%{opacity:.25;transform:translate(0,0);}50%{opacity:.7;transform:translate(1px,-1px);}100%{opacity:.25;transform:translate(0,0);}}
@@ -1016,6 +1030,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     <li><a href="#servizi">Servizi</a></li>
     <li><a href="#chisiamo">Chi Siamo</a></li>
     <li><a href="/blog">Blog</a></li>
+    <li><a href="/recensioni">Recensioni</a></li>
     <li><a href="#faq">FAQ</a></li>
     <li><a href="/gioco/">Mini Game</a></li>
     <li><a href="#stats">Canali</a></li>
@@ -1024,6 +1039,7 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
     <a href="#servizi">Servizi</a>
     <a href="#chisiamo">Chi Siamo</a>
     <a href="/blog">Blog</a>
+    <a href="/recensioni">Recensioni</a>
     <a href="#faq">FAQ</a>
     <a href="/gioco/">Mini Game</a>
     <a href="#stats">Canali</a>
@@ -1371,6 +1387,39 @@ footer p{font-size:.75rem;color:rgba(245,245,247,.22);}
   <div id="blog-preview-grid" class="bp-grid" style="position:relative;z-index:2;"></div>
   <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
     <a href="/blog" class="btn btn-vp">Vai al blog completo →</a>
+  </div>
+</section>
+
+<div class="sec-divider"></div>
+
+<section id="recensioni-preview" class="sec-dark">
+  <div id="particles-reviews"></div>
+  <svg class="plant" width="150" height="240" style="top:-20px;right:-25px;opacity:.28;animation:swayr 11s ease-in-out infinite;transform-origin:bottom center;"><use href="#lf-mon"/></svg>
+  <svg class="plant" width="110" height="180" style="bottom:-15px;left:-20px;opacity:.25;animation:sway 9s ease-in-out infinite;transform-origin:bottom center;"><use href="#lf-trop"/></svg>
+  <div style="position:relative;z-index:2;">
+    <span class="lbl lbl-p">— Recensioni</span>
+    <h2 class="ttl">La fiducia dei <span class="g">clienti</span></h2>
+    <p class="sub sub-d">Le parole di chi ha scelto WooDreads. 5,0 stelle su 86 recensioni su Google Maps.</p>
+  </div>
+  <div class="rvh-grid" style="margin-top:1.6rem;">
+    <article class="rvh-card">
+      <div class="rvh-score"><span class="rvh-num">5,0</span><span class="rvh-stars">★★★★★</span><span class="rvh-count">Google</span></div>
+      <p class="rvh-text">Le manine fatate di Andriy sono state il tocca sana per la mia testa di dread un po' maltrattata e malconcia. Professionale, accogliente e gentile: tutto quello che si può desiderare da una seduta dal dreadmaker.</p>
+      <div class="rvh-who"><span class="rvh-name">Matteo dedeo</span><span class="rvh-date">2 mesi fa</span></div>
+    </article>
+    <article class="rvh-card">
+      <div class="rvh-score"><span class="rvh-num">5,0</span><span class="rvh-stars">★★★★★</span><span class="rvh-count">Google</span></div>
+      <p class="rvh-text">Andriy persona fantastica piena di risorse ho fatto un restauro con aggiunta di dread lavoro fantastico super soddisfatta e ambiente come se stessi a casa ti ringrazio tantissimo.</p>
+      <div class="rvh-who"><span class="rvh-name">Mirea Barberini</span><span class="rvh-date">7 mesi fa</span></div>
+    </article>
+    <article class="rvh-card">
+      <div class="rvh-score"><span class="rvh-num">5,0</span><span class="rvh-stars">★★★★★</span><span class="rvh-count">Google</span></div>
+      <p class="rvh-text">Ottimo lavoro, ottima compagnia, ottima location. Poche parole per dire che dopo anni di auto torture abbiamo trovato una persona competente e interessante. Finalmente abbiamo il nostro dreadmaker di fiducia!</p>
+      <div class="rvh-who"><span class="rvh-name">Rachele Venditti</span><span class="rvh-date">10 mesi fa</span></div>
+    </article>
+  </div>
+  <div style="text-align:center;margin-top:2.2rem;position:relative;z-index:2;">
+    <a href="/recensioni" class="btn btn-vp">Leggi tutte le recensioni →</a>
   </div>
 </section>
 
@@ -1934,6 +1983,7 @@ function initParticles(){
   scheduleParticles('particles-about', n(16), true);
   scheduleParticles('particles-appt', n(18), true);
   scheduleParticles('particles-blog', n(14), true);
+  scheduleParticles('particles-reviews', n(14), true);
   /* Light sections */
   scheduleParticles('p-srv', n(14), false, '#servizi');
   scheduleParticles('p-qz',  n(12), false, '#quiz');

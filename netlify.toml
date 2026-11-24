@@ -17,6 +17,12 @@
   force = true
 
 [[redirects]]
+  from = "/recensioni"
+  to = "/recensioni.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/hermes"
   to = "/.netlify/functions/hermes"
   status = 200

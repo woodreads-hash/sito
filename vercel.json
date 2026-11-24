@@ -86,6 +86,10 @@
       "destination": "/blog.html"
     },
     {
+      "source": "/recensioni",
+      "destination": "/recensioni.html"
+    },
+    {
       "source": "/blog/:slug",
       "has": [
         {
