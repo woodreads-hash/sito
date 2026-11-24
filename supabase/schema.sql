@@ -94,7 +94,6 @@ create table if not exists public.faqs (
   last_ranked_at timestamptz,
   sort_order integer not null default 0,
   published boolean not null default true,
-  category text default '',
   clicks bigint not null default 0,
   read_ms bigint not null default 0,
   read_count bigint not null default 0,

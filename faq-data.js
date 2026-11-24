@@ -57,90 +57,119 @@ window.WD_FAQ_URL = function (faq) {
 };
 
 
-  // Submit user question
-  async function submitUserQuestion(questionText){
-    if (!window.supabaseGetFaqs) throw new Error('Supabase not ready');
-    const key = 'wd_faq_submission_' + Date.now().toString().slice(0, 10);
-    const already = localStorage.getItem(key);
-    if (already) throw new Error('Limite di invio raggiunto, riprova tra un minuto.');
-    localStorage.setItem(key, '1');
-    setTimeout(function(){ localStorage.removeItem(key); }, 60000);
+window.submitUserQuestion = async function (questionText) {
+  const input = document.getElementById('user-question-input');
+  const question = String(questionText || (input && input.value) || '').trim();
+  if (question.length < 5) return { success: false, error: 'Scrivi una domanda più lunga.' };
+  if (!window.supabaseInsertFaq) return { success: false, error: 'Supabase non disponibile.' };
+  const key = 'wd_faq_submission_' + Date.now().toString().slice(0, 10);
+  if (localStorage.getItem(key)) return { success: false, error: 'Limite di invio raggiunto, riprova tra un minuto.' };
+  localStorage.setItem(key, '1');
+  setTimeout(function () { localStorage.removeItem(key); }, 60000);
 
-    const faq = {
-      id: 'user_' + Date.now().toString(36) + '_' + Math.random().toString().slice(2),
-      question: questionText,
-      answer: '',
-      category: 'Utente',
-      status: 'pending',
-      is_user_submitted: true,
-      likes_count: 0,
-      clicks_count: 0,
-      total_read_time_ms: 0,
-      engagement_score: 0,
-      display_rank: 0,
-      last_ranked_at: ''
-    };
+  const faq = {
+    id: 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
+    question: question,
+    answer: '',
+    category: 'Utente',
+    status: 'pending',
+    is_user_submitted: true,
+    published: false,
+    sort_order: 9999,
+    clicks: 0,
+    read_ms: 0,
+    read_count: 0,
+    shares: 0
+  };
 
+  try {
+    const rows = await window.supabaseInsertFaq(faq);
+    const saved = Array.isArray(rows) && rows[0] ? rows[0] : faq;
+    if (input) input.value = '';
     try {
-      const row = await window.supabaseGetFaqs('faqs', { data: faq, event: 'insert' });
-      if (window.WD_DEFAULT_FAQS) window.WD_DEFAULT_FAQS.push(faq);
-      return { success: true, id: faq.id, status: 'pending' };
-    } catch (e) {
-      console.error('[faq] Errore invio domanda:', e);
-      return { success: false, error: (e && e.message) ? e.message : 'Errore sconosciuto' };
-    }
-  }
-
-  // Initialize Like system for a specific FAQ
-  function initFaqLikes(faqId, faqs){
-    const liked = JSON.parse(localStorage.getItem('wd_faq_likes') || '[]');
-    const likeBtn = document.getElementById('faq-like-btn');
-    const likeCount = document.querySelector('#faq-like-btn .like-count');
-    if (!likeBtn || !likeCount) return;
-    
-    const index = faqs.findIndex(f => f.id === faqId);
-    if (index === -1) return;
-    const faq = faqs[index];
-    
-    likeBtn.dataset.faqId = faqId;
-    likeCount.textContent = faq.likes_count;
-    
-    if (liked.includes(faqId)){
-      likeBtn.classList.add('like-active');
-    }
-    
-    likeBtn.addEventListener('click', function(){
-      if (likeBtn.classList.contains('like-active')) {
-        likeBtn.classList.remove('like-active');
-        const newLiked = liked.filter(id => id !== faqId);
-        localStorage.setItem('wd_faq_likes', JSON.stringify(newLiked));
-        likeCount.textContent = Math.max(0, parseInt(likeCount.textContent) - 1);
-        if (window.supabaseUpdateFaqLikes) {
-          window.supabaseUpdateFaqLikes(faqId, false).catch(()=>{});
-        }
-      } else {
-        likeBtn.classList.add('like-active');
-        const newLiked = [...liked, faqId];
-        localStorage.setItem('wd_faq_likes', JSON.stringify(newLiked));
-        likeCount.textContent = Math.min(parseInt(likeCount.textContent) + 1, 999);
-        if (window.supabaseUpdateFaqLikes) {
-          window.supabaseUpdateFaqLikes(faqId, true).catch(()=>{});
-        }
+      const local = JSON.parse(localStorage.getItem('wd_faqs') || '[]');
+      if (Array.isArray(local)) {
+        local.push(Object.assign({}, faq, { id: saved.id || faq.id }));
+        localStorage.setItem('wd_faqs', JSON.stringify(local));
       }
-    });
-  }
-
-  // Update Pixel Cyber badge visibility
-  function updatePixelBadge(faq){
-    const badge = faq && faq.is_user_submitted ? '<span class="pixel-badge">DOMANDA UTENTE</span>' : '';
-    return badge;
-  }
-
-  // Initialize Like system when page loads
-  function initFaqPageLikes(faqs){
-    const faqId = location.pathname.match(/\/faq\/([^/]+)/)?.[1] || '';
-    if (faqId) {
-      initFaqLikes(faqId, faqs);
+    } catch (e) {}
+    try {
+      const bc = new BroadcastChannel('woodreads-faqs');
+      bc.postMessage({ type: 'faqs-updated' });
+      bc.close();
+    } catch (e) {}
+    const form = document.getElementById('user-question-form') || document.getElementById('faq-ask-box');
+    if (form) {
+      const confirm = form.querySelector('.faq-ask-confirm');
+      if (confirm) confirm.style.display = 'block';
     }
+    return { success: true, id: saved.id || faq.id, status: 'pending' };
+  } catch (e) {
+    localStorage.removeItem(key);
+    console.error('[faq] Errore invio domanda:', e);
+    return { success: false, error: (e && e.message) ? e.message : 'Errore sconosciuto' };
   }
+};
+
+window.initFaqLikes = function (faqs) {
+  const list = Array.isArray(faqs) ? faqs : [];
+  const buttons = document.querySelectorAll('.faq-like-btn, #faq-like-btn');
+  buttons.forEach(function (btn) {
+    if (btn.dataset.faqBound === '1') return;
+    const item = btn.closest ? btn.closest('.faq-item') : null;
+    const id = btn.dataset.faqId || (item ? item.dataset.id : '');
+    const countEl = btn.querySelector('.like-count');
+    if (!id || !countEl) return;
+    let liked = [];
+    let counts = {};
+    try { liked = JSON.parse(localStorage.getItem('wd_faq_likes') || '[]'); } catch (e) {}
+    try { counts = JSON.parse(localStorage.getItem('wd_faq_like_counts') || '{}'); } catch (e) {}
+    const faq = list.find(function (f) { return String(f.id) === String(id); });
+    const base = faq ? Number(faq.likes_count || 0) : 0;
+    countEl.textContent = Math.max(0, Number(counts[id] != null ? counts[id] : base));
+    btn.classList.toggle('like-active', liked.indexOf(id) !== -1);
+    btn.dataset.faqBound = '1';
+    btn.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      try { liked = JSON.parse(localStorage.getItem('wd_faq_likes') || '[]'); } catch (e) { liked = []; }
+      try { counts = JSON.parse(localStorage.getItem('wd_faq_like_counts') || '{}'); } catch (e) { counts = {}; }
+      const index = liked.indexOf(id);
+      const nextCount = Math.max(0, Number(countEl.textContent || 0) + (index === -1 ? 1 : -1));
+      if (index === -1) liked.push(id); else liked.splice(index, 1);
+      localStorage.setItem('wd_faq_likes', JSON.stringify(liked));
+      counts[id] = nextCount;
+      localStorage.setItem('wd_faq_like_counts', JSON.stringify(counts));
+      countEl.textContent = nextCount;
+      btn.classList.toggle('like-active', index === -1);
+    });
+  });
+};
+
+window.updatePixelBadge = function (faq) {
+  const isUser = faq && (faq.is_user_submitted === true || faq.is_user_submitted === 'true' || faq.category === 'Utente');
+  return isUser ? '<span class="pixel-badge">DOMANDA UTENTE</span>' : '';
+};
+
+window.initPixelBadges = function () {
+  document.querySelectorAll('.faq-item[data-is-user-submitted="true"]').forEach(function (item) {
+    const target = item.querySelector('.faq-q-txt');
+    if (!target || target.querySelector('.pixel-badge')) return;
+    const badge = document.createElement('span');
+    badge.className = 'pixel-badge';
+    badge.textContent = 'DOMANDA UTENTE';
+    badge.style.cssText = 'display:inline-flex;margin-left:.5rem;padding:.1rem .35rem;border:1px solid rgba(140,255,0,.4);border-radius:5px;background:rgba(140,255,0,.15);color:var(--green);font-family:var(--fb),monospace;font-size:.55rem;letter-spacing:1px;white-space:nowrap;';
+    target.appendChild(badge);
+  });
+};
+
+window.initFaqPageLikes = function (faqs) {
+  const btn = document.getElementById('faq-like-btn');
+  if (!btn) return;
+  const match = location.pathname.match(/\/faq\/([^/]+)/);
+  const id = (match && match[1]) || btn.dataset.faqId || '';
+  if (!id) return;
+  btn.dataset.faqId = id;
+  window.initFaqLikes(faqs || []);
+};
 

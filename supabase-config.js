@@ -593,6 +593,54 @@ window.supabaseSaveFaq = async function (faq, includeStats) {
   );
 };
 
+window.supabaseInsertFaq = async function (faq) {
+  if (!faq || !faq.question) throw new Error('faq.question required');
+  const row = {
+    id: faq.id || ('user_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8)),
+    question: String(faq.question),
+    answer: faq.answer || '',
+    category: faq.category || 'Utente',
+    sort_order: Number(faq.sort_order || 0),
+    published: faq.published !== false,
+    clicks: Number(faq.clicks || 0),
+    read_ms: Number(faq.read_ms || 0),
+    read_count: Number(faq.read_count || 0),
+    shares: Number(faq.shares || 0),
+    updated_at: new Date().toISOString(),
+  };
+  return window.supabaseFetch(
+    '/rest/v1/' + window.FAQ_TABLE,
+    {
+      method: 'POST',
+      headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
+      body: JSON.stringify(row),
+    }
+  );
+};
+
+window.supabaseUpdateFaq = async function (id, patch) {
+  if (!id) throw new Error('faq.id required');
+  const row = { updated_at: new Date().toISOString() };
+  const fields = ['question', 'answer', 'category'];
+  fields.forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(patch || {}, key)) row[key] = String(patch[key] || '');
+  });
+  if (Object.prototype.hasOwnProperty.call(patch || {}, 'published')) row.published = patch.published !== false;
+  if (Object.prototype.hasOwnProperty.call(patch || {}, 'status')) row.published = patch.status !== 'pending';
+  if (Object.prototype.hasOwnProperty.call(patch || {}, 'sort_order')) row.sort_order = Number(patch.sort_order || 0);
+  ['clicks', 'read_ms', 'read_count', 'shares'].forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(patch || {}, key)) row[key] = Number(patch[key] || 0);
+  });
+  return window.supabaseFetch(
+    '/rest/v1/' + window.FAQ_TABLE + '?id=eq.' + encodeURIComponent(id),
+    {
+      method: 'PATCH',
+      headers: window.supabaseHeaders({ 'Prefer': 'return=representation' }),
+      body: JSON.stringify(row),
+    }
+  );
+};
+
 window.supabaseDeleteFaq = async function (id) {
   if (!id) throw new Error('faq.id required');
   return window.supabaseFetch(

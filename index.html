@@ -3142,8 +3142,7 @@ try {
       const likesCount = f.likes_count || 0;
       const liked = JSON.parse(localStorage.getItem('wd_faq_likes') || '[]');
       const isLiked = liked.includes(id);
-      // Like button HTML
-      likeBtn = '<div class="faq-like-btn" style="margin-top:.5rem;background:rgba(181,140,255,.1);border:1px solid rgba(181,140,255,.2);border-radius:20px;padding:.3rem .6rem;display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;">Like <span class="like-count" style="font-family:var(--fd);font-size:.6rem;color:var(--green);min-width:1.2rem;">' + likesCount + '</span></div>';
+      const likeBtn = '<div class="faq-like-btn' + (isLiked ? ' like-active' : '') + '" data-faq-id="' + id + '" style="margin-top:.5rem;background:rgba(181,140,255,.1);border:1px solid rgba(181,140,255,.2);border-radius:20px;padding:.3rem .6rem;display:inline-flex;align-items:center;gap:.3rem;cursor:pointer;">Like <span class="like-count" style="font-family:var(--fd);font-size:.6rem;color:var(--green);min-width:1.2rem;">' + likesCount + '</span></div>';
       return '<article class="faq-item" data-id="' + id + '" data-cat="' + escapeHtml(f.category || '') + '" data-is-user-submitted="' + (isUserSubmitted ? 'true' : 'false') + '">' +
         '<button type="button" class="faq-q" id="' + qid + '" aria-expanded="false" aria-controls="' + aid + '">' +
           '<span class="faq-num">' + n + '</span>' +
@@ -3391,9 +3390,8 @@ try {
     render();
     updateTotals();
     handleDeepLink();
-    // Initialize Like system and Pixel badges after FAQs are rendered
-    initFaqLikes();
-    initPixelBadges();
+    if (window.initFaqLikes) initFaqLikes(state.faqs);
+    if (window.initPixelBadges) initPixelBadges();
   }
 
   listEl.addEventListener('click', function(ev){
@@ -3415,6 +3413,19 @@ try {
     bc.onmessage = function(ev){ if (ev.data && ev.data.type === 'faqs-updated') load(); };
   } catch (e) {}
   window.addEventListener('storage', function(ev){ if (ev.key === LS_FAQS) load(); });
+
+  const askBox = document.getElementById('faq-ask-box');
+  if (askBox) {
+    const askInput = askBox.querySelector('#user-question-input');
+    const askSubmit = askBox.querySelector('.faq-ask-submit');
+    const askClose = askBox.querySelector('.faq-ask-close');
+    const askConfirm = askBox.querySelector('.faq-ask-confirm');
+    if (askSubmit) askSubmit.addEventListener('click', async function(){
+      const result = await window.submitUserQuestion(askInput ? askInput.value : '');
+      if (result && result.success && askConfirm) askConfirm.style.display = 'block';
+    });
+    if (askClose) askClose.addEventListener('click', function(){ askBox.style.display = 'none'; });
+  }
 
   load();
 })();

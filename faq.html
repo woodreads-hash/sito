@@ -397,7 +397,7 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
       '<input type="text" id="user-question-input" placeholder="Scrivi la tua domanda sui dreads..." style="width:100%;padding:.5rem;border:1px solid rgba(245,245,247,.22);border-radius:6px;margin-bottom:.5rem;background:rgba(245,245,247,.03);color:var(--text-d);font-size:.8rem;" maxlength="200" />' +
       '<button type="button" class="ncta" style="width:100%;padding:.5rem;font-size:.65rem;" onclick="submitUserQuestion()">Invia</button>' +
       '<p style="font-size:.65rem;color:var(--muted-d);margin-top:.3rem;">La tua domanda verrà esaminata e, se appropriata, pubblicata tra le FAQ. Non saranno accettate domande spam o già poste.</p>' +
-      '</div>'' +
+      '</div>' +
       '</header>' +
       '<div class="faq-index">' + faqs.map(function(faq){
         return '<a class="faq-index-card" href="' + escapeHtml(pathFor(faq)) + '">' +
@@ -437,7 +437,7 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
         '<button type="button" class="share-btn share-wa" data-share="whatsapp">WhatsApp</button>' +
         '<button type="button" class="share-btn share-tg" data-share="telegram">Telegram</button>' +
         '<button type="button" class="share-btn share-copy" data-share="copy">Copia link</button>' +
-        '<div class="like-btn" id="faq-like-btn" data-faq-id="">Like <span class="like-count">0</span></div>' +
+        '<div class="like-btn" id="faq-like-btn" data-faq-id="' + escapeHtml(faq.id) + '">Like <span class="like-count">0</span></div>' +
       '</div>' +
       '<div class="cta-box"><p>Vuoi parlare direttamente con noi di questa domanda o prenotare una consulenza?</p><a class="cta-btn" href="https://wa.me/393485393826?text=' + encodeURIComponent('Ciao WooDreads, ho letto la FAQ "' + faq.question + '" e vorrei una consulenza.') + '" target="_blank" rel="noopener">💬 Scrivici su WhatsApp</a></div>' +
       (related.length ? '<section class="related"><h2>Altre domande</h2><div class="related-grid">' + related.map(function(item){
@@ -445,6 +445,7 @@ footer .legal-links{display:flex;gap:1rem;justify-content:center;margin-top:.5re
       }).join('') + '</div></section>' : '') +
       '</article>';
     bindShare(faq);
+    if (window.initFaqPageLikes) window.initFaqPageLikes(faqs);
   }
   function renderNotFound(){
     document.title = 'FAQ non trovata — WooDreads';

@@ -2029,6 +2029,7 @@ function initFaqAdminEvents(){
     if (ev.key !== 'wd_faqs') return;
     const local = getFaqLocal();
     if (local){ faqAdmin = local; faqSortList(); renderFaqAdmin(); }
+    if (window.renderPendingQuestionsUI) window.renderPendingQuestionsUI();
   });
   try {
     const bc = new BroadcastChannel('woodreads-faqs');
@@ -2036,6 +2037,7 @@ function initFaqAdminEvents(){
       if (ev.data && ev.data.type === 'faqs-updated'){
         const local = getFaqLocal();
         if (local){ faqAdmin = local; faqSortList(); renderFaqAdmin(); }
+        if (window.renderPendingQuestionsUI) window.renderPendingQuestionsUI();
       }
     };
   } catch(e){}
@@ -2193,7 +2195,6 @@ async function init(){
   renderDashboardAnalytics();
   // Initialize pending questions UI
   if (window.renderPendingQuestionsUI) renderPendingQuestionsUI();
-  initFaqAdminPending();
   initCalendarSync();
   initBlogSync();
   initQuizSync();
@@ -3272,12 +3273,19 @@ document.addEventListener('keydown', (e) => {
 
 initFaqAdminEvents();
 
-  // Render pending questions in admin
   async function renderFaqPendingQuestions(){
     try {
-      if (!window.supabaseGetFaqs) return;
-      const rows = await window.supabaseGetFaqs('faqs', { event: 'select', filter: { status: { eq: 'pending' } }, options: { order: 'sort_order.asc' } });
-      const pending = Array.isArray(rows) ? rows : [];
+      let rows = [];
+      if (window.supabaseGetFaqs) {
+        try { rows = await window.supabaseGetFaqs(); } catch (e) { rows = []; }
+      }
+      if (!rows.length) {
+        try { rows = JSON.parse(localStorage.getItem('wd_faqs') || '[]'); } catch (e) { rows = []; }
+      }
+      const pending = (Array.isArray(rows) ? rows : []).filter(function (f) {
+        if (!f || f.published !== false) return false;
+        return f.category === 'Utente' || f.is_user_submitted === true || String(f.id || '').indexOf('user_') === 0;
+      });
       const totalEl = document.getElementById('faq-pending-total');
       const listEl = document.getElementById('faq-pending-list');
       if (totalEl) totalEl.textContent = pending.length;
@@ -3285,14 +3293,14 @@ initFaqAdminEvents();
         if (!pending.length) {
           listEl.innerHTML = '<p style="color:rgba(26,26,30,.62);padding:1rem 0;">Nessuna domanda in attesa.</p>';
         } else {
-          listEl.innerHTML = pending.map(function(f, i){
+          listEl.innerHTML = pending.map(function (f, i) {
             const n = String(i + 1).padStart(2, '0');
-            const badge = f.is_user_submitted ? '<span class="pixel-badge-small">DOMANDA UTENTE</span>' : '';
+            const badge = (f.is_user_submitted || f.category === 'Utente' || String(f.id || '').indexOf('user_') === 0) ? '<span class="pixel-badge-small">DOMANDA UTENTE</span>' : '';
             return '<div class="pending-question-item">' +
-              '<div class="q-title" style="font-weight:600;color:var(--text-d);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">' + escapeHtml(f.question) + '</div>' +
+              '<div class="q-title" style="font-weight:600;color:var(--text-d);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">' + n + '. ' + esc(f.question) + ' ' + badge + '</div>' +
               '<div class="q-actions" style="display:flex;gap:.5rem;margin-top:.5rem;">' +
-                '<button class="btn-approve" style="background:var(--green);color:var(--dark);border:none;border-radius:5px;padding:.3rem .5rem;font-size:.6rem;font-weight:600;cursor:pointer;" onclick="approveFaq(' + JSON.stringify(f.id) + ')">Rispondi e Pubblica</button>' +
-                '<button class="btn-reject" style="background:rgba(255,71,87,.05);color:var(--red);border:none;border-radius:5px;padding:.3rem .5rem;font-size:.6rem;font-weight:600;cursor:pointer;">Rifiuta</button>' +
+                '<button type="button" class="btn-approve" style="background:var(--green);color:var(--dark);border:none;border-radius:5px;padding:.3rem .5rem;font-size:.6rem;font-weight:600;cursor:pointer;" onclick="approveFaq(\'' + esc(String(f.id).replace(/'/g, "\\'")) + '\')">Rispondi e Pubblica</button>' +
+                '<button type="button" class="btn-reject" style="background:rgba(255,71,87,.05);color:var(--red);border:none;border-radius:5px;padding:.3rem .5rem;font-size:.6rem;font-weight:600;cursor:pointer;" onclick="rejectFaq(\'' + esc(String(f.id).replace(/'/g, "\\'")) + '\')">Rifiuta</button>' +
               '</div>' +
             '</div>';
           }).join('');
@@ -3303,37 +3311,59 @@ initFaqAdminEvents();
     }
   }
 
-  // Approve a FAQ (change status to published and add answer)
-  function approveFaq(faqId){
+  async function approveFaq(faqId){
     if (!confirm('Vuoi rispondere e pubblicare questa domanda?')) return;
-    if (!window.supabaseUpdateFaq) return;
     const answer = prompt('Inserisci la risposta da mostrare con la domanda:');
     if (answer === null || answer.trim() === '') return;
     try {
-      await window.supabaseUpdateFaq(faqId, { status: 'published', answer: answer });
-      // Refresh the pending list and FAQ list
-      renderFaqPendingQuestions();
-      if (window.initFaqAdminEvents) window.initFaqAdminEvents();
+      if (window.supabaseUpdateFaq) await window.supabaseUpdateFaq(faqId, { published: true, answer: answer });
+      await loadFaqsAdmin();
+      await renderFaqPendingQuestions();
+      await updateDashboardFaqStats();
+      broadcastFaqs();
       toast('Domanda pubblicata ✅', false);
     } catch (e) {
       toast('Errore: ' + e.message, true);
     }
   }
 
-  // Update dashboard FAQ stats
-  function updateDashboardFaqStats(){
+  async function rejectFaq(faqId){
+    if (!confirm('Rifiutare ed eliminare questa domanda?')) return;
     try {
-      if (!window.supabaseGetFaqs) return;
-      const rows = await window.supabaseGetFaqs('faqs', { event: 'select' });
+      if (window.supabaseDeleteFaq) await window.supabaseDeleteFaq(faqId);
+      const local = getFaqLocal().filter(function (f) { return String(f.id) !== String(faqId); });
+      setFaqLocal(local);
+      broadcastFaqs();
+      await loadFaqsAdmin();
+      await renderFaqPendingQuestions();
+      await updateDashboardFaqStats();
+      toast('Domanda rifiutata', false);
+    } catch (e) {
+      toast('Errore: ' + e.message, true);
+    }
+  }
+
+  async function updateDashboardFaqStats(){
+    try {
+      let rows = [];
+      if (window.supabaseGetFaqs) {
+        try { rows = await window.supabaseGetFaqs(); } catch (e) { rows = []; }
+      }
+      if (!rows.length) {
+        try { rows = JSON.parse(localStorage.getItem('wd_faqs') || '[]'); } catch (e) { rows = []; }
+      }
       const allFaqs = Array.isArray(rows) ? rows : [];
-      const published = allFaqs.filter(function(f){ return f.status === 'published'; });
-      const pending = allFaqs.filter(function(f){ return f.status === 'pending'; });
-      const totalLikes = published.reduce(function(sum, f){ return sum + (f.likes_count || 0); }, 0);
-      
+      const published = allFaqs.filter(function (f) { return f && f.published !== false; });
+      const pending = allFaqs.filter(function (f) {
+        if (!f || f.published !== false) return false;
+        return f.category === 'Utente' || f.is_user_submitted === true || String(f.id || '').indexOf('user_') === 0;
+      });
+      let liked = [];
+      try { liked = JSON.parse(localStorage.getItem('wd_faq_likes') || '[]'); } catch (e) {}
+      const totalLikes = liked.length + published.reduce(function (sum, f) { return sum + Number(f.likes_count || 0); }, 0);
       const likesEl = document.getElementById('faq-admin-likes');
       const pendingEl = document.getElementById('faq-admin-pending');
       const totalEl = document.getElementById('faq-admin-total');
-      
       if (likesEl) likesEl.textContent = totalLikes;
       if (pendingEl) pendingEl.textContent = pending.length;
       if (totalEl) totalEl.textContent = published.length;
@@ -3342,17 +3372,15 @@ initFaqAdminEvents();
     }
   }
 
-  // Initialize pending questions on tab show
   window.renderPendingQuestionsUI = function(){
     renderFaqPendingQuestions();
     updateDashboardFaqStats();
   };
 
-  // Initialize on load
   (function(){
-    const obs = new MutationObserver(function(mutations){
+    const obs = new MutationObserver(function(){
       if (document.getElementById('tab-dashboard') || document.getElementById('tab-faq')) {
-        window.renderPendingQuestionsUI();
+        if (window.renderPendingQuestionsUI) window.renderPendingQuestionsUI();
         obs.disconnect();
       }
     });
